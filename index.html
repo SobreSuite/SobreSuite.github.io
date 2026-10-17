@@ -160,8 +160,9 @@ svg.px,.px svg{shape-rendering:crispEdges}
 .keys b{font-weight:600}
 .url{font-size:12px;color:var(--mute);word-break:break-all}
 .about{display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;padding:6px 10px}
-.about svg{width:90px;height:66px}
-.about .nm{font-size:24px;font-weight:600;color:var(--logo)}
+.about svg{width:64px;height:64px}
+.about .nm{font-size:30px;font-weight:600;color:var(--logo);line-height:1;margin-top:4px}
+.about .tg{font-size:13px;color:var(--logo);margin-top:-4px}
 
 /* ---------- Accueil et fermeture ---------- */
 #splash,.quit{position:fixed;inset:0;background:#ffffff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:26px;
@@ -169,10 +170,10 @@ svg.px,.px svg{shape-rendering:crispEdges}
 #splash{z-index:200;cursor:pointer;transition:opacity .25s ease}
 #splash.out{opacity:0}
 .quit{z-index:210;gap:22px}
-.sp-logo{display:flex;flex-direction:column;align-items:center;gap:14px}
-.sp-logo svg{width:120px;height:88px;display:block}
+.sp-logo{display:flex;flex-direction:column;align-items:center;gap:12px}
+.sp-logo svg{width:128px;height:128px;display:block}
 .sp-name{margin:0;font-size:clamp(38px,9vw,60px);font-weight:600;line-height:1;color:var(--logo);letter-spacing:.01em}
-.sp-tag{margin:0;font-size:15px;color:var(--logo)}
+.sp-tag{margin:0;font-size:20px;color:var(--logo)}
 .sp-bar{width:min(340px,70vw);height:14px;border:1px solid var(--logo);padding:2px;background:var(--paper)}
 .sp-fill{height:100%;width:0;background:var(--logo);animation:spfill 5s steps(24,end) forwards}
 @keyframes spfill{to{width:100%}}
@@ -205,16 +206,16 @@ svg.px,.px svg{shape-rendering:crispEdges}
 
 <div id="splash" role="dialog" aria-modal="true" aria-label="SobreSuite">
   <div class="sp-logo">
-    <span class="sp-mark"></span>
+    <span class="sp-mark" data-icon="suite"></span>
     <p class="sp-name">SobreSuite</p>
-    <p class="sp-tag">Six logiciels frugaux, hors ligne, pensés pour aller à l’essentiel</p>
+    <p class="sp-tag">Six logiciels frugaux, hors ligne</p>
   </div>
   <div class="sp-bar" aria-hidden="true"><div class="sp-fill"></div></div>
   <button class="sp-go" type="button">Cliquez ou appuyez sur une touche pour commencer</button>
   <p class="sp-copy">© 2026 Auraponymous · Version <span class="sp-ver"></span></p>
 </div>
 <div id="quit" class="quit" role="dialog" aria-modal="true" aria-label="SobreSuite est fermée" hidden>
-  <div class="sp-logo"><span class="sp-mark"></span><p class="sp-name">SobreSuite</p></div>
+  <div class="sp-logo"><span class="sp-mark" data-icon="suite"></span><p class="sp-name">SobreSuite</p><p class="sp-tag">Six logiciels frugaux, hors ligne</p></div>
   <p class="q-msg">SobreSuite est fermée. Vous pouvez fermer cet onglet.</p>
   <button class="btn" type="button">Relancer SobreSuite</button>
   <p class="sp-copy">© 2026 Auraponymous</p>
@@ -226,6 +227,7 @@ svg.px,.px svg{shape-rendering:crispEdges}
 
     <div class="dicons" role="listbox" aria-label="Bureau">
       <button class="dicon" type="button" role="option" aria-selected="false" data-open="w-suite" id="d-suite"><span class="ic" data-icon="disk"></span><span class="lab">SobreSuite</span></button>
+      <button class="dicon" type="button" role="option" aria-selected="false" data-act="download" id="d-dl"><span class="ic" data-icon="dl"></span><span class="lab">Télécharger</span></button>
       <button class="dicon" type="button" role="option" aria-selected="false" data-open="w-read" id="d-read"><span class="ic" data-icon="doc"></span><span class="lab">Lisez-moi</span></button>
       <button class="dicon trash" type="button" role="option" aria-selected="false" data-open="w-trash" id="d-trash"><span class="ic" data-icon="trash"></span><span class="lab">Corbeille</span></button>
     </div>
@@ -274,6 +276,10 @@ const MOD=IS_MAC?'⌘':'Ctrl+';
    ========================================================= */
 const PAGES='https://sobresuite.github.io/';
 const CODE='https://github.com/SobreSuite/';
+// Le fichier à télécharger, posé à la racine du dépôt SobreSuite.github.io
+const ZIP='SobreSuite.zip';
+// Ouverte depuis le dossier décompressé (file://), la page mène aux fichiers locaux : apps/<dépôt>.html
+const LOCAL=location.protocol==='file:';
 
 /* =========================================================
    Icônes en pixels, 32 × 32
@@ -281,7 +287,7 @@ const CODE='https://github.com/SobreSuite/';
 const PAL={k:'#000000',w:'#ffffff',r:'#D7141A',b:'#1F3FD1',y:'#FFE500',g:'#128A2E',o:'#B85400',v:'#7A1FB8',s:'#9a9a9a',l:'#d4d4d4',a:'#CFDFCC',n:'#1E2328'};
 const GLYPH={
   P:['###','#.#','###','#..','#..'],D:['##.','#.#','#.#','#.#','##.'],F:['###','#..','##.','#..','#..'],
-  J:['..#','..#','..#','#.#','###'],O:['###','#.#','#.#','#.#','###'],K:['#.#','#.#','##.','#.#','#.#'],
+  J:['..#','..#','..#','#.#','###'],Z:['###','..#','.#.','#..','###'],I:['###','.#.','.#.','.#.','###'],O:['###','#.#','#.#','#.#','###'],K:['#.#','#.#','##.','#.#','#.#'],
   1:['.#.','##.','.#.','.#.','###'],2:['###','..#','###','#..','###'],3:['###','..#','.##','..#','###'],
   a:['.#.','###','#.#'],b:['##.','###','##.'],c:['###','#..','###'],d:['##.','#.#','##.']
 };
@@ -400,6 +406,21 @@ const ICONS={
     A.R(10,17,12,3,'k');A.R(12,18,1,1,'y');A.R(15,18,2,1,'y');A.R(19,18,1,1,'y');
     A.T(10,22,'J','k');A.T(14,22,'O','k');A.T(18,22,'K','k');
   }),
+  // SobreSuite : un ordinateur compact, l'invite du terminal à l'écran, six couleurs pour six apps
+  suite:icon(A=>{
+    A.RR(7,1,18,27,'k');A.R(8,2,16,25,'w');
+    A.R(10,4,12,10,'k');A.R(11,5,10,8,'a');
+    A.P('n',[[12,7],[13,8],[12,9],[15,9],[16,9],[17,9]]);
+    ['r','b','y','g','o','v'].forEach((c,k)=>A.R(12+(k%3)*3,16+Math.floor(k/3)*3,2,2,c));
+    A.R(15,24,7,1,'k');A.R(10,24,2,1,'k');
+    A.R(10,28,12,2,'k');
+  }),
+  // Télécharger : une flèche qui plonge dans une boîte « ZIP »
+  dl:icon(A=>{
+    A.R(5,19,22,11,'k');A.R(6,20,20,9,'w');A.R(11,19,10,1,'w');
+    A.T(12,23,'Z','k');A.T(15,23,'I','k');A.T(18,23,'P','k');
+    A.FO((x,y)=>(x>13&&x<19&&y>2&&y<14)||(y>=13&&y<21.5&&Math.abs(x-16)<=(21.5-y)),'b');
+  }),
   // Disquette de la SobreSuite, avec le petit terminal sur l'étiquette
   disk:icon(A=>{
     A.R(4,3,24,26,'k');A.R(5,4,22,24,'w');A.C(27,3);
@@ -446,7 +467,7 @@ const APPS=[
     desc:'Quatre petits jeux pour souffler entre deux dossiers, avec une grille du jour la même pour tout le monde.',
     feats:['BiN : ronds et lunes','DeM : le démineur','ReX : une couronne par zone','SoL : le solitaire','Grilles et donne du jour, records']}
 ];
-APPS.forEach(a=>{a.url=PAGES+a.repo+'/';a.code=CODE+a.repo;a.icon=ICONS[a.id];});
+APPS.forEach(a=>{a.url=LOCAL?'apps/'+a.repo+'.html':PAGES+a.repo+'/';a.code=CODE+a.repo;a.icon=ICONS[a.id];});
 const READY=APPS.filter(a=>a.ready).length;
 
 /* =========================================================
@@ -560,6 +581,34 @@ async function copyLink(a){
   alertDlg(ok?'Lien copié.':'Le lien n’a pas pu être copié.',ok?a.url:'Le voici, à copier à la main : '+a.url,a.icon);
 }
 
+/* ---------- Télécharger la suite ---------- */
+function fmtSize(n){return n>=1048576?(n/1048576).toFixed(1).replace('.',',')+' Mo':Math.max(1,Math.round(n/1024))+' Ko';}
+function download(){
+  if(LOCAL){alertDlg('Vous utilisez déjà la version locale.','La SobreSuite tourne depuis votre ordinateur : tout fonctionne sans connexion.',ICONS.dl);return;}
+  openDialog({title:'Télécharger la SobreSuite',heading:false,width:460,build:(b,ctx)=>{
+    const row=el('div',{class:'dlg-row'});
+    row.insertAdjacentHTML('beforeend',ICONS.dl);
+    const size=el('p',{class:'url',text:'SobreSuite.zip'});
+    row.appendChild(el('div',{style:'display:flex;flex-direction:column;gap:6px;min-width:0;padding-top:4px'},
+      el('h2',{text:'Télécharger la SobreSuite'}),size,
+      el('p',{text:'Toute la suite dans un seul dossier, pour travailler hors ligne : ce bureau et les applications disponibles.'})));
+    b.appendChild(row);
+    b.appendChild(el('ul',{html:'<li>Décompressez le fichier.</li><li>Ouvrez <strong>SobreSuite.html</strong> dans Firefox ou Chrome.</li><li>Gardez le dossier entier : les applications sont rangées dans <strong>apps</strong>.</li>'}));
+    // taille du fichier, si le serveur la donne
+    try{
+      fetch(ZIP,{method:'HEAD',cache:'no-store'}).then(r=>{
+        if(!r.ok){size.textContent='SobreSuite.zip · pas encore en ligne';const go=ctx.el.querySelector('.btn.default');if(go){go.disabled=true;}return;}
+        const n=+r.headers.get('content-length');
+        if(n)size.textContent='SobreSuite.zip · '+fmtSize(n);
+      }).catch(()=>{});
+    }catch(e){}
+  },buttons:[{label:'Annuler',value:null,cancel:true},{label:'Télécharger',value:'go',default:true}]}).then(v=>{
+    if(v!=='go')return;
+    const l=el('a',{href:ZIP,download:'SobreSuite.zip'});
+    document.body.appendChild(l);l.click();l.remove();
+  });
+}
+
 /* ---------- Infos sur une application ---------- */
 function info(a){
   if(!a)return;
@@ -569,7 +618,7 @@ function info(a){
     row.appendChild(el('div',{style:'display:flex;flex-direction:column;gap:4px;min-width:0'},
       el('h2',{text:a.name}),
       el('p',{text:a.tag}),
-      el('p',{class:'url',text:a.ready?a.url.replace('https://',''):'En préparation'})));
+      el('p',{class:'url',text:a.ready?(LOCAL?'Version locale : '+a.url:a.url.replace('https://','')):'En préparation'})));
     b.appendChild(row);
     b.appendChild(el('p',{text:a.desc}));
     b.appendChild(el('ul',{html:a.feats.map(f=>'<li>'+escH(f)+'</li>').join('')}));
@@ -601,8 +650,10 @@ function buildDoc(){
     '<h2>Les applications</h2>'+
     APPS.map(a=>'<div class="appl">'+a.icon+'<div><strong>'+a.name+'</strong>'+(a.ready?'':' <span class="small">(bientôt)</span>')+'<br>'+escH(a.tag)+'</div></div>').join('')+
     '<h2>Pour commencer</h2>'+
-    '<p>Double-cliquez sur une application dans la fenêtre SobreSuite : elle s’ouvre dans un nouvel onglet. Un simple clic la sélectionne et affiche sa présentation ; « Infos… » en dit plus.</p>'+
-    '<p>Pour l’emporter hors ligne, enregistrez la page de l’application (' + MOD + 'S) : c’est un seul fichier, à garder sur votre ordinateur ou sur une clé USB.</p>'+
+    '<p>Double-cliquez sur la disquette SobreSuite, sur le bureau, pour ouvrir sa fenêtre. Double-cliquez ensuite sur une application : elle s’ouvre dans un nouvel onglet. Un simple clic la sélectionne et affiche sa présentation ; « Infos… » en dit plus.</p>'+
+    '<h2>Travailler hors ligne</h2>'+
+    '<p>Double-cliquez sur « Télécharger » : vous recevez <strong>SobreSuite.zip</strong>, toute la suite dans un seul dossier. Décompressez-le, puis ouvrez <strong>SobreSuite.html</strong> dans Firefox ou Chrome : vous retrouvez ce bureau, et les applications s’ouvrent depuis votre ordinateur, sans connexion.</p>'+
+    '<p>Pour une seule application, enregistrez simplement sa page (' + MOD + 'S) : c’est un seul fichier, à garder sur votre ordinateur ou sur une clé USB.</p>'+
     '<h2>Le code</h2>'+
     '<p>Le code source de chaque application est sur GitHub : <a href="https://github.com/SobreSuite" target="_blank" rel="noopener">github.com/SobreSuite</a>.</p>'+
     '<p class="small">© 2026 Auraponymous. Police Pixelify Sans (SIL Open Font License), retouchée pour la suite.</p>';
@@ -612,7 +663,6 @@ function buildDoc(){
    Bureau : icônes et fenêtres
    ========================================================= */
 $$('[data-icon]').forEach(s=>{s.innerHTML=ICONS[s.dataset.icon];});
-$$('.sp-mark').forEach(s=>{s.innerHTML=LOGO_SVG;});
 function deselectDesk(){S.dsel=null;$$('.dicon').forEach(b=>b.setAttribute('aria-selected','false'));}
 $$('.dicon').forEach(b=>{
   b.addEventListener('click',()=>{
@@ -620,8 +670,9 @@ $$('.dicon').forEach(b=>{
     $$('.dicon').forEach(x=>x.setAttribute('aria-selected',String(x===b)));
     buildMenubar();
   });
-  b.addEventListener('dblclick',()=>openWin(b.dataset.open,b));
-  b.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();b.click();openWin(b.dataset.open,b);}});
+  const act=()=>{if(b.dataset.act==='download')download();else openWin(b.dataset.open,b);};
+  b.addEventListener('dblclick',act);
+  b.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();b.click();act();}});
 });
 $('#desk').addEventListener('pointerdown',e=>{if(e.target.id==='desk'||e.target.classList.contains('dicons')){deselectDesk();buildMenubar();}});
 
@@ -785,7 +836,7 @@ function alertDlg(title,msg,ic,buttons){
 }
 function about(){
   openDialog({title:'À propos de SobreSuite',heading:false,width:380,build:b=>{
-    b.appendChild(el('div',{class:'about',html:LOGO_SVG+'<span class="nm">SobreSuite</span><p>Version '+VERSION+'</p><p>Six logiciels frugaux, hors ligne, pensés pour aller à l’essentiel.</p><p style="font-size:12px;color:var(--mute)">© 2026 Auraponymous</p>'}));
+    b.appendChild(el('div',{class:'about',html:ICONS.suite+'<span class="nm">SobreSuite</span><span class="tg">Six logiciels frugaux, hors ligne</span><p>Version '+VERSION+(LOCAL?' · version locale':'')+'</p><p>Une suite de logiciels frugaux, pensés pour aller à l’essentiel.</p><p style="font-size:12px;color:var(--mute)">© 2026 Auraponymous</p>'}));
   },buttons:[{label:'OK',value:true,default:true,cancel:true}]});
 }
 function shortcuts(){
@@ -812,7 +863,7 @@ $('#quit button').addEventListener('click',()=>{$('#quit').hidden=true;});
    Menus
    ========================================================= */
 function openSelected(){
-  if(S.focus==='desk'&&S.dsel){const b=$('#'+S.dsel);openWin(b.dataset.open,b);return;}
+  if(S.focus==='desk'&&S.dsel){const b=$('#'+S.dsel);if(b.dataset.act==='download')download();else openWin(b.dataset.open,b);return;}
   const a=current();if(a)launch(a,$('.app[data-id="'+a.id+'"]',appsBox));
 }
 function setView(v){S.view=v;save();buildApps();if(S.sel)select(S.sel);buildMenubar();}
@@ -825,6 +876,7 @@ function menuDefs(){
       {l:'Ouvrir',k:MOD+'O',dis:!canOpen,a:openSelected},
       {l:'Lire les informations',k:MOD+'I',dis:!a,a:()=>info(a)},
       {l:'Voir le code source',dis:!a,a:()=>go(a.code)},'-',
+      {l:'Télécharger la SobreSuite…',dis:LOCAL,a:download},'-',
       {l:'Fermer la fenêtre',dis:!front,a:()=>closeWin(front)},'-',
       {l:'Quitter',a:quitApp}]},
     {id:'edit',label:'Édition',items:[
@@ -909,6 +961,7 @@ document.addEventListener('keydown',e=>{
    Démarrage
    ========================================================= */
 let splashGone=false;
+if(LOCAL)$('#d-dl').hidden=true;
 buildApps();
 buildDoc();
 buildMenubar();
@@ -919,7 +972,7 @@ function closeSplash(){
   splash.dataset.closing='1';
   document.removeEventListener('keydown',splashKey,true);
   splash.classList.add('out');
-  setTimeout(()=>{splash.hidden=true;splashGone=true;openWin('w-suite');},reduced()?0:260);
+  setTimeout(()=>{splash.hidden=true;splashGone=true;},reduced()?0:260);
 }
 function splashKey(e){if(['Shift','Control','Alt','Meta'].includes(e.key))return;e.preventDefault();e.stopPropagation();closeSplash();}
 splash.addEventListener('click',closeSplash);
