@@ -1,10 +1,10 @@
 # SobreSuite
 
-**Six logiciels frugaux, hors ligne, pensés pour aller à l'essentiel.**
+**Six logiciels frugaux, en ligne ou hors ligne, pensés pour aller à l'essentiel.**
 
 👉 **[sobresuite.github.io](https://sobresuite.github.io/)**
 
-Chaque application de la SobreSuite tient dans **un seul fichier HTML**. On l'ouvre dans Firefox ou Chrome, et c'est tout : rien à installer, pas de compte, pas de cloud. Elle fonctionne aussi sans connexion, depuis l'ordinateur ou une clé USB.
+Chaque application de la SobreSuite tient dans **un seul fichier HTML**. On l'ouvre dans Firefox ou Chrome, et c'est tout : rien à installer, pas de compte, pas de cloud. Elle fonctionne avec ou sans connexion (depuis l'ordinateur ou une clé USB).
 
 ## Les applications
 
@@ -14,22 +14,20 @@ Chaque application de la SobreSuite tient dans **un seul fichier HTML**. On l'ou
 | ▣ | [SobrePiX](https://sobresuite.github.io/SobrePix/) | Retouche photo frugale | Disponible |
 | ▤ | [SobrePdF](https://sobresuite.github.io/SobrePdF/) | L'outil PDF du quotidien | Disponible |
 | ▦ | [SobreTaB](https://github.com/SobreSuite/SobreTab) | Tableaux simples | Bientôt |
-| ▥ | [SobreCaL](https://sobresuite.github.io/SobreCaL/) | Calculatrice futée | Disponible |
+| ▥ | [SobreCaL](https://sobresuite.github.io/SobreCaL/) | Calculatrice futée | Bientôt |
 | ♣ | [SobreJoK](https://sobresuite.github.io/SobreJoK/) | Jeux old school pour les pauses café | Disponible |
 
-- **SobreTeX** — un traitement de texte à l'ancienne, façon Word 5.1, qui écrit le LaTeX à votre place. Pensé pour celles et ceux qui n'en ont jamais écrit une ligne.
+- **SobreTeX** — un traitement de texte à l'ancienne, façon W5.1, qui écrit le LaTeX à votre place. Pensé pour celles et ceux qui n'en ont jamais écrit une ligne.
 - **SobrePiX** — recadrer, faire pivoter, écrire, dessiner, changer la taille (pixels ou centimètres) et tramer façon Mac 1984. Enregistre une copie en JPEG, PNG ou WebP.
 - **SobrePdF** — assembler plusieurs PDF, réorganiser les pages, pivoter, extraire, écrire sur la page, remplir les formulaires, placer une signature.
-- **SobreTaB** — des tableaux simples, sans usine à gaz. En préparation.
-- **SobreCaL** — une calculatrice façon HP des années 80, en notation classique ou NPI, avec un rouleau de papier imprimable. TVA, pourcentages, dates, conversions, calcul décimal exact.
 - **SobreJoK** — quatre petits jeux : BiN (ronds et lunes), DeM (démineur), ReX (une couronne par zone) et SoL (solitaire), avec une grille du jour la même pour tout le monde.
+- - **SobreTaB** — des tableaux simples, sans usine à gaz. En préparation.
+- **SobreCaL** — une calculatrice façon HP des années 80, en notation classique ou NPI, avec un rouleau de papier imprimable. TVA, pourcentages, dates, conversions, calcul décimal exact. En préparation.
 
 ## Les principes
 
-- **Un seul fichier**, qui fonctionne hors ligne.
-- **Rien n'est envoyé** : vos fichiers restent sur votre ordinateur.
-- **L'original n'est jamais modifié** : on enregistre une copie.
-- **Une interface à l'ancienne**, façon Mac des années 80 : barre de menus, fenêtres, dialogues, raccourcis clavier.
+- **Un seul fichier**, qui fonctionne en ligne aussi bien que hors ligne.
+- **Rien n'est envoyé nulle part'ancienne**, façon Mac des années 80 : barre de menus, fenêtres, dialogues, raccourcis clavier.
 - **Huit couleurs franches** communes à toute la suite, et la police Pixelify Sans.
 
 | Couleur | Valeur |
