@@ -451,7 +451,7 @@ const APPS=[
   {id:'tex',repo:'SobreTeX',name:'SobreTeX',ready:true,tag:'Écrire en LaTeX, sans le taper',
     desc:'Un traitement de texte à l’ancienne qui écrit le LaTeX à votre place, pensé pour celles et ceux qui n’en ont jamais écrit une ligne.',
     feats:['Une interface de traitement de texte, façon Word 5.1','Le code LaTeX se fabrique tout seul','Pour les néophytes comme pour les habitués']},
-  {id:'pix',repo:'SobrePix',name:'SobrePiX',ready:true,tag:'Retouche photo frugale',
+  {id:'pix',repo:'SobrePiX',name:'SobrePiX',ready:true,tag:'Retouche photo frugale',
     desc:'Recadrer, écrire, dessiner, changer la taille, tramer façon Mac 1984. Une retouche photo qui va à l’essentiel.',
     feats:['Recadrer, faire pivoter, retourner','Texte, crayon et formes aux huit couleurs de la suite','Taille en pixels ou en centimètres, résolution en ppp','Trame Atkinson, Floyd–Steinberg ou demi-teinte','Enregistre une copie en JPEG, PNG ou WebP']},
   {id:'pdf',repo:'SobrePdF',name:'SobrePdF',ready:true,tag:'L’outil PDF du quotidien',
@@ -460,7 +460,7 @@ const APPS=[
   {id:'tab',repo:'SobreTab',name:'SobreTaB',ready:false,tag:'Tableaux simples',
     desc:'Des tableaux simples, sans usine à gaz. SobreTaB est en préparation.',
     feats:['Des tableaux à remplir, trier et calculer','Même interface que le reste de la suite']},
-  {id:'cal',repo:'SobreCaL',name:'SobreCaL',ready:true,tag:'Calculatrice futée',
+  {id:'cal',repo:'SobreCaL',name:'SobreCaL',ready:false,tag:'Calculatrice futée',
     desc:'Une calculatrice façon HP des années 80, en notation classique ou NPI, avec un rouleau de papier qui garde tout.',
     feats:['Notation classique ou NPI, au choix','Rouleau imprimable et annotable','TVA, pourcentages, dates, jours ouvrés, conversions','Calcul décimal exact : 0,1 + 0,2 = 0,3']},
   {id:'jok',repo:'SobreJoK',name:'SobreJoK',ready:true,tag:'Jeux old school pour les pauses café',
@@ -529,7 +529,6 @@ function detail(){
   d.insertAdjacentHTML('beforeend',a.icon);
   d.appendChild(el('div',{class:'dt',html:'<b>'+a.name+'</b> · '+escH(a.tag)+'<br><span class="muted">'+escH(a.desc)+'</span>'}));
   const db=el('div',{class:'db'});
-  db.appendChild(el('button',{type:'button',class:'btn',text:'Infos…',onclick:()=>info(a)}));
   db.appendChild(el('button',{type:'button',class:'btn default',text:a.ready?'Ouvrir':'Bientôt',disabled:!a.ready,onclick:()=>launch(a,$('.app[data-id="'+a.id+'"]',appsBox))}));
   d.appendChild(db);
 }
