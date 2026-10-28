@@ -23,7 +23,8 @@
   --jaune:#FFE500;
   --postit:#FFF5AD;
   --ui:'Pixelify Sans','Geneva','Chicago',ui-monospace,monospace;
-  --s:clamp(38px,min(calc((100vw - 72px) / 6),calc((100vh - 300px) / 6)),58px);
+  --vh100:100vh;
+  --s:clamp(38px,min(calc((100vw - 72px) / 6),calc((var(--vh100) - 300px) / 6)),58px);
   color-scheme:light;
 }
 *{box-sizing:border-box}
@@ -33,6 +34,7 @@ body{background:var(--paper);color:var(--ink);font-family:var(--ui);font-size:14
   font-variant-ligatures:none;font-feature-settings:"liga" 0,"calt" 0;-webkit-font-smoothing:auto}
 button,input,select,textarea{font:inherit;color:inherit;font-variant-ligatures:none}
 :focus-visible{outline:2px solid var(--ink);outline-offset:1px}
+@supports (height:100dvh){:root{--vh100:100dvh}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 
 #app{height:100%;display:flex;flex-direction:column;overflow:hidden;background:repeating-conic-gradient(var(--dither) 0 25%,var(--paper) 0 50%) 0 0/2px 2px}
@@ -138,7 +140,16 @@ button,input,select,textarea{font:inherit;color:inherit;font-variant-ligatures:n
 .face{width:42px;height:42px;padding:0;border:1px solid var(--ink);background:var(--paper);box-shadow:2px 2px 0 var(--ink);display:flex;align-items:center;justify-content:center;cursor:pointer}
 .face:active{box-shadow:none;transform:translate(2px,2px)}
 .face svg{width:32px;height:32px;display:block;shape-rendering:crispEdges}
-.dem-scroll{max-width:calc(100vw - 64px);overflow:auto;padding:0 3px 3px 0}
+.dem-scroll{max-width:calc(100vw - 64px);overflow:auto;padding:0 3px 3px 0;-webkit-overflow-scrolling:touch}
+.dem-mode{display:flex;align-self:center;border:1px solid var(--ink);box-shadow:2px 2px 0 var(--ink);background:var(--paper)}
+.dm{width:44px;height:34px;display:flex;align-items:center;justify-content:center;padding:0;border:0;background:var(--paper);cursor:pointer;-webkit-tap-highlight-color:transparent}
+.dm+.dm{border-left:1px solid var(--ink)}
+.dm svg{width:20px;height:20px;display:block;shape-rendering:crispEdges}
+.dm[aria-checked="true"]{background:#c4c4c4;box-shadow:inset 2px 2px 0 #8a8a8a}
+.dm[aria-checked="false"]:hover{background:#f0f0f0}
+.dm:focus{outline:none}
+.dm:focus-visible{outline:2px solid var(--ink);outline-offset:-5px}
+.mines.flagmode{border-color:var(--rouge);box-shadow:3px 3px 0 var(--rouge)}
 .mines{display:grid;grid-template-columns:repeat(var(--w),var(--m));grid-auto-rows:var(--m);gap:1px;background:#9a9a9a;border:2px solid var(--ink);box-shadow:3px 3px 0 var(--ink);user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-action:manipulation;width:max-content}
 .mc{border:0;padding:0;margin:0;display:flex;align-items:center;justify-content:center;background:#d4d4d4;box-shadow:inset 2px 2px 0 #fff,inset -2px -2px 0 #8a8a8a;cursor:pointer;
   font-family:var(--ui);font-weight:600;font-size:calc(var(--m) * .64);line-height:1;-webkit-tap-highlight-color:transparent}
@@ -149,7 +160,7 @@ button,input,select,textarea{font:inherit;color:inherit;font-variant-ligatures:n
 .mc.open{background:var(--paper);box-shadow:none;cursor:default}
 .mc.open.n{cursor:pointer}
 .mc.boom{background:var(--rouge)}
-.mc svg{width:16px;height:16px;display:block;shape-rendering:crispEdges;pointer-events:none}
+.mc svg{width:min(16px,calc(var(--m) - 4px));height:min(16px,calc(var(--m) - 4px));display:block;shape-rendering:crispEdges;pointer-events:none}
 .mines.big .mc svg{width:24px;height:24px}
 .mines.over .mc{cursor:default}
 .mines.won .mc{animation:won .36s steps(1,end) var(--d) 2}
@@ -166,7 +177,7 @@ button,input,select,textarea{font:inherit;color:inherit;font-variant-ligatures:n
 .btn svg.px{stroke:none;width:16px;height:16px;shape-rendering:crispEdges}
 
 /* ---------- ReX ---------- */
-#w-rex{width:max-content;--n:7;--q:clamp(36px,min(calc((100vw - 72px) / var(--n)),calc((100vh - 300px) / var(--n))),60px)}
+#w-rex{width:max-content;--n:7;--q:clamp(30px,min(calc((100vw - 72px) / var(--n)),calc((var(--vh100) - 300px) / var(--n))),60px)}
 .rexb{display:grid;grid-template-columns:repeat(var(--n),var(--q));grid-auto-rows:var(--q);border:3px solid var(--ink);box-shadow:3px 3px 0 var(--ink);background:var(--ink);
   user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-action:none}
 .rc{padding:0;margin:0;display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;-webkit-tap-highlight-color:transparent;font:inherit}
@@ -257,6 +268,7 @@ button,input,select,textarea{font:inherit;color:inherit;font-variant-ligatures:n
   .stage{padding:14px 10px 12px}
   .band .lbl-long{display:none}
   .sb .hide-narrow{display:none}
+  .dem-scroll{max-width:calc(100vw - 54px)}
 }
 </style>
 </head>
@@ -337,8 +349,6 @@ button,input,select,textarea{font:inherit;color:inherit;font-variant-ligatures:n
           <option value="expert">Expert</option>
         </select>
         <button class="btn" type="button" data-act="demNew">Nouvelle<span class="lbl-long">&nbsp;partie</span></button>
-        <div class="sep"></div>
-        <button class="btn" type="button" id="dem-mode" data-act="demMode" aria-pressed="false" title="Chaque clic pose un drapeau"><span id="dem-mode-ico"></span>Drapeau</button>
         <div class="grow"></div>
         <button class="btn ico" type="button" data-act="demRules" aria-label="Règles de DeM" title="Règles"><span style="font-weight:600;font-size:15px">?</span></button>
       </div>
@@ -347,6 +357,10 @@ button,input,select,textarea{font:inherit;color:inherit;font-variant-ligatures:n
           <div class="lcd" id="dem-left" role="status">010</div>
           <button class="face" type="button" id="dem-face" data-act="demNew" aria-label="Nouvelle partie"></button>
           <div class="lcd" id="dem-clock" aria-hidden="true">000</div>
+        </div>
+        <div class="dem-mode" role="radiogroup" aria-label="Action d’un clic sur une case">
+          <button class="dm" type="button" role="radio" id="dem-dig" data-act="demDig" aria-checked="true" aria-label="Creuser" title="Creuser : un clic ouvre une case"></button>
+          <button class="dm" type="button" role="radio" id="dem-flag" data-act="demFlag" aria-checked="false" aria-label="Drapeau" title="Drapeau : un clic pose un drapeau"></button>
         </div>
         <div class="dem-scroll"><div class="mines" id="mines" role="grid"></div></div>
         <div class="note plain" id="dem-note" aria-live="polite" style="max-width:100%"></div>
@@ -1667,7 +1681,7 @@ function showScreen(name){
   $('#w-sol').hidden=name!=='sol';
   if(name==='sol'){solMetrics();if(SL.game){solRender(true);}setTimeout(()=>solBoard.focus({preventScroll:true}),0);}
   if(name==='rex'&&RX.game){if(!rexBoard.children.length)rexBuild();rexRefresh();rexHelpNote();setTimeout(()=>{const c=rexBoard.children[rexFocus];c&&c.focus({preventScroll:true});},0);}
-  if(name==='dem'&&D.game){if(!mines.children.length)buildMines();demRefresh();demHelpNote();setTimeout(()=>{const c=mines.children[demFocus];c&&c.focus({preventScroll:true});},0);}
+  if(name==='dem'&&D.game){if(!mines.children.length)buildMines();else demFit();demRefresh();demHelpNote();setTimeout(()=>{const c=mines.children[demFocus];c&&c.focus({preventScroll:true});},0);}
   if(name==='bin'&&S.game){if(!board.children.length)buildBoard();refresh();setTimeout(()=>{const c=$$('.cell',board)[focusIdx];c&&c.focus({preventScroll:true});},0);}
   if(name==='games'){buildGames();setTimeout(()=>{const g=$('#game-'+lastGame);g&&g.focus({preventScroll:true});},0);}
   if(name==='bin'||name==='dem'||name==='rex'||name==='sol')lastGame=name;
@@ -1699,6 +1713,7 @@ const MINE_D=pixPath((x,y)=>{
 const MINE_SVG='<svg viewBox="0 0 16 16" aria-hidden="true"><path fill="#000" d="'+MINE_D+'"/><path fill="#fff" d="M6 6h2v2H6z"/></svg>';
 const FLAG_RED=pixPath((x,y)=>x<8&&x>2&&Math.abs(y-5)<=(x-1.5)*.5,16);
 const FLAG_BLACK='M8 2h2v10H8zM6 11h6v1H6zM4 12h10v2H4z';
+const SHOVEL_SVG='<svg viewBox="0 0 16 16" aria-hidden="true"><path fill="#000" d="M1 1h5v2H1zM2 3h2v1H2zM4 3h2v1H4zM5 4h2v1H5zM6 5h2v1H6zM7 6h2v1H7zM8 7h2v1H8zM9 8h2v1H9z"/><path fill="#9a9a9a" d="M11 9h1v1h-1zM10 10h4v1h-4zM10 11h5v1h-5zM11 12h4v1h-4zM12 13h3v1h-3zM13 14h1v1h-1z"/><path fill="#000" d="M10 9h1v1h-1zM9 10h1v2H9zM10 12h1v1h-1zM11 13h1v1h-1zM12 14h1v1h-1zM14 9h1v1h-1zM15 10h1v4h-1zM14 14h1v1h-1z"/></svg>';
 const FLAG_SVG='<svg viewBox="0 0 16 16" aria-hidden="true"><path fill="#D7141A" d="'+FLAG_RED+'"/><path fill="#000" d="'+FLAG_BLACK+'"/></svg>';
 const CROSS_D=pixPath((x,y)=>x>1&&x<15&&y>1&&y<15&&(Math.abs(x-y)<1||Math.abs(x+y-16)<1),16);
 const WRONG_SVG='<svg viewBox="0 0 16 16" aria-hidden="true"><path fill="#000" d="'+MINE_D+'"/><path fill="#D7141A" d="'+CROSS_D+'"/></svg>';
@@ -1774,18 +1789,39 @@ setInterval(()=>{if(demRunSince)showDemTime();},250);
 /* ---------- Affichage ---------- */
 const mines=$('#mines');
 let demFocus=0,demFace='smile';
+// Taille des cases selon la largeur de l'écran. Sur un téléphone en hauteur,
+// un plateau plus large que haut (Expert, 30 × 16) se couche : 16 colonnes, 30 lignes.
+let demFlip=false;
+function demLayout(g){
+  const L=DEM_LEVELS[g.level],vw=document.documentElement.clientWidth||window.innerWidth;
+  const avail=vw-(vw<=560?61:85);
+  const fit=c=>Math.floor((avail-(c-1))/c);
+  let m=Math.min(L.m,fit(g.w)),flip=false;
+  if(m<20&&g.w>g.h&&fit(g.h)>m){flip=true;m=Math.min(L.m,fit(g.h));}
+  return {m:Math.max(16,m),flip};
+}
+function demFit(){
+  const g=D.game;if(!g||!mines.children.length)return;
+  const lay=demLayout(g);
+  if(lay.flip!==demFlip){buildMines();demRefresh();return;}
+  mines.style.setProperty('--m',lay.m+'px');
+  mines.classList.toggle('big',lay.m>=32);
+}
+window.addEventListener('resize',()=>{if(S.screen==='dem')demFit();});
 function buildMines(){
-  const g=D.game,L=DEM_LEVELS[g.level];
+  const g=D.game,L=DEM_LEVELS[g.level],lay=demLayout(g);
+  demFlip=lay.flip;
   mines.innerHTML='';
-  mines.style.setProperty('--w',g.w);
-  mines.style.setProperty('--m',L.m+'px');
-  mines.classList.toggle('big',L.m>=32);
+  mines.style.setProperty('--w',demFlip?g.h:g.w);
+  mines.style.setProperty('--m',lay.m+'px');
+  mines.classList.toggle('big',lay.m>=32);
   mines.classList.remove('won');
   mines.setAttribute('aria-label','Champ de mines, '+g.h+' lignes et '+g.w+' colonnes');
   if(demFocus>=g.w*g.h)demFocus=0;
   for(let i=0;i<g.w*g.h;i++){
     const b=el('button',{type:'button',class:'mc',role:'gridcell','data-i':i,tabindex:i===demFocus?'0':'-1'});
     b.style.setProperty('--d',((i%g.w+Math.floor(i/g.w))*28)+'ms');
+    if(demFlip){b.style.gridRow=(i%g.w+1);b.style.gridColumn=(Math.floor(i/g.w)+1);}
     mines.appendChild(b);
   }
   $('#dem-level').value=g.level;
@@ -1824,7 +1860,9 @@ function demRefresh(){
   const L=DEM_LEVELS[g.level];
   $('#dem-title').textContent='DeM · '+L.label;
   $('#dem-info').textContent=L.w+' × '+L.h+' · '+L.n+' mines';
-  $('#dem-mode').setAttribute('aria-pressed',D.prefs.mode?'true':'false');
+  $('#dem-dig').setAttribute('aria-checked',D.prefs.mode?'false':'true');
+  $('#dem-flag').setAttribute('aria-checked',D.prefs.mode?'true':'false');
+  mines.classList.toggle('flagmode',!!D.prefs.mode);
   if(S.screen==='dem')document.title='DeM · '+L.label+' · SobreJoK';
   showDemTime();
   buildGames();
@@ -1839,8 +1877,8 @@ function demMessage(t,kind){const m=$('#dem-msg');m.textContent=t||'';m.classNam
 function demHelpNote(){
   const n=$('#dem-note');n.className='note plain';
   n.textContent=D.prefs.mode
-    ?'Mode drapeau : un clic pose ou retire un drapeau. Un clic sur un chiffre ouvre ses voisines s’il a tous ses drapeaux.'
-    :'Clic : creuser. Clic droit ou appui long : drapeau. Clic sur un chiffre : ouvre ses voisines s’il a tous ses drapeaux.';
+    ?'Drapeau : un clic pose ou retire un drapeau (le plateau est bordé de rouge). Clic sur un chiffre : ouvre ses voisines s’il a tous ses drapeaux.'
+    :'Creuser : un clic ouvre une case. Clic droit ou appui long : drapeau. Clic sur un chiffre : ouvre ses voisines s’il a tous ses drapeaux.';
 }
 
 /* ---------- Jouer ---------- */
@@ -1935,6 +1973,7 @@ function demPrimary(i){
   if(g.open[i]){demChord(i);return;}
   if(D.prefs.mode)demToggleFlag(i);else demReveal(i);
 }
+function demSetMode(on){if(!!D.prefs.mode!==on)demToggleMode();else{const b=$(on?'#dem-flag':'#dem-dig');b&&b.focus({preventScroll:true});}}
 function demToggleMode(){D.prefs.mode=!D.prefs.mode;save();demRefresh();demHelpNote();demMessage(D.prefs.mode?'Mode drapeau : chaque clic pose un drapeau':'Mode creuser : chaque clic ouvre une case');}
 
 /* ---------- Souris, doigt, clavier ---------- */
@@ -1975,7 +2014,8 @@ function demFocusCell(i,noFocus){
 mines.addEventListener('keydown',e=>{
   const b=e.target.closest('.mc');if(!b||e.metaKey||e.ctrlKey||e.altKey)return;
   const g=D.game,i=+b.dataset.i,x=i%g.w,y=Math.floor(i/g.w);
-  const mv={ArrowUp:[0,-1],ArrowDown:[0,1],ArrowLeft:[-1,0],ArrowRight:[1,0]}[e.key];
+  let mv={ArrowUp:[0,-1],ArrowDown:[0,1],ArrowLeft:[-1,0],ArrowRight:[1,0]}[e.key];
+  if(mv&&demFlip)mv=[mv[1],mv[0]];
   if(mv){e.preventDefault();const nx=Math.min(g.w-1,Math.max(0,x+mv[0])),ny=Math.min(g.h-1,Math.max(0,y+mv[1]));demFocusCell(ny*g.w+nx);return;}
   const k=e.key.toLowerCase();
   if(k===' '||k==='enter'){e.preventDefault();demPrimary(i);}
@@ -2009,7 +2049,7 @@ function demRules(){
       '<b>Clic droit</b><span>poser ou retirer un drapeau</span>'+
       '<b>Appui long</b><span>drapeau, sur écran tactile</span>'+
       '<b>Clic sur un chiffre</b><span>ouvre ses voisines s’il a tous ses drapeaux</span>'+
-      '<b>Bouton Drapeau</b><span>chaque clic pose un drapeau (pratique au doigt)</span>'+
+      '<b>Pelle / Drapeau</b><span>au-dessus du plateau : choisit l’action d’un clic (pratique au doigt) ; en mode Drapeau, le plateau est bordé de rouge</span>'+
       '<b>Flèches</b><span>se déplacer</span>'+
       '<b>Espace, F</b><span>ouvrir, drapeau</span>'+
       '<b>Visage</b><span>nouvelle partie</span>'}));
@@ -3134,7 +3174,7 @@ document.addEventListener('pointerdown',e=>{if(menuEl&&!e.target.closest('.menu'
    Boutons et raccourcis
    ========================================================= */
 const ACT={toGames:()=>showScreen('games'),daily:openDaily,newGrid:()=>newGrid(),undo,redo,hint,clear:clearGrid,rules,
-  demNew:()=>demStart($('#dem-level').value),demMode:demToggleMode,demRules,
+  demNew:()=>demStart($('#dem-level').value),demMode:demToggleMode,demDig:()=>demSetMode(false),demFlag:()=>demSetMode(true),demRules,
   rexDaily,rexNew:()=>rexNew(),rexUndo,rexRedo,rexHint,rexClear,rexRules,
   solDaily,solNew:()=>solNew(+$('#sol-draw').value),solUndo,solRedo,solFound:solAllFound,solRules};
 document.addEventListener('click',e=>{
@@ -3174,7 +3214,8 @@ $('#bin-level').value=LEVEL_LABEL[S.prefs.level]?S.prefs.level:'moyen';
 buildMenubar();
 buildGames();
 if(S.game){buildBoard();refresh();setMessage(S.game.solved?'Grille résolue':'Partie reprise là où vous l’aviez laissée');}
-$('#dem-mode-ico').innerHTML=FLAG_SVG.replace('<svg ','<svg class="px" ');
+$('#dem-flag').innerHTML=FLAG_SVG;
+$('#dem-dig').innerHTML=SHOVEL_SVG;
 setFace('smile');
 if(D.game){buildMines();demRefresh();if(D.game.state==='play')demMessage('Partie reprise là où vous l’aviez laissée');}
 $('#dem-level').value=D.prefs.level;
