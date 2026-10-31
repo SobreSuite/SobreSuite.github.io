@@ -389,23 +389,41 @@ const ICONS={
     A.R(9,23,3,1,'k');A.R(24,23,3,1,'r');
     A.R(13,13,6,5,'k');A.R(14,14,4,3,'y');A.R(18,17,2,2,'k');
   }),
-  // SobreCaL : la calculatrice et son rouleau, le calcul imprimé sur le ticket
-  cal:icon(A=>{
-  A.R(19,1,12,5,'k');A.R(20,2,10,3,'w');A.R(20,3,10,1,'l');A.R(24,2,2,3,'s');
-  A.R(20,6,10,22,'k');A.R(21,6,8,22,'w');
-  A.T(21,8,'1','k');A.T(25,8,'2','k');
-  A.T(21,14,'+','k');A.T(25,14,'3','k');
-  A.R(21,20,8,1,'k');
-  A.T(21,22,'1','r');A.T(25,22,'5','r');
-  for(let x=20;x<30;x++){A.R(x,28,1,1,x%2?null:'k');A.R(x,28,1,1,x%2?null:'k');if(x%2&&x<29&&x>20)A.R(x,27,1,1,'k');}
-  A.R(20,27,1,1,'k');A.R(29,27,1,1,'k');
-  A.RR(2,6,17,25,'k');
-  A.R(4,8,13,6,'s');A.R(5,9,11,4,'k');
-  A.T(8,9,'1','r');A.T(12,9,'5','r');
-  [16,19,22,25].forEach((y,row)=>{[4,8,12].forEach((x,col)=>A.R(x,y,3,2,row===0?['y','b','s'][col]:'s'));A.R(16,y,1,2,'w');});
-  A.R(16,25,1,5,'w');
-  A.R(4,28,11,2,'w');
-}),
+  // SobreZiK : un disque compact, moyeu gris, reflets aux six couleurs de la gamme
+  zik:icon(A=>{
+    ['..............kkkk..............',
+     '..........kkkkwwwwkkkk..........',
+     '........kkwwwwwwwwwwwwkk........',
+     '.......kwwwwwwwwwwwwwwwwk.......',
+     '.....kkwwrrwwwwwwwwwwwwwwkk.....',
+     '....kkwrrooywwwwwwwwwwwwwwkk....',
+     '....kwrroyygwwwwwwwwwwwwwwwk....',
+     '...kwrroyyggbwwwwwwwwwwwwwwwk...',
+     '..kwwroyygbbvwwwwwwwwwwwwwwwwk..',
+     '..kwroyygbvvwwwwwwwwwwwwwwwwwk..',
+     '.kwwroygbvvwwkkkkkkwwwwwwwwwwwk.',
+     '.kwwwyggbvwwkllllllkwwwwwwwwwwk.',
+     '.kwwwwwbvwwkllllllllkwwwwwwwwwk.',
+     '.kwwwwwwwwklllkkkklllkwwwwwwwwk.',
+     'kwwwwwwwwwkllk....kllkwwwwwwwwwk',
+     'kwwwwwwwwwkllk....kllkwwwwwwwwwk',
+     'kwwwwwwwwwkllk....kllkwwwwwwwwwk',
+     'kwwwwwwwwwkllk....kllkwwwwwwwwwk',
+     '.kwwwwwwwwklllkkkklllkwwwwwwwwk.',
+     '.kwwwwwwwwwkllllllllkwwvbwwwwwk.',
+     '.kwwwwwwwwwwkllllllkwwvbggywwwk.',
+     '.kwwwwwwwwwwwkkkkkkwwvvbgyorwwk.',
+     '..kwwwwwwwwwwwwwwwwwvvbgyyorwk..',
+     '..kwwwwwwwwwwwwwwwwvbbgyyorwwk..',
+     '...kwwwwwwwwwwwwwwwbggyyorrwk...',
+     '....kwwwwwwwwwwwwwwwgyyorrwk....',
+     '....kkwwwwwwwwwwwwwwyoorrwkk....',
+     '.....kkwwwwwwwwwwwwwwrrwwkk.....',
+     '.......kwwwwwwwwwwwwwwwwk.......',
+     '........kkwwwwwwwwwwwwkk........',
+     '..........kkkkwwwwkkkk..........',
+     '..............kkkk..............'].forEach((row,y)=>[...row].forEach((c,x)=>{if(c!=='.')A.R(x,y,1,1,c);}));
+  }),
   // SobreJoK : la carte du joker, bonnet à trois pointes et grelots jaunes
   jok:icon(A=>{
     A.RR(6,2,20,28,'k');A.R(7,3,18,26,'w');
@@ -470,9 +488,9 @@ const APPS=[
   {id:'tab',repo:'SobreTaB',name:'SobreTaB',ready:false,tag:'Tableaux simples',
     desc:'Des tableaux simples, sans usine à gaz. SobreTaB est en préparation.',
     feats:['Des tableaux à remplir, trier et calculer','Même interface que le reste de la suite']},
-  {id:'cal',repo:'SobreCaL',name:'SobreCaL',ready:false,tag:'Calculatrice futée',
-    desc:'Une calculatrice façon HP des années 80, en notation classique ou NPI, avec un rouleau de papier qui garde tout.',
-    feats:['Notation classique ou NPI, au choix','Rouleau imprimable et annotable','TVA, pourcentages, dates, jours ouvrés, conversions','Calcul décimal exact : 0,1 + 0,2 = 0,3']},
+  {id:'zik',repo:'SobreZiK',name:'SobreZiK',ready:true,tag:'Lecteur de musique frugal',
+    desc:'Un lecteur de musique à l’ancienne : une liste, la pochette tramée et une télécommande façon lecteur de CD, sans rien installer.',
+    feats:['Lit MP3, FLAC, OGG, M4A et WAV, dossier par dossier','Titres, artistes et pochettes lus dans les fichiers','Pochette en noir et blanc tramé ; sans pochette, un disque qui tourne','Aléatoire, répétition, programme','Garde la liste d’une séance à l’autre si la musique est rangée à côté']},
   {id:'jok',repo:'SobreJoK',name:'SobreJoK',ready:true,tag:'Jeux old school pour les pauses café',
     desc:'Six petits jeux pour souffler entre deux dossiers, avec une grille du jour la même pour tout le monde.',
     feats:['BiN : ronds et lunes','DeM : le démineur','ReX : une couronne par zone','SoL : le solitaire','FiL : un fil par toutes les cases','LuX : éteindre les lumières','Grilles et donne du jour, records']}
