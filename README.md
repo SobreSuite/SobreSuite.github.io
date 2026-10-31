@@ -1,8 +1,8 @@
-<p align="center"><img src="logos/sobresuite-logo.png" alt="SobreSuite, six logiciels frugaux, hors ligne" width="480"></p>
+<p align="center"><img src="logos/sobresuite-logo.png" alt="SobreSuite, logiciels frugaux, hors ligne" width="480"></p>
 
 # SobreSuite
 
-**Six logiciels frugaux, hors ligne, pensés pour aller à l'essentiel.**
+**Des logiciels frugaux, hors ligne, pensés pour aller à l'essentiel.**
 
 👉 **[sobresuite.github.io](https://sobresuite.github.io/)**
 
@@ -24,7 +24,7 @@ Chaque application de la SobreSuite tient dans **un seul fichier HTML**. On l'ou
 - **SobrePdF** — assembler plusieurs PDF, réorganiser les pages, pivoter, extraire, écrire sur la page, remplir les formulaires, placer une signature.
 - **SobreTaB** — des tableaux simples, sans usine à gaz. En préparation.
 - **SobreCaL** — une calculatrice façon HP des années 80, en notation classique ou NPI, avec un rouleau de papier imprimable. TVA, pourcentages, dates, conversions, calcul décimal exact. En préparation.
-- **SobreJoK** — quatre petits jeux : BiN (ronds et lunes), DeM (démineur), ReX (une couronne par zone) et SoL (solitaire), avec une grille du jour la même pour tout le monde.
+- **SobreJoK** — six petits jeux : BiN (ronds et lunes), DeM (démineur), ReX (une couronne par zone), SoL (solitaire), FiL (un fil par toutes les cases) et LuX (éteindre les lumières), avec une grille du jour la même pour tout le monde.
 
 ## Les principes
 
