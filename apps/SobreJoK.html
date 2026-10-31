@@ -230,6 +230,45 @@ button,input,select,textarea{font:inherit;color:inherit;font-variant-ligatures:n
 .solb:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 .casc{position:absolute;left:0;top:0;z-index:5000;pointer-events:none}
 
+/* ---------- FiL ---------- */
+#w-fil{width:max-content;--n:7;--q:clamp(34px,min(calc((100vw - 72px) / var(--n)),calc((var(--vh100) - 300px) / var(--n))),64px)}
+.filb{position:relative;width:calc(var(--q) * var(--n));height:calc(var(--q) * var(--n));border:3px solid var(--ink);box-shadow:3px 3px 0 var(--ink);box-sizing:content-box;
+  user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-action:none;cursor:crosshair;background:#fff}
+.fsvg{position:absolute;inset:0;width:100%;height:100%;display:block;shape-rendering:crispEdges}
+.fsvg text{shape-rendering:auto}
+.fc{position:absolute;width:var(--q);height:var(--q);padding:0;margin:0;border:0;background:transparent;cursor:inherit;-webkit-tap-highlight-color:transparent}
+.fc:focus{outline:none}
+.fc:focus-visible{box-shadow:inset 0 0 0 3px #000,inset 0 0 0 5px #fff}
+.fc.hint{animation:filhint .45s steps(1,end) 6}
+@keyframes filhint{0%{box-shadow:inset 0 0 0 4px #FFE500,inset 0 0 0 6px #000}50%{box-shadow:none}}
+.filb.won .fc{animation:filwon .36s steps(1,end) var(--d) 3}
+@keyframes filwon{0%{backdrop-filter:invert(1);-webkit-backdrop-filter:invert(1)}50%{backdrop-filter:none;-webkit-backdrop-filter:none}}
+.filb.locked{cursor:default}
+#fil-note{max-width:calc(var(--q) * var(--n) + 6px)}
+
+/* ---------- LuX ---------- */
+#w-lux{width:max-content;--n:5;--q:clamp(44px,min(calc((100vw - 80px) / var(--n)),calc((var(--vh100) - 300px) / var(--n))),76px)}
+.luxb{display:grid;grid-template-columns:repeat(var(--n),var(--q));grid-auto-rows:var(--q);gap:4px;padding:4px;background:var(--ink);border:2px solid var(--ink);box-shadow:3px 3px 0 var(--ink);
+  user-select:none;-webkit-user-select:none;touch-action:manipulation}
+.lc{position:relative;padding:0;margin:0;border:0;cursor:pointer;-webkit-tap-highlight-color:transparent;
+  background:repeating-conic-gradient(#000 0 25%,#2e2e2e 0 50%) 0 0/2px 2px}
+.lc.on{background:#FFE500}
+.lc.dot::after{content:'';position:absolute;inset:0;box-shadow:inset 0 0 0 4px #D7141A,inset 0 0 0 6px #fff;pointer-events:none}
+.lc svg{position:absolute;inset:0;width:100%;height:100%;display:block;shape-rendering:crispEdges;pointer-events:none}
+.lc:focus{outline:none}
+.lc:focus-visible{outline:3px solid #fff;outline-offset:-6px}
+.lc.on:focus-visible{outline-color:#000}
+.lc:active{transform:translate(1px,1px)}
+.lc.flip{animation:luxflip .14s steps(1,end)}
+@keyframes luxflip{0%{filter:invert(1)}}
+.lc.hint{animation:luxhint .45s steps(1,end) 6}
+@keyframes luxhint{0%{outline:4px solid #D7141A;outline-offset:-8px}50%{outline:none}}
+.luxb.won .lc{animation:luxwon .5s steps(1,end) var(--d) 3}
+@keyframes luxwon{0%{background:#FFE500}50%{background:repeating-conic-gradient(#000 0 25%,#2e2e2e 0 50%) 0 0/2px 2px}}
+.luxb.locked .lc{cursor:default}
+#lux-note{max-width:calc(var(--q) * var(--n) + (var(--n) + 1) * 4px + 4px)}
+#lux-show[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+
 /* ---------- Dialogues ---------- */
 .ov{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(255,255,255,.35)}
 .dlg{background:var(--paper);border:2px solid var(--ink);box-shadow:3px 3px 0 var(--ink);outline:1px solid var(--ink);outline-offset:-6px;padding:16px 18px;max-width:100%;max-height:100%;overflow:auto;display:flex;flex-direction:column;gap:12px}
@@ -439,10 +478,315 @@ button,input,select,textarea{font:inherit;color:inherit;font-variant-ligatures:n
       </div>
     </section>
 
+    <!-- FiL -->
+    <section class="win" id="w-fil" aria-label="FiL" hidden>
+      <div class="tb">
+        <button class="wbox" type="button" style="left:8px" data-act="toGames" aria-label="Fermer FiL et revenir aux jeux"></button>
+        <span class="tb-title" id="fil-title">FiL</span>
+      </div>
+      <div class="band" role="toolbar" aria-label="Outils de FiL">
+        <button class="btn" type="button" data-act="filDaily">Grille du jour</button>
+        <div class="sep"></div>
+        <select class="sel" id="fil-level" aria-label="Niveau de la nouvelle grille">
+          <option value="facile">Facile · 6 × 6</option>
+          <option value="moyen">Moyen · 7 × 7</option>
+          <option value="difficile">Difficile · 8 × 8</option>
+        </select>
+        <button class="btn" type="button" data-act="filNew">Nouvelle<span class="lbl-long">&nbsp;grille</span></button>
+        <div class="sep"></div>
+        <button class="btn ico" type="button" data-act="filUndo" id="fil-undo" aria-label="Annuler" title="Annuler"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M7 5L3 9l4 4 M3 9h9a4 4 0 0 1 0 8h-3"/></svg></button>
+        <button class="btn ico" type="button" data-act="filRedo" id="fil-redo" aria-label="Rétablir" title="Rétablir"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M13 5l4 4-4 4 M17 9H8a4 4 0 0 0 0 8h3"/></svg></button>
+        <div class="sep"></div>
+        <button class="btn" type="button" data-act="filHint" id="fil-hint">Indice</button>
+        <button class="btn" type="button" data-act="filClear" id="fil-clear">Effacer</button>
+        <div class="grow"></div>
+        <button class="btn ico" type="button" data-act="filRules" aria-label="Règles de FiL" title="Règles"><span style="font-weight:600;font-size:15px">?</span></button>
+      </div>
+      <div class="stage">
+        <div class="filb" id="filboard" role="grid"></div>
+        <div class="note plain" id="fil-note" aria-live="polite"></div>
+      </div>
+      <div class="sb">
+        <div class="num" id="fil-time" style="width:96px">Temps 00:00</div>
+        <div class="fill" id="fil-msg"></div>
+        <div class="num hide-narrow" id="fil-count"></div>
+      </div>
+    </section>
+
+    <!-- LuX -->
+    <section class="win" id="w-lux" aria-label="LuX" hidden>
+      <div class="tb">
+        <button class="wbox" type="button" style="left:8px" data-act="toGames" aria-label="Fermer LuX et revenir aux jeux"></button>
+        <span class="tb-title" id="lux-title">LuX</span>
+      </div>
+      <div class="band" role="toolbar" aria-label="Outils de LuX">
+        <button class="btn" type="button" data-act="luxDaily">Grille du jour</button>
+        <div class="sep"></div>
+        <select class="sel" id="lux-level" aria-label="Niveau de la nouvelle grille">
+          <option value="facile">Facile · 5 × 5</option>
+          <option value="moyen">Moyen · 5 × 5</option>
+          <option value="difficile">Difficile · 6 × 6</option>
+        </select>
+        <button class="btn" type="button" data-act="luxNew">Nouvelle<span class="lbl-long">&nbsp;grille</span></button>
+        <div class="sep"></div>
+        <button class="btn ico" type="button" data-act="luxUndo" id="lux-undo" aria-label="Annuler" title="Annuler"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M7 5L3 9l4 4 M3 9h9a4 4 0 0 1 0 8h-3"/></svg></button>
+        <button class="btn ico" type="button" data-act="luxRedo" id="lux-redo" aria-label="Rétablir" title="Rétablir"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M13 5l4 4-4 4 M17 9H8a4 4 0 0 0 0 8h3"/></svg></button>
+        <div class="sep"></div>
+        <button class="btn" type="button" data-act="luxHint" id="lux-hint">Indice</button>
+        <button class="btn" type="button" data-act="luxShow" id="lux-show" aria-pressed="false">Solution</button>
+        <div class="grow"></div>
+        <button class="btn ico" type="button" data-act="luxRules" aria-label="Règles de LuX" title="Règles"><span style="font-weight:600;font-size:15px">?</span></button>
+      </div>
+      <div class="stage">
+        <div class="luxb" id="luxboard" role="grid"></div>
+        <div class="note plain" id="lux-note" aria-live="polite"></div>
+      </div>
+      <div class="sb">
+        <div class="num" id="lux-time" style="width:96px">Temps 00:00</div>
+        <div class="fill" id="lux-msg"></div>
+        <div class="num hide-narrow" id="lux-count"></div>
+        <div class="num" id="lux-moves"></div>
+      </div>
+    </section>
+
   </main>
 </div>
 
 <script>
+/* =========================================================
+   FiL — moteur : un seul fil passe par toutes les cases,
+   relie les numéros dans l'ordre, sans traverser les murs.
+   Cases numérotées i = ligne * n + colonne.
+   Mur entre deux cases voisines a < b : clé a*1000+b.
+   ========================================================= */
+const FIL=(function(){
+'use strict';
+function shuffle(a,rng){for(let i=a.length-1;i>0;i--){const j=Math.floor(rng()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+const wkey=(a,b)=>a<b?a*1000+b:b*1000+a;
+function nbrs(n,i){
+  const r=Math.floor(i/n),c=i%n,o=[];
+  if(r>0)o.push(i-n);if(r<n-1)o.push(i+n);if(c>0)o.push(i-1);if(c<n-1)o.push(i+1);
+  return o;
+}
+function adjacency(n,walls){
+  const W=new Set(walls),adj=[];
+  for(let i=0;i<n*n;i++)adj.push(nbrs(n,i).filter(j=>!W.has(wkey(i,j))));
+  return adj;
+}
+
+/* ---------- Chemin hamiltonien au hasard (méthode du « backbite ») ---------- */
+function randomPath(n,rng){
+  let path=[];
+  for(let r=0;r<n;r++)for(let k=0;k<n;k++)path.push(r*n+(r%2?n-1-k:k));
+  const pos=new Int32Array(n*n);
+  const reindex=()=>{path.forEach((c,k)=>{pos[c]=k;});};
+  reindex();
+  const steps=n*n*n*12;
+  for(let s=0;s<steps;s++){
+    if(rng()<.5){path.reverse();reindex();}
+    const end=path[path.length-1],L=path.length;
+    const cand=nbrs(n,end).filter(j=>j!==path[L-2]);
+    const j=cand[Math.floor(rng()*cand.length)];
+    const k=pos[j];
+    // on relie la fin à j et on retourne le morceau qui suit j
+    const tail=path.slice(k+1).reverse();
+    path=path.slice(0,k+1).concat(tail);
+    for(let t=k+1;t<L;t++)pos[path[t]]=t;
+  }
+  return path;
+}
+
+/* ---------- Solveur : compte les solutions (jusqu'à « limit ») ---------- */
+function solve(n,num,walls,limit,nodeCap){
+  const N2=n*n,adj=adjacency(n,walls);
+  let K=0,start=-1,endCell=-1;
+  for(let i=0;i<N2;i++){if(num[i]>K)K=num[i];if(num[i]===1)start=i;}
+  for(let i=0;i<N2;i++)if(num[i]===K)endCell=i;
+  const vis=new Uint8Array(N2),path=new Int32Array(N2),sols=[];
+  let nodes=0,aborted=false;
+  const seen=new Uint8Array(N2),stack=new Int32Array(N2);
+  function feasible(head,left){
+    // chaque case libre (sauf l'arrivée) doit garder deux sorties ; tout doit rester d'un seul tenant
+    for(let i=0;i<N2;i++){
+      if(vis[i])continue;
+      let d=0;
+      for(const j of adj[i])if(!vis[j]||j===head)d++;
+      if(i===endCell){if(d<1)return false;}
+      else if(d<2)return false;
+    }
+    seen.fill(0);let sp=0,cnt=0;
+    for(const j of adj[head])if(!vis[j]&&!seen[j]){seen[j]=1;stack[sp++]=j;}
+    while(sp){const i=stack[--sp];cnt++;for(const j of adj[i])if(!vis[j]&&!seen[j]){seen[j]=1;stack[sp++]=j;}}
+    return cnt===left;
+  }
+  function dfs(cur,depth,next){
+    if(aborted)return;
+    if(++nodes>nodeCap){aborted=true;return;}
+    if(depth===N2-1){if(cur===endCell)sols.push(Array.from(path));return;}
+    for(const j of adj[cur]){
+      if(vis[j])continue;
+      if(num[j]&&num[j]!==next)continue;
+      if(j===endCell&&depth+1!==N2-1)continue;
+      vis[j]=1;path[depth+1]=j;
+      if(feasible(j,N2-depth-2))dfs(j,depth+1,num[j]?next+1:next);
+      vis[j]=0;
+      if(sols.length>=limit||aborted)return;
+    }
+  }
+  if(start<0||endCell<0)return {count:0,sols,aborted:false};
+  vis[start]=1;path[0]=start;
+  dfs(start,0,2);
+  return {count:sols.length,sols,aborted,nodes};
+}
+
+/* ---------- Générateur ---------- */
+const LEVELS={
+  facile:{n:6,clues:[9,11],walls:0,label:'Facile'},
+  moyen:{n:7,clues:[8,10],walls:3,label:'Moyen'},
+  difficile:{n:8,clues:[6,8],walls:6,label:'Difficile'}
+};
+function numbersFrom(n,path,idx){
+  const num=new Array(n*n).fill(0);
+  idx.slice().sort((a,b)=>a-b).forEach((k,t)=>{num[path[k]]=t+1;});
+  return num;
+}
+function generate(level,rng){
+  const L=LEVELS[level]||LEVELS.moyen,n=L.n,N2=n*n;
+  for(let tries=0;tries<40;tries++){
+    const path=randomPath(n,rng);
+    const used=new Set();
+    for(let k=0;k+1<N2;k++)used.add(wkey(path[k],path[k+1]));
+    // numéros répartis le long du fil, avec un peu de hasard
+    const want=L.clues[0]+Math.floor(rng()*(L.clues[1]-L.clues[0]+1));
+    const idx=new Set([0,N2-1]);
+    const seg=(N2-1)/(want-1);
+    for(let t=1;t<want-1;t++){
+      let k=Math.round(t*seg+(rng()-.5)*seg*.7);
+      k=Math.max(1,Math.min(N2-2,k));
+      while(idx.has(k))k++;
+      if(k<N2-1)idx.add(k);
+    }
+    const walls=[];
+    // quelques murs sur des arêtes que le fil n'emprunte pas
+    const free=[];
+    for(let i=0;i<N2;i++)for(const j of nbrs(n,i))if(i<j&&!used.has(wkey(i,j)))free.push(wkey(i,j));
+    shuffle(free,rng);
+    for(let w=0;w<L.walls&&w<free.length;w++)walls.push(free[w]);
+    // tant qu'une autre solution existe, on ajoute un mur ou un numéro là où elle s'écarte
+    let ok=false;
+    for(let it=0;it<60;it++){
+      const num=numbersFrom(n,path,[...idx]);
+      const r=solve(n,num,walls,2,400000);
+      if(r.aborted){idx.add(Math.floor(rng()*(N2-2))+1);continue;}
+      if(r.count===1){ok=true;break;}
+      const alt=r.sols.find(s=>s.some((c,k)=>c!==path[k]));
+      if(!alt)break;
+      let d=0;while(alt[d]===path[d])d++;
+      // l'autre solution prend l'arête alt[d-1] → alt[d] que le vrai fil n'utilise pas
+      const e=wkey(alt[d-1],alt[d]);
+      if(rng()<(L.walls?0.4:0.15)&&!used.has(e)&&!walls.includes(e))walls.push(e);
+      else{
+        let k=d;while(idx.has(k)&&k<N2-1)k++;
+        if(k>=N2-1){k=d;while(idx.has(k)&&k>1)k--;}
+        idx.add(k);
+      }
+    }
+    if(!ok)continue;
+    // on retire ce qui est superflu tant que la solution reste unique :
+    // d'abord des murs (on en garde peu), puis des numéros
+    let list=[...idx].sort((a,b)=>a-b);
+    const unique=(lst,ws)=>{const r=solve(n,numbersFrom(n,path,lst),ws,2,400000);return !r.aborted&&r.count===1;};
+    for(const w of shuffle(walls.slice(),rng)){
+      if(walls.length<=L.walls)break;
+      const trial=walls.filter(x=>x!==w);
+      if(unique(list,trial)){walls.length=0;walls.push(...trial);}
+    }
+    const target=level==='facile'?L.clues[1]+2:L.clues[0];
+    for(const k of shuffle(list.slice(1,-1),rng)){
+      if(list.length<=target)break;
+      const trial=list.filter(x=>x!==k);
+      if(unique(trial,walls))list=trial;
+    }
+    const num=numbersFrom(n,path,list);
+    return {n,num,walls:walls.slice().sort((a,b)=>a-b),sol:path,level,K:list.length};
+  }
+  return null;
+}
+return {LEVELS,wkey,nbrs,adjacency,randomPath,solve,generate};
+})();
+
+/* =========================================================
+   LuX — moteur : appuyer sur une case inverse cette case
+   et ses quatre voisines. Calcul exact du nombre minimum de coups
+   par élimination de Gauss dans les nombres binaires (0 et 1).
+   ========================================================= */
+const LUX=(function(){
+'use strict';
+function affected(n,i){
+  const r=Math.floor(i/n),c=i%n,o=[i];
+  if(r>0)o.push(i-n);if(r<n-1)o.push(i+n);if(c>0)o.push(i-1);if(c<n-1)o.push(i+1);
+  return o;
+}
+function press(n,lights,i){for(const j of affected(n,i))lights[j]^=1;}
+// toutes les solutions de A·x = lumières ; on garde celle qui demande le moins d'appuis
+function solve(n,lights){
+  const N=n*n,M=[];
+  for(let i=0;i<N;i++){
+    const row=new Uint8Array(N+1);
+    for(const j of affected(n,i))row[j]=1; // la case i est touchée par l'appui sur j (relation symétrique)
+    row[N]=lights[i]?1:0;
+    M.push(row);
+  }
+  const pivotCol=[];let r=0;
+  for(let c=0;c<N&&r<N;c++){
+    let p=r;while(p<N&&!M[p][c])p++;
+    if(p===N)continue;
+    [M[r],M[p]]=[M[p],M[r]];
+    for(let k=0;k<N;k++)if(k!==r&&M[k][c]){const a=M[k],b=M[r];for(let t=c;t<=N;t++)a[t]^=b[t];}
+    pivotCol.push(c);r++;
+  }
+  for(let k=r;k<N;k++)if(M[k][N])return null; // pas de solution
+  const isPivot=new Uint8Array(N);pivotCol.forEach(c=>{isPivot[c]=1;});
+  const free=[];for(let c=0;c<N;c++)if(!isPivot[c])free.push(c);
+  let best=null;
+  for(let mask=0;mask<(1<<free.length);mask++){
+    const x=new Uint8Array(N);
+    free.forEach((c,k)=>{x[c]=(mask>>k)&1;});
+    pivotCol.forEach((c,k)=>{
+      let v=M[k][N];
+      for(const f of free)if(M[k][f]&&x[f])v^=1;
+      x[c]=v;
+    });
+    let w=0;for(let i=0;i<N;i++)w+=x[i];
+    if(!best||w<best.w)best={x,w};
+  }
+  return best;
+}
+const LEVELS={
+  facile:{n:5,par:[4,6],label:'Facile'},
+  moyen:{n:5,par:[8,11],label:'Moyen'},
+  difficile:{n:6,par:[12,18],label:'Difficile'}
+};
+function generate(level,rng){
+  const L=LEVELS[level]||LEVELS.moyen,n=L.n,N=n*n;
+  let fallback=null;
+  for(let tries=0;tries<400;tries++){
+    const k=L.par[0]+Math.floor(rng()*(L.par[1]-L.par[0]+2));
+    const cells=[...Array(N).keys()];
+    for(let i=N-1;i>0;i--){const j=Math.floor(rng()*(i+1));[cells[i],cells[j]]=[cells[j],cells[i]];}
+    const lights=new Array(N).fill(0);
+    for(const c of cells.slice(0,k))press(n,lights,c);
+    if(!lights.some(v=>v))continue;
+    const s=solve(n,lights);
+    const cand={n,lights,par:s.w,level};
+    if(s.w>=L.par[0]&&s.w<=L.par[1])return cand;
+    if(!fallback||Math.abs(s.w-L.par[0])<Math.abs(fallback.par-L.par[0]))fallback=cand;
+  }
+  return fallback;
+}
+return {LEVELS,affected,press,solve,generate};
+})();
+
 /* =========================================================
    BiN — moteur : grilles, règles, résolution logique, générateur
    Valeurs : 0 vide, 1 rond (rouge), 2 lune (bleue)
@@ -1261,6 +1605,8 @@ function load(){
     if(o.dem){if(o.dem.prefs)Object.assign(D.prefs,o.dem.prefs);if(o.dem.best)Object.assign(D.best,o.dem.best);if(o.dem.game&&validDem(o.dem.game))D.game=o.dem.game;}
     if(o.rex){if(o.rex.prefs)Object.assign(RX.prefs,o.rex.prefs);if(o.rex.best)Object.assign(RX.best,o.rex.best);if(o.rex.daily&&typeof o.rex.daily==='object')RX.daily=o.rex.daily;if(o.rex.game&&validRex(o.rex.game))RX.game=o.rex.game;}
     if(o.sol){if(o.sol.prefs)Object.assign(SL.prefs,o.sol.prefs);if(o.sol.best)Object.assign(SL.best,o.sol.best);if(o.sol.daily&&typeof o.sol.daily==='object')SL.daily=o.sol.daily;if(o.sol.game&&validSol(o.sol.game))SL.game=o.sol.game;}
+    if(o.fil){if(o.fil.prefs)Object.assign(FL.prefs,o.fil.prefs);if(o.fil.best)Object.assign(FL.best,o.fil.best);if(o.fil.daily&&typeof o.fil.daily==='object')FL.daily=o.fil.daily;if(o.fil.game&&validFil(o.fil.game))FL.game=o.fil.game;}
+    if(o.lux){if(o.lux.prefs)Object.assign(LX.prefs,o.lux.prefs);if(o.lux.best)Object.assign(LX.best,o.lux.best);if(o.lux.bestMoves)Object.assign(LX.bestMoves,o.lux.bestMoves);if(o.lux.daily&&typeof o.lux.daily==='object')LX.daily=o.lux.daily;if(o.lux.game&&validLux(o.lux.game))LX.game=o.lux.game;}
   }catch(e){}
 }
 function validGame(g){
@@ -1275,14 +1621,17 @@ function foldTimers(){
   if(D.game&&demRunSince){D.game.elapsed=(D.game.elapsed||0)+now-demRunSince;demRunSince=now;}
   if(RX.game&&rexRunSince){RX.game.elapsed=(RX.game.elapsed||0)+now-rexRunSince;rexRunSince=now;}
   if(SL.game&&solRunSince){SL.game.elapsed=(SL.game.elapsed||0)+now-solRunSince;solRunSince=now;}
+  if(FL.game&&filRunSince){FL.game.elapsed=(FL.game.elapsed||0)+now-filRunSince;filRunSince=now;}
+  if(LX.game&&luxRunSince){LX.game.elapsed=(LX.game.elapsed||0)+now-luxRunSince;luxRunSince=now;}
 }
-function snapshot(){return {v:1,prefs:S.prefs,best:S.best,daily:S.daily,game:S.game,dem:{prefs:D.prefs,best:D.best,game:D.game},rex:{prefs:RX.prefs,best:RX.best,daily:RX.daily,game:RX.game},sol:{prefs:SL.prefs,best:SL.best,daily:SL.daily,game:SL.game?Object.assign({},SL.game,{undo:SL.game.undo.length>40?[SL.game.undo[0]].concat(SL.game.undo.slice(-39)):SL.game.undo,redo:[]}):null}};}
+function snapshot(){return {v:1,prefs:S.prefs,best:S.best,daily:S.daily,game:S.game,dem:{prefs:D.prefs,best:D.best,game:D.game},rex:{prefs:RX.prefs,best:RX.best,daily:RX.daily,game:RX.game},sol:{prefs:SL.prefs,best:SL.best,daily:SL.daily,game:SL.game?Object.assign({},SL.game,{undo:SL.game.undo.length>40?[SL.game.undo[0]].concat(SL.game.undo.slice(-39)):SL.game.undo,redo:[]}):null},fil:{prefs:FL.prefs,best:FL.best,daily:FL.daily,game:FL.game?Object.assign({},FL.game,{undo:FL.game.undo.slice(-40),redo:[]}):null},lux:{prefs:LX.prefs,best:LX.best,bestMoves:LX.bestMoves,daily:LX.daily,game:LX.game?Object.assign({},LX.game,{undo:LX.game.undo.slice(-200),redo:[]}):null}};}
 function save(){
   clearTimeout(saveTimer);
   saveTimer=setTimeout(()=>{
     try{
       foldTimers();
       const sk=Object.keys(SL.daily).sort();while(sk.length>60)delete SL.daily[sk.shift()];
+      for(const DD of [FL.daily,LX.daily]){const kk=Object.keys(DD).sort();while(kk.length>60)delete DD[kk.shift()];}
       const rk=Object.keys(RX.daily).sort();while(rk.length>60)delete RX.daily[rk.shift()];
       // ne garder que les 60 derniers jours de grilles du jour
       const keys=Object.keys(S.daily).sort();while(keys.length>60)delete S.daily[keys.shift()];
@@ -1304,6 +1653,8 @@ function timerSync(){
   demTimerSync();
   rexTimerSync();
   solTimerSync();
+  filTimerSync();
+  luxTimerSync();
 }
 function showTime(){
   const t=$('#bin-time');
@@ -1637,7 +1988,9 @@ function buildGames(){
     gameTile('game-dem','','','','','',openDem,box);
     gameTile('game-rex','','','','','',openRex,box);
     gameTile('game-sol','','','','','',openSol,box);
-    $('#g-count').textContent='4 jeux';
+    gameTile('game-fil','','','','','',openFil,box);
+    gameTile('game-lux','','','','','',openLux,box);
+    $('#g-count').textContent='6 jeux';
   }
   // BiN
   const key=todayKey(),d=S.daily[key],g=S.game;
@@ -1662,6 +2015,18 @@ function buildGames(){
   if(so&&!so.solved&&so.st.moves)ss+='<br>Partie en cours : '+(so.kind==='daily'?'donne du '+(so.date===key?'jour':shortDay(so.date)):'pioche par '+so.st.draw);
   const recs='Records : P1 '+(SL.best.p1!=null?clock(SL.best.p1):'–')+' · P3 '+(SL.best.p3!=null?clock(SL.best.p3):'–');
   gameTile('game-sol',SOL_ICON,'SoL','Le solitaire',ss+'<br>'+recs,'SoL, le solitaire',openSol,box);
+  // FiL
+  const fg=FL.game,fd=FL.daily[key];
+  let sf=fd?'Grille du jour : réussie en '+words(fd.time):'Grille du jour : à faire';
+  if(fg&&!fg.solved&&fg.path.length)sf+='<br>Partie en cours : '+escH(fg.kind==='daily'?'grille du '+(fg.date===key?'jour':shortDay(fg.date)):'grille '+LEVEL_ADJ[fg.level]);
+  const recf=['facile','moyen','difficile'].map(l=>LEVEL_LABEL[l][0]+' '+(FL.best[l]!=null?clock(FL.best[l]):'–')).join(' · ');
+  gameTile('game-fil',FIL_ICON,'FiL','Un fil par toutes les cases',sf+'<br>Records : '+escH(recf),'FiL, un fil par toutes les cases',openFil,box);
+  // LuX
+  const lg=LX.game,ld=LX.daily[key];
+  let sl=ld?'Grille du jour : réussie en '+ld.moves+' coups':'Grille du jour : à faire';
+  if(lg&&!lg.solved&&lg.started)sl+='<br>Partie en cours : '+escH(lg.kind==='daily'?'grille du '+(lg.date===key?'jour':shortDay(lg.date)):'grille '+LEVEL_ADJ[lg.level]);
+  const recl=['facile','moyen','difficile'].map(l=>LEVEL_LABEL[l][0]+' '+(LX.best[l]!=null?clock(LX.best[l]):'–')).join(' · ');
+  gameTile('game-lux',LUX_ICON,'LuX','Éteindre les lumières',sl+'<br>Records : '+escH(recl),'LuX, éteindre les lumières',openLux,box);
 }
 function openBin(){
   showScreen('bin');
@@ -1679,13 +2044,17 @@ function showScreen(name){
   $('#w-dem').hidden=name!=='dem';
   $('#w-rex').hidden=name!=='rex';
   $('#w-sol').hidden=name!=='sol';
+  $('#w-fil').hidden=name!=='fil';
+  $('#w-lux').hidden=name!=='lux';
+  if(name==='fil'&&FL.game){if(!filBoard.children.length)filBuild();filRefresh();filHelpNote();}
+  if(name==='lux'&&LX.game){if(!luxBoard.children.length)luxBuild();luxRefresh();luxHelpNote();}
   if(name==='sol'){solMetrics();if(SL.game){solRender(true);}setTimeout(()=>solBoard.focus({preventScroll:true}),0);}
   if(name==='rex'&&RX.game){if(!rexBoard.children.length)rexBuild();rexRefresh();rexHelpNote();setTimeout(()=>{const c=rexBoard.children[rexFocus];c&&c.focus({preventScroll:true});},0);}
   if(name==='dem'&&D.game){if(!mines.children.length)buildMines();else demFit();demRefresh();demHelpNote();setTimeout(()=>{const c=mines.children[demFocus];c&&c.focus({preventScroll:true});},0);}
   if(name==='bin'&&S.game){if(!board.children.length)buildBoard();refresh();setTimeout(()=>{const c=$$('.cell',board)[focusIdx];c&&c.focus({preventScroll:true});},0);}
   if(name==='games'){buildGames();setTimeout(()=>{const g=$('#game-'+lastGame);g&&g.focus({preventScroll:true});},0);}
-  if(name==='bin'||name==='dem'||name==='rex'||name==='sol')lastGame=name;
-  document.title=(name==='bin'&&S.game?gameTitle(S.game)+' · ':name==='dem'&&D.game?'DeM · '+DEM_LEVELS[D.game.level].label+' · ':name==='rex'&&RX.game?rexTitle(RX.game)+' · ':name==='sol'&&SL.game?solTitle(SL.game)+' · ':'')+'SobreJoK';
+  if(['bin','dem','rex','sol','fil','lux'].includes(name))lastGame=name;
+  document.title=(name==='bin'&&S.game?gameTitle(S.game)+' · ':name==='dem'&&D.game?'DeM · '+DEM_LEVELS[D.game.level].label+' · ':name==='rex'&&RX.game?rexTitle(RX.game)+' · ':name==='sol'&&SL.game?solTitle(SL.game)+' · ':name==='fil'&&FL.game?filTitle(FL.game)+' · ':name==='lux'&&LX.game?luxTitle(LX.game)+' · ':'')+'SobreJoK';
   timerSync();
   buildMenubar();
 }
@@ -2977,6 +3346,645 @@ function solRules(){
 }
 
 /* =========================================================
+   FiL : un seul fil passe par toutes les cases (type Zip)
+   ========================================================= */
+const FL=S.fil={prefs:{level:'moyen',rulesSeen:false},best:{facile:null,moyen:null,difficile:null},daily:{},game:null};
+const FIL_DISC=pixPath((x,y)=>inDisc(x,y,8,8,6.9),16);
+const FIL_RING=pixPath((x,y)=>inDisc(x,y,8,8,8.2)&&!inDisc(x,y,8,8,6.9),16);
+const FIL_ICON='<svg viewBox="0 0 32 32" shape-rendering="crispEdges" aria-hidden="true"><path fill="#000000" d="M0 0h32v1h-32zM0 1h32v1h-32zM0 2h2v1h-2zM4 2h5v1h-5zM30 2h2v1h-2zM0 3h2v1h-2zM3 3h7v1h-7zM30 3h2v1h-2zM0 4h6v1h-6zM7 4h4v1h-4zM30 4h2v1h-2zM0 5h5v1h-5zM7 5h4v1h-4zM30 5h2v1h-2zM0 6h6v1h-6zM7 6h4v1h-4zM30 6h2v1h-2zM0 7h6v1h-6zM7 7h4v1h-4zM30 7h2v1h-2zM0 8h5v1h-5zM8 8h3v1h-3zM30 8h2v1h-2zM0 9h2v1h-2zM3 9h7v1h-7zM30 9h2v1h-2zM0 10h2v1h-2zM4 10h5v1h-5zM30 10h2v1h-2zM0 11h2v1h-2zM30 11h2v1h-2zM0 12h2v1h-2zM30 12h2v1h-2zM0 13h2v1h-2zM30 13h2v1h-2zM0 14h2v1h-2zM30 14h2v1h-2zM0 15h2v1h-2zM30 15h2v1h-2zM0 16h2v1h-2zM30 16h2v1h-2zM0 17h2v1h-2zM30 17h2v1h-2zM0 18h2v1h-2zM30 18h2v1h-2zM0 19h2v1h-2zM30 19h2v1h-2zM0 20h2v1h-2zM30 20h2v1h-2zM0 21h2v1h-2zM23 21h5v1h-5zM30 21h2v1h-2zM0 22h2v1h-2zM22 22h7v1h-7zM30 22h2v1h-2zM0 23h2v1h-2zM21 23h3v1h-3zM26 23h6v1h-6zM0 24h2v1h-2zM21 24h5v1h-5zM27 24h5v1h-5zM0 25h2v1h-2zM21 25h4v1h-4zM26 25h6v1h-6zM0 26h2v1h-2zM21 26h3v1h-3zM25 26h7v1h-7zM0 27h2v1h-2zM21 27h3v1h-3zM27 27h5v1h-5zM0 28h2v1h-2zM22 28h7v1h-7zM30 28h2v1h-2zM0 29h2v1h-2zM23 29h5v1h-5zM30 29h2v1h-2zM0 30h32v1h-32zM0 31h32v1h-32z"/><path fill="#FFFFFF" d="M2 2h2v1h-2zM9 2h2v1h-2zM12 2h8v1h-8zM21 2h9v1h-9zM2 3h1v1h-1zM10 3h1v1h-1zM12 3h8v1h-8zM21 3h9v1h-9zM6 4h1v1h-1zM12 4h8v1h-8zM21 4h9v1h-9zM5 5h2v1h-2zM27 5h3v1h-3zM6 6h1v1h-1zM27 6h3v1h-3zM6 7h1v1h-1zM27 7h3v1h-3zM5 8h3v1h-3zM27 8h3v1h-3zM2 9h1v1h-1zM10 9h1v1h-1zM12 9h8v1h-8zM21 9h2v1h-2zM27 9h3v1h-3zM2 10h2v1h-2zM9 10h2v1h-2zM12 10h8v1h-8zM21 10h2v1h-2zM27 10h3v1h-3zM2 12h9v1h-9zM12 12h8v1h-8zM21 12h2v1h-2zM27 12h3v1h-3zM2 13h9v1h-9zM12 13h8v1h-8zM21 13h2v1h-2zM27 13h3v1h-3zM2 14h3v1h-3zM27 14h3v1h-3zM2 15h3v1h-3zM27 15h3v1h-3zM2 16h3v1h-3zM27 16h3v1h-3zM2 17h3v1h-3zM27 17h3v1h-3zM2 18h3v1h-3zM9 18h2v1h-2zM12 18h8v1h-8zM21 18h9v1h-9zM2 19h3v1h-3zM9 19h2v1h-2zM12 19h8v1h-8zM21 19h9v1h-9zM2 21h3v1h-3zM9 21h2v1h-2zM12 21h8v1h-8zM21 21h2v1h-2zM28 21h2v1h-2zM2 22h3v1h-3zM9 22h2v1h-2zM12 22h8v1h-8zM21 22h1v1h-1zM29 22h1v1h-1zM2 23h3v1h-3zM24 23h2v1h-2zM2 24h3v1h-3zM26 24h1v1h-1zM2 25h3v1h-3zM25 25h1v1h-1zM2 26h3v1h-3zM24 26h1v1h-1zM2 27h9v1h-9zM12 27h8v1h-8zM24 27h3v1h-3zM2 28h9v1h-9zM12 28h8v1h-8zM21 28h1v1h-1zM29 28h1v1h-1zM2 29h9v1h-9zM12 29h8v1h-8zM21 29h2v1h-2zM28 29h2v1h-2z"/><path fill="#C4C4C4" d="M11 2h1v1h-1zM20 2h1v1h-1zM11 3h1v1h-1zM20 3h1v1h-1zM11 4h1v1h-1zM20 4h1v1h-1zM11 9h1v1h-1zM20 9h1v1h-1zM11 10h1v1h-1zM20 10h1v1h-1zM2 11h21v1h-21zM27 11h3v1h-3zM11 12h1v1h-1zM20 12h1v1h-1zM11 13h1v1h-1zM20 13h1v1h-1zM11 18h1v1h-1zM20 18h1v1h-1zM11 19h1v1h-1zM20 19h1v1h-1zM2 20h3v1h-3zM9 20h21v1h-21zM11 21h1v1h-1zM20 21h1v1h-1zM11 22h1v1h-1zM20 22h1v1h-1zM11 27h1v1h-1zM20 27h1v1h-1zM11 28h1v1h-1zM20 28h1v1h-1zM11 29h1v1h-1zM20 29h1v1h-1z"/><path fill="#1F3FD1" d="M11 5h16v1h-16zM11 6h16v1h-16zM11 7h16v1h-16zM11 8h16v1h-16zM23 9h4v1h-4zM23 10h4v1h-4zM23 11h4v1h-4zM23 12h4v1h-4zM23 13h4v1h-4zM5 14h22v1h-22zM5 15h22v1h-22zM5 16h22v1h-22zM5 17h22v1h-22zM5 18h4v1h-4zM5 19h4v1h-4zM5 20h4v1h-4zM5 21h4v1h-4zM5 22h4v1h-4zM5 23h16v1h-16zM5 24h16v1h-16zM5 25h16v1h-16zM5 26h16v1h-16z"/></svg>';
+function validFil(g){
+  if(!g||!FIL.LEVELS[g.level])return false;
+  const N2=g.n*g.n;
+  return g.n>=4&&g.n<=9&&Array.isArray(g.num)&&g.num.length===N2&&Array.isArray(g.sol)&&g.sol.length===N2&&Array.isArray(g.path)&&Array.isArray(g.walls);
+}
+function filTitle(g){
+  if(!g)return 'FiL';
+  if(g.kind==='daily')return 'FiL · Grille du '+(g.date===todayKey()?'jour':shortDay(g.date));
+  return 'FiL · Grille '+LEVEL_ADJ[g.level];
+}
+
+/* ---------- Chrono : il démarre au premier trait ---------- */
+let filRunSince=null;
+function filElapsed(){const g=FL.game;if(!g)return 0;return (g.elapsed||0)+(filRunSince?Date.now()-filRunSince:0);}
+function filTimerSync(){
+  const g=FL.game;
+  const want=!!(g&&!g.solved&&g.moves>0&&S.screen==='fil'&&!document.hidden&&splashGone&&$('#quit').hidden&&!document.querySelector('.ov.pause'));
+  if(want&&!filRunSince)filRunSince=Date.now();
+  else if(!want&&filRunSince){g.elapsed=(g.elapsed||0)+Date.now()-filRunSince;filRunSince=null;save();}
+  showFilTime();
+}
+function showFilTime(){$('#fil-time').textContent=S.prefs.timer?'Temps '+clock(filElapsed()):'Temps masqué';}
+setInterval(()=>{if(filRunSince)showFilTime();},500);
+
+/* ---------- Partie ---------- */
+function filMake(kind,level,dateKey){
+  const seed=kind==='daily'?BIN.hashStr('FiL|'+dateKey):(Math.random()*4294967296)>>>0;
+  const p=FIL.generate(level,BIN.rngFrom(seed));
+  return {kind,level,date:dateKey||null,n:p.n,num:p.num,walls:p.walls,sol:p.sol,path:[],elapsed:0,hints:0,moves:0,solved:false,undo:[],redo:[]};
+}
+function filStart(g,msg){
+  filRunSince=null;
+  FL.game=g;
+  filBuild();filRefresh();filHelpNote();
+  filMessage(msg||'');
+  save();filTimerSync();
+}
+async function filConfirmLeave(){
+  const g=FL.game;
+  if(!g||g.solved||!g.path.length)return true;
+  return confirmDlg('Laisser la grille en cours ?','Elle sera remplacée. Votre progression sur cette grille sera perdue.','Changer de grille');
+}
+async function filDaily(){
+  const key=todayKey();
+  if(FL.game&&FL.game.kind==='daily'&&FL.game.date===key){filMessage(FL.game.solved?'Grille du jour déjà résolue. Revenez demain !':'Grille du jour en cours');return;}
+  if(!(await filConfirmLeave()))return;
+  filMessage('Préparation de la grille…');
+  setTimeout(()=>{
+    const g=filMake('daily','moyen',key);
+    const done=FL.daily[key];
+    if(done){g.path=g.sol.slice();g.solved=true;g.elapsed=done.time;g.hints=done.hints||0;}
+    filStart(g,done?'Grille du jour déjà résolue en '+words(done.time)+'. Revenez demain !':'Grille du jour, 7 × 7 : la même pour tout le monde aujourd’hui');
+  },20);
+}
+async function filNew(level){
+  level=FIL.LEVELS[level]?level:($('#fil-level').value||'moyen');
+  if(!(await filConfirmLeave()))return;
+  FL.prefs.level=level;$('#fil-level').value=level;
+  filMessage('Préparation de la grille…');
+  document.body.style.cursor='progress';
+  setTimeout(()=>{
+    const g=filMake('free',level);
+    document.body.style.cursor='';
+    filStart(g,'Nouvelle grille '+LEVEL_ADJ[level]+', '+g.n+' × '+g.n);
+  },20);
+}
+function filRestart(){
+  const g=FL.game;if(!g)return;
+  if(g.solved&&g.kind==='daily'){filMessage('La grille du jour est déjà résolue.');return;}
+  confirmDlg('Recommencer cette grille depuis le début ?','Le chrono repart de zéro.','Recommencer').then(ok=>{
+    if(!ok)return;
+    Object.assign(g,{path:[],elapsed:0,hints:0,moves:0,solved:false,undo:[],redo:[]});
+    filStart(g,'Grille remise à zéro');
+  });
+}
+function openFil(){
+  showScreen('fil');
+  if(!FL.game)filDaily();
+  else if(FL.game.solved&&!(FL.game.kind==='daily'&&FL.game.date===todayKey())&&!FL.daily[todayKey()])filDaily();
+  if(!FL.prefs.rulesSeen){FL.prefs.rulesSeen=true;save();setTimeout(filRules,60);}
+}
+
+/* ---------- Plateau : une image SVG et une case-bouton par case ---------- */
+const filBoard=$('#filboard');
+let filFocus=0,FIL_ADJ=null;
+const filCells=()=>$$('.fc',filBoard);
+function filBuild(){
+  const g=FL.game,n=g.n;
+  FIL_ADJ=FIL.adjacency(n,g.walls);
+  $('#w-fil').style.setProperty('--n',n);
+  filBoard.innerHTML='<svg class="fsvg" viewBox="0 0 '+n+' '+n+'" aria-hidden="true"></svg>';
+  filBoard.classList.remove('won');
+  filBoard.setAttribute('aria-label','Grille de FiL, '+n+' lignes et '+n+' colonnes');
+  if(filFocus>=n*n)filFocus=0;
+  for(let i=0;i<n*n;i++){
+    const r=Math.floor(i/n),c=i%n;
+    const b=el('button',{type:'button',class:'fc',role:'gridcell','data-i':i,tabindex:i===filFocus?'0':'-1'});
+    b.style.left='calc('+c+' * var(--q))';b.style.top='calc('+r+' * var(--q))';
+    b.style.setProperty('--d',((r+c)*45)+'ms');
+    filBoard.appendChild(b);
+  }
+  $('#fil-level').value=g.level;
+}
+function filExpected(g){let k=1;for(const i of g.path)if(g.num[i])k++;return k;}
+function filLast(g){let K=0;for(const v of g.num)if(v>K)K=v;return K;}
+function filDraw(){
+  const g=FL.game,n=g.n,svg=$('.fsvg',filBoard);
+  let s='<rect x="0" y="0" width="'+n+'" height="'+n+'" fill="#fff"/>';
+  if(g.path.length){
+    s+='<g fill="#dfe4f8">';
+    for(const i of g.path)s+='<rect x="'+(i%n)+'" y="'+Math.floor(i/n)+'" width="1" height="1"/>';
+    s+='</g>';
+  }
+  s+='<g stroke="#c4c4c4" stroke-width="1">';
+  for(let k=1;k<n;k++)s+='<line x1="'+k+'" y1="0" x2="'+k+'" y2="'+n+'" vector-effect="non-scaling-stroke"/><line x1="0" y1="'+k+'" x2="'+n+'" y2="'+k+'" vector-effect="non-scaling-stroke"/>';
+  s+='</g>';
+  const col=g.solved?'#128A2E':'#1F3FD1';
+  if(g.path.length>1)s+='<polyline fill="none" stroke="'+col+'" stroke-width=".36" stroke-linejoin="miter" stroke-linecap="square" points="'+g.path.map(i=>(i%n+.5)+','+(Math.floor(i/n)+.5)).join(' ')+'"/>';
+  if(g.walls.length){
+    s+='<g stroke="#000" stroke-width=".13" stroke-linecap="square">';
+    for(const w of g.walls){
+      const a=Math.floor(w/1000),b=w%1000,ra=Math.floor(a/n),ca=a%n;
+      if(b===a+1)s+='<line x1="'+(ca+1)+'" y1="'+ra+'" x2="'+(ca+1)+'" y2="'+(ra+1)+'"/>';
+      else s+='<line x1="'+ca+'" y1="'+(ra+1)+'" x2="'+(ca+1)+'" y2="'+(ra+1)+'"/>';
+    }
+    s+='</g>';
+  }
+  const next=filExpected(g),onPath=new Set(g.path);
+  g.num.forEach((v,i)=>{
+    if(!v)return;
+    const x=i%n,y=Math.floor(i/n),t='translate('+(x+.16)+' '+(y+.16)+') scale('+(.68/16)+')';
+    if(!g.solved&&v===next)s+='<path transform="'+t+'" fill="#FFE500" d="'+FIL_RING+'"/>';
+    s+='<path transform="'+t+'" fill="'+(onPath.has(i)?col:'#000')+'" d="'+FIL_DISC+'"/>';
+    s+='<text x="'+(x+.5)+'" y="'+(y+.53)+'" font-size="'+(v>9?.3:.36)+'" font-weight="600" fill="#fff" text-anchor="middle" dominant-baseline="middle" font-family="Pixelify Sans, monospace">'+v+'</text>';
+  });
+  if(g.path.length&&!g.solved){
+    const e=g.path[g.path.length-1];
+    if(!g.num[e])s+='<rect x="'+(e%n+.34)+'" y="'+(Math.floor(e/n)+.34)+'" width=".32" height=".32" fill="#fff" stroke="#000" stroke-width=".06"/>';
+  }
+  svg.innerHTML=s;
+}
+function filRefresh(){
+  const g=FL.game;if(!g)return;
+  filDraw();
+  const n=g.n;
+  filCells().forEach((b,i)=>{
+    const k=g.path.indexOf(i);
+    let t='Ligne '+(Math.floor(i/n)+1)+', colonne '+(i%n+1);
+    if(g.num[i])t+=', numéro '+g.num[i];
+    t+=k<0?', libre':k===g.path.length-1?', bout du fil':', sur le fil';
+    b.setAttribute('aria-label',t);
+  });
+  filBoard.classList.toggle('locked',!!g.solved);
+  $('#fil-title').textContent=filTitle(g);
+  if(S.screen==='fil')document.title=filTitle(g)+' · SobreJoK';
+  $('#fil-count').textContent='Cases '+g.path.length+' / '+n*n;
+  $('#fil-undo').disabled=!g.undo.length||g.solved;
+  $('#fil-redo').disabled=!g.redo.length||g.solved;
+  $('#fil-hint').disabled=!!g.solved;
+  $('#fil-clear').disabled=!!g.solved||!g.path.length;
+  showFilTime();
+  buildGames();
+}
+function filMessage(t,kind){const m=$('#fil-msg');m.textContent=t||'';m.className='fill'+(kind?' '+kind:'');}
+function filHelpNote(){
+  const n=$('#fil-note');n.className='note plain';
+  n.textContent='Glissez depuis le 1 pour tirer le fil. Revenez en arrière pour l’effacer, ou touchez une case du fil pour le couper là.';
+}
+function filNote(title,text){const n=$('#fil-note');n.className='note';n.innerHTML='<span class="t">'+escH(title)+'</span>'+escH(text);}
+
+/* ---------- Tirer le fil ---------- */
+let filWarnAt=0;
+function filWarn(t){const now=Date.now();if(now-filWarnAt>600){filMessage(t,'warn');filWarnAt=now;}}
+function filCanStep(g,j,quiet){
+  const e=g.path[g.path.length-1];
+  if(!FIL_ADJ[e].includes(j)){
+    if(!quiet&&FIL.nbrs(g.n,e).includes(j))filWarn('Un mur bloque le passage.');
+    return false;
+  }
+  if(g.path.includes(j))return false;
+  const K=filLast(g);
+  if(g.num[e]===K){if(!quiet)filWarn('Le fil s’arrête au '+K+', le dernier numéro.');return false;}
+  const nx=filExpected(g);
+  if(g.num[j]&&g.num[j]!==nx){if(!quiet)filWarn('Passez d’abord par le '+nx+'.');return false;}
+  return true;
+}
+// déplace le bout du fil vers la case visée : recule, coupe ou avance pas à pas
+function filSteer(g,target){
+  const p=g.path;
+  if(!p.length)return;
+  const k=p.indexOf(target);
+  if(k>=0){if(k<p.length-1)p.length=k+1;return;}
+  for(let guard=0;guard<g.n*2;guard++){
+    const e=p[p.length-1];if(e===target)return;
+    const n=g.n,er=Math.floor(e/n),ec=e%n,tr=Math.floor(target/n),tc=target%n;
+    const dr=Math.sign(tr-er),dc=Math.sign(tc-ec);
+    const order=Math.abs(tr-er)>=Math.abs(tc-ec)?[[dr,0],[0,dc]]:[[0,dc],[dr,0]];
+    let moved=false;
+    for(const [a,b] of order){
+      if(!a&&!b)continue;
+      const j=(er+a)*n+(ec+b),last=(er+a)===tr&&(ec+b)===tc;
+      if(filCanStep(g,j,!last)){p.push(j);moved=true;break;}
+    }
+    if(!moved)return;
+  }
+}
+function filCellAt(x,y){
+  const g=FL.game,r=filBoard.getBoundingClientRect(),q=r.width/g.n;
+  const c=Math.floor((x-r.left)/q),rr=Math.floor((y-r.top)/q);
+  if(c<0||rr<0||c>=g.n||rr>=g.n)return -1;
+  return rr*g.n+c;
+}
+let filDrag=null;
+filBoard.addEventListener('pointerdown',e=>{
+  const g=FL.game;if(!g||g.solved||e.button>0)return;
+  const i=filCellAt(e.clientX,e.clientY);if(i<0)return;
+  e.preventDefault();
+  try{filBoard.setPointerCapture(e.pointerId);}catch(err){}
+  filFocusCell(i,true);
+  const before=g.path.slice();
+  if(!g.path.length){
+    if(g.num[i]!==1){filWarn('Le fil part du 1.');filFlash([g.num.indexOf(1)]);return;}
+    g.path.push(i);
+  }else if(g.path.includes(i))g.path.length=g.path.indexOf(i)+1;
+  else filSteer(g,i);
+  filDrag={before,last:i};
+  filAfter(false);
+});
+filBoard.addEventListener('pointermove',e=>{
+  if(!filDrag)return;
+  const g=FL.game,i=filCellAt(e.clientX,e.clientY);
+  if(i<0||i===filDrag.last)return;
+  filDrag.last=i;
+  const p=g.path;
+  if(p.length>=2&&i===p[p.length-2])p.pop();
+  else filSteer(g,i);
+  filAfter(false);
+});
+function filEndDrag(){
+  if(!filDrag)return;
+  const g=FL.game,b=filDrag.before;filDrag=null;
+  if(b.join()!==g.path.join())filCommit(b);
+}
+filBoard.addEventListener('pointerup',filEndDrag);
+filBoard.addEventListener('pointercancel',filEndDrag);
+filBoard.addEventListener('contextmenu',e=>e.preventDefault());
+function filCommit(before){
+  const g=FL.game;
+  g.undo.push(before);if(g.undo.length>300)g.undo.shift();
+  g.redo=[];g.moves++;
+  filAfter(true);
+}
+function filAfter(final){
+  const g=FL.game;
+  filRefresh();
+  if(!final)return;
+  save();filTimerSync();
+  const N2=g.n*g.n,K=filLast(g);
+  if(g.path.length===N2&&g.num[g.path[N2-1]]===K){filWin();return;}
+  const e=g.path[g.path.length-1];
+  if(g.path.length&&g.num[e]===K&&g.path.length<N2){
+    const left=N2-g.path.length;
+    filMessage('Le fil est arrivé au '+K+', mais il reste '+left+' case'+(left>1?'s':'')+' à parcourir.','warn');
+  }else if(Date.now()-filWarnAt>600)filMessage('');
+}
+function filUndo(){const g=FL.game;if(!g||g.solved||!g.undo.length)return;g.redo.push(g.path.slice());g.path=g.undo.pop();g.moves++;filAfter(true);}
+function filRedo(){const g=FL.game;if(!g||g.solved||!g.redo.length)return;g.undo.push(g.path.slice());g.path=g.redo.pop();g.moves++;filAfter(true);}
+function filClear(){
+  const g=FL.game;if(!g||g.solved||!g.path.length)return;
+  const before=g.path.slice();g.path=[];filCommit(before);filMessage('Fil effacé. Repartez du 1.');
+}
+function filFlash(list){
+  const cells=filCells();
+  $$('.fc.hint',filBoard).forEach(b=>b.classList.remove('hint'));
+  list.forEach(i=>{if(i<0)return;void cells[i].offsetWidth;cells[i].classList.add('hint');});
+}
+// indice : un pas de plus sur le bon chemin, ou retour au dernier passage sûr
+function filHint(){
+  const g=FL.game;if(!g||g.solved)return;
+  const p=g.path,s=g.sol;
+  let d=0;while(d<p.length&&p[d]===s[d])d++;
+  g.hints++;
+  const before=p.slice();
+  if(d<p.length){
+    g.path=p.slice(0,Math.max(1,d));
+    filCommit(before);
+    filFlash([g.path[g.path.length-1]]);
+    filNote('Le fil s’égarait','À partir de la case qui clignote, le fil ne menait pas à la solution. Je l’ai raccourci jusque-là.');
+    return;
+  }
+  g.path=p.concat([s[p.length]]);
+  filCommit(before);
+  if(!g.solved){
+    filFlash([g.path[g.path.length-1]]);
+    filNote('Indice',p.length?'Le fil continue par la case qui clignote.':'Le fil part du 1 : je l’ai posé pour vous.');
+  }
+}
+function filFocusCell(i,noFocus){
+  const cells=filCells();
+  if(cells[filFocus])cells[filFocus].tabIndex=-1;
+  filFocus=i;cells[i].tabIndex=0;
+  if(!noFocus)cells[i].focus({preventScroll:true});
+}
+filBoard.addEventListener('keydown',e=>{
+  const b=e.target.closest('.fc');if(!b||e.metaKey||e.ctrlKey||e.altKey)return;
+  const g=FL.game;if(!g)return;
+  const n=g.n,i=+b.dataset.i;
+  const mv={ArrowUp:[-1,0],ArrowDown:[1,0],ArrowLeft:[0,-1],ArrowRight:[0,1]}[e.key];
+  if(mv){
+    e.preventDefault();
+    if(!g.path.length||g.solved){const r=Math.floor(i/n),c=i%n;filFocusCell(Math.min(n-1,Math.max(0,r+mv[0]))*n+Math.min(n-1,Math.max(0,c+mv[1])));return;}
+    const end=g.path[g.path.length-1],r=Math.floor(end/n),c=end%n,rr=r+mv[0],cc=c+mv[1];
+    if(rr<0||cc<0||rr>=n||cc>=n)return;
+    const j=rr*n+cc,before=g.path.slice();
+    if(g.path.length>=2&&j===g.path[g.path.length-2])g.path.pop();
+    else if(filCanStep(g,j,false))g.path.push(j);
+    if(before.join()!==g.path.join()){filCommit(before);filFocusCell(g.path[g.path.length-1]);}
+    return;
+  }
+  const k=e.key.toLowerCase();
+  if(k===' '||k==='enter'){
+    e.preventDefault();
+    if(!g.path.length){if(g.num[i]===1){g.path=[i];filCommit([]);}else{filWarn('Le fil part du 1.');filFlash([g.num.indexOf(1)]);}}
+    else{const before=g.path.slice();filSteer(g,i);if(before.join()!==g.path.join())filCommit(before);}
+  }else if(k==='backspace'||k==='delete'){
+    e.preventDefault();
+    if(g.path.length&&!g.solved){const before=g.path.slice();g.path.pop();filCommit(before);if(g.path.length)filFocusCell(g.path[g.path.length-1]);}
+  }
+});
+$('#fil-level').addEventListener('change',()=>{FL.prefs.level=$('#fil-level').value;save();});
+
+function filWin(){
+  const g=FL.game;
+  g.elapsed=filElapsed();filRunSince=null;
+  g.solved=true;g.undo=[];g.redo=[];
+  const t=g.elapsed,prev=FL.best[g.level];
+  if(g.kind==='daily'&&!FL.daily[g.date])FL.daily[g.date]={time:t,hints:g.hints};
+  if(!g.hints&&(prev==null||t<prev))FL.best[g.level]=t;
+  save();filRefresh();
+  filBoard.classList.add('won');
+  filMessage('Grille résolue en '+words(t)+(g.hints?' avec '+g.hints+' indice'+(g.hints>1?'s':''):' sans indice'),'ok');
+  setTimeout(()=>{
+    if(FL.game!==g||S.screen!=='fil')return;
+    const best=FL.best[g.level];
+    openDialog({title:'Grille résolue',heading:false,width:400,build:b=>{
+      b.appendChild(el('div',{class:'dlg-row'},el('div',{class:'dlg-ico','aria-hidden':'true',html:FIL_ICON}),
+        el('div',{style:'display:flex;flex-direction:column;gap:6px'},
+          el('p',{html:'<strong>Bravo, le fil passe partout !</strong>'}),
+          el('p',{text:g.kind==='daily'?'Grille du '+(g.date===todayKey()?'jour':shortDay(g.date))+', 7 × 7.':'Grille '+LEVEL_ADJ[g.level]+', '+g.n+' × '+g.n+'.'}))));
+      const sc=el('div',{class:'score'});
+      sc.appendChild(el('span',{text:'Temps'}));sc.appendChild(el('strong',{text:words(t)}));
+      sc.appendChild(el('span',{text:'Indices'}));sc.appendChild(el('span',{text:g.hints?String(g.hints):'aucun'}));
+      sc.appendChild(el('span',{text:'Record '+LEVEL_LABEL[g.level].toLowerCase()}));
+      sc.appendChild(el('span',{text:g.hints?(best!=null?words(best)+' (les grilles avec indice ne comptent pas)':'pas encore, sans indice'):(prev==null?words(t)+' : premier record !':t<prev?words(t)+' : nouveau record !':words(best))}));
+      b.appendChild(sc);
+    },buttons:[{label:'Revenir aux jeux',value:'games',left:true},{label:'Fermer',value:null,cancel:true},{label:'Nouvelle grille',value:'new',default:true}]}).then(v=>{
+      if(v==='new')filNew(g.kind==='daily'?'moyen':g.level);
+      else if(v==='games')showScreen('games');
+    });
+  },1400);
+}
+function filRules(){
+  openDialog({title:'Règles de FiL',width:480,build:b=>{
+    b.appendChild(el('p',{text:'Tirez un seul fil qui passe par toutes les cases de la grille.'}));
+    b.appendChild(el('ul',{html:
+      '<li>Le fil part du <strong>1</strong> et passe par les numéros <strong>dans l’ordre</strong>, jusqu’au dernier, où il s’arrête.</li>'+
+      '<li>Il passe par <strong>chaque case une seule fois</strong>.</li>'+
+      '<li>Il avance d’une case à la fois, en ligne droite ou en tournant, jamais en diagonale.</li>'+
+      '<li>Les <strong>murs</strong> noirs épais ne se traversent pas.</li>'+
+      '<li>Chaque grille a une seule solution. Facile : 6 × 6. Moyen : 7 × 7. Difficile : 8 × 8, avec moins de numéros et plus de murs.</li>'}));
+    b.appendChild(el('div',{class:'cap',text:'COMMANDES'}));
+    b.appendChild(el('div',{class:'keys',html:
+      '<b>Glisser</b><span>tirer le fil depuis le 1, ou depuis son bout</span>'+
+      '<b>Revenir</b><span>repasser sur le fil l’efface jusque-là</span>'+
+      '<b>Clic sur le fil</b><span>le couper à cette case</span>'+
+      '<b>Flèches</b><span>prolonger le fil depuis son bout, ou reculer</span>'+
+      '<b>Retour arrière</b><span>reculer d’une case</span>'+
+      '<b>H</b><span>indice : un pas de plus sur le bon chemin</span>'+
+      '<b>'+MOD+'Z</b><span>annuler</span>'}));
+  },buttons:[{label:'Jouer',value:true,default:true,cancel:true}]});
+}
+
+/* =========================================================
+   LuX : éteindre toutes les lumières (type Lights Out)
+   ========================================================= */
+const LX=S.lux={prefs:{level:'moyen',rulesSeen:false},best:{facile:null,moyen:null,difficile:null},bestMoves:{facile:null,moyen:null,difficile:null},daily:{},game:null};
+const BULB_ON='<svg viewBox="0 0 20 20" aria-hidden="true"><path fill="#FFF6A0" d="M8 0h1v1h-1zM10 0h1v1h-1zM12 0h1v1h-1zM5 1h1v1h-1zM7 1h1v1h-1zM9 1h1v1h-1zM11 1h1v1h-1zM13 1h1v1h-1zM4 2h1v1h-1zM6 2h1v1h-1zM14 2h1v1h-1zM3 3h1v1h-1zM5 3h1v1h-1zM15 3h1v1h-1zM4 4h1v1h-1zM16 4h1v1h-1zM3 5h1v1h-1zM17 5h1v1h-1zM2 6h1v1h-1zM16 6h1v1h-1zM17 7h1v1h-1zM2 8h1v1h-1zM17 9h1v1h-1zM2 10h1v1h-1zM16 10h1v1h-1zM3 11h1v1h-1zM17 11h1v1h-1zM4 12h1v1h-1zM16 12h1v1h-1zM3 13h1v1h-1zM5 13h1v1h-1zM15 13h1v1h-1z"/><path fill="#FFFBE0" d="M7 3h6v1h-6zM6 4h2v1h-2zM9 4h5v1h-5zM5 5h2v1h-2zM8 5h7v1h-7zM5 6h2v1h-2zM8 6h7v1h-7zM4 7h3v1h-3zM8 7h1v1h-1zM11 7h5v1h-5zM4 8h4v1h-4zM12 8h4v1h-4zM4 9h4v1h-4zM9 9h2v1h-2zM12 9h4v1h-4zM5 10h3v1h-3zM9 10h2v1h-2zM12 10h3v1h-3zM5 11h3v1h-3zM9 11h2v1h-2zM12 11h3v1h-3zM7 12h1v1h-1zM9 12h2v1h-2zM12 12h1v1h-1zM7 13h6v1h-6z"/><path fill="#fff" d="M8 4h1v1h-1zM7 5h1v1h-1zM7 6h1v1h-1zM7 7h1v1h-1z"/><path fill="#D7141A" d="M9 7h2v1h-2zM8 8h4v1h-4zM8 9h1v1h-1zM11 9h1v1h-1zM8 10h1v1h-1zM11 10h1v1h-1zM8 11h1v1h-1zM11 11h1v1h-1zM8 12h1v1h-1zM11 12h1v1h-1z"/><path fill="#000" d="M7 2h6v1h-6zM6 3h1v1h-1zM13 3h1v1h-1zM5 4h1v1h-1zM14 4h1v1h-1zM4 5h1v1h-1zM15 5h1v1h-1zM4 6h1v1h-1zM15 6h1v1h-1zM3 7h1v1h-1zM16 7h1v1h-1zM3 8h1v1h-1zM16 8h1v1h-1zM3 9h1v1h-1zM16 9h1v1h-1zM4 10h1v1h-1zM15 10h1v1h-1zM4 11h1v1h-1zM15 11h1v1h-1zM5 12h2v1h-2zM13 12h2v1h-2zM6 13h1v1h-1zM13 13h1v1h-1z"/><path fill="#9a9a9a" d="M7 14h6v1h-6zM7 16h6v1h-6z"/><path fill="#5a5a5a" d="M7 15h6v1h-6zM7 17h6v1h-6z"/><path fill="#000" d="M9 18h2v1h-2z"/></svg>';
+const BULB_OFF='<svg viewBox="0 0 20 20" aria-hidden="true"><path fill="#4a4a4a" d="M7 3h6v1h-6zM6 4h8v1h-8zM5 5h10v1h-10zM5 6h10v1h-10zM4 7h5v1h-5zM11 7h5v1h-5zM4 8h4v1h-4zM12 8h4v1h-4zM4 9h4v1h-4zM9 9h2v1h-2zM12 9h4v1h-4zM5 10h3v1h-3zM9 10h2v1h-2zM12 10h3v1h-3zM5 11h3v1h-3zM9 11h2v1h-2zM12 11h3v1h-3zM7 12h1v1h-1zM9 12h2v1h-2zM12 12h1v1h-1zM7 13h6v1h-6z"/><path fill="#262626" d="M9 7h2v1h-2zM8 8h4v1h-4zM8 9h1v1h-1zM11 9h1v1h-1zM8 10h1v1h-1zM11 10h1v1h-1zM8 11h1v1h-1zM11 11h1v1h-1zM8 12h1v1h-1zM11 12h1v1h-1z"/><path fill="#8a8a8a" d="M7 2h6v1h-6zM6 3h1v1h-1zM13 3h1v1h-1zM5 4h1v1h-1zM14 4h1v1h-1zM4 5h1v1h-1zM15 5h1v1h-1zM4 6h1v1h-1zM15 6h1v1h-1zM3 7h1v1h-1zM16 7h1v1h-1zM3 8h1v1h-1zM16 8h1v1h-1zM3 9h1v1h-1zM16 9h1v1h-1zM4 10h1v1h-1zM15 10h1v1h-1zM4 11h1v1h-1zM15 11h1v1h-1zM5 12h2v1h-2zM13 12h2v1h-2zM6 13h1v1h-1zM13 13h1v1h-1z"/><path fill="#6a6a6a" d="M7 14h6v1h-6zM7 16h6v1h-6z"/><path fill="#3a3a3a" d="M7 15h6v1h-6zM7 17h6v1h-6z"/><path fill="#8a8a8a" d="M9 18h2v1h-2z"/></svg>';
+const LUX_ICON='<svg viewBox="0 0 32 32" shape-rendering="crispEdges" aria-hidden="true"><path fill="#000000" d="M0 0h32v1h-32zM0 1h32v1h-32zM0 2h2v1h-2zM15 2h2v1h-2zM30 2h2v1h-2zM0 3h2v1h-2zM6 3h5v1h-5zM15 3h2v1h-2zM30 3h2v1h-2zM0 4h2v1h-2zM5 4h1v1h-1zM11 4h1v1h-1zM15 4h2v1h-2zM30 4h2v1h-2zM0 5h2v1h-2zM4 5h1v1h-1zM12 5h1v1h-1zM15 5h2v1h-2zM30 5h2v1h-2zM0 6h2v1h-2zM4 6h1v1h-1zM12 6h1v1h-1zM15 6h2v1h-2zM30 6h2v1h-2zM0 7h2v1h-2zM4 7h1v1h-1zM12 7h1v1h-1zM15 7h2v1h-2zM30 7h2v1h-2zM0 8h2v1h-2zM4 8h1v1h-1zM12 8h1v1h-1zM15 8h2v1h-2zM30 8h2v1h-2zM0 9h2v1h-2zM5 9h1v1h-1zM11 9h1v1h-1zM15 9h2v1h-2zM30 9h2v1h-2zM0 10h2v1h-2zM6 10h1v1h-1zM10 10h1v1h-1zM15 10h2v1h-2zM30 10h2v1h-2zM0 11h2v1h-2zM15 11h2v1h-2zM30 11h2v1h-2zM0 12h2v1h-2zM15 12h2v1h-2zM30 12h2v1h-2zM0 13h2v1h-2zM15 13h2v1h-2zM30 13h2v1h-2zM0 14h2v1h-2zM7 14h3v1h-3zM15 14h2v1h-2zM30 14h2v1h-2zM0 15h32v1h-32zM0 16h32v1h-32zM0 17h2v1h-2zM15 17h2v1h-2zM30 17h2v1h-2zM0 18h2v1h-2zM15 18h2v1h-2zM21 18h5v1h-5zM30 18h2v1h-2zM0 19h2v1h-2zM15 19h2v1h-2zM20 19h1v1h-1zM26 19h1v1h-1zM30 19h2v1h-2zM0 20h2v1h-2zM15 20h2v1h-2zM19 20h1v1h-1zM27 20h1v1h-1zM30 20h2v1h-2zM0 21h2v1h-2zM15 21h2v1h-2zM19 21h1v1h-1zM27 21h1v1h-1zM30 21h2v1h-2zM0 22h2v1h-2zM15 22h2v1h-2zM19 22h1v1h-1zM27 22h1v1h-1zM30 22h2v1h-2zM0 23h2v1h-2zM15 23h2v1h-2zM19 23h1v1h-1zM27 23h1v1h-1zM30 23h2v1h-2zM0 24h2v1h-2zM15 24h2v1h-2zM20 24h1v1h-1zM26 24h1v1h-1zM30 24h2v1h-2zM0 25h2v1h-2zM15 25h2v1h-2zM21 25h1v1h-1zM25 25h1v1h-1zM30 25h2v1h-2zM0 26h2v1h-2zM15 26h2v1h-2zM30 26h2v1h-2zM0 27h2v1h-2zM15 27h2v1h-2zM30 27h2v1h-2zM0 28h2v1h-2zM15 28h2v1h-2zM30 28h2v1h-2zM0 29h2v1h-2zM15 29h2v1h-2zM22 29h3v1h-3zM30 29h2v1h-2zM0 30h32v1h-32zM0 31h32v1h-32z"/><path fill="#FFFFFF" d="M6 5h1v1h-1zM21 20h1v1h-1z"/><path fill="#FFE500" d="M2 2h13v1h-13zM2 3h4v1h-4zM11 3h4v1h-4zM2 4h3v1h-3zM12 4h3v1h-3zM2 5h2v1h-2zM13 5h2v1h-2zM2 6h2v1h-2zM13 6h2v1h-2zM2 7h2v1h-2zM13 7h2v1h-2zM2 8h2v1h-2zM13 8h2v1h-2zM2 9h3v1h-3zM12 9h3v1h-3zM2 10h4v1h-4zM11 10h4v1h-4zM2 11h4v1h-4zM11 11h4v1h-4zM2 12h4v1h-4zM11 12h4v1h-4zM2 13h4v1h-4zM11 13h4v1h-4zM2 14h5v1h-5zM10 14h5v1h-5zM17 17h13v1h-13zM17 18h4v1h-4zM26 18h4v1h-4zM17 19h3v1h-3zM27 19h3v1h-3zM17 20h2v1h-2zM28 20h2v1h-2zM17 21h2v1h-2zM28 21h2v1h-2zM17 22h2v1h-2zM28 22h2v1h-2zM17 23h2v1h-2zM28 23h2v1h-2zM17 24h3v1h-3zM27 24h3v1h-3zM17 25h4v1h-4zM26 25h4v1h-4zM17 26h4v1h-4zM26 26h4v1h-4zM17 27h4v1h-4zM26 27h4v1h-4zM17 28h4v1h-4zM26 28h4v1h-4zM17 29h5v1h-5zM25 29h5v1h-5z"/><path fill="#FFFBE0" d="M6 4h5v1h-5zM5 5h1v1h-1zM7 5h5v1h-5zM5 6h2v1h-2zM10 6h2v1h-2zM5 7h2v1h-2zM8 7h1v1h-1zM10 7h2v1h-2zM5 8h7v1h-7zM6 9h5v1h-5zM7 10h3v1h-3zM21 19h5v1h-5zM20 20h1v1h-1zM22 20h5v1h-5zM20 21h2v1h-2zM25 21h2v1h-2zM20 22h2v1h-2zM23 22h1v1h-1zM25 22h2v1h-2zM20 23h7v1h-7zM21 24h5v1h-5zM22 25h3v1h-3z"/><path fill="#D7141A" d="M7 6h3v1h-3zM7 7h1v1h-1zM9 7h1v1h-1zM22 21h3v1h-3zM22 22h1v1h-1zM24 22h1v1h-1z"/><path fill="#9A9A9A" d="M6 11h5v1h-5zM6 13h5v1h-5zM21 26h5v1h-5zM21 28h5v1h-5z"/><path fill="#5A5A5A" d="M21 11h5v1h-5zM6 12h5v1h-5zM21 13h5v1h-5zM6 26h5v1h-5zM21 27h5v1h-5zM6 28h5v1h-5z"/><path fill="#2E2E2E" d="M17 2h13v1h-13zM17 3h4v1h-4zM26 3h4v1h-4zM17 4h3v1h-3zM27 4h3v1h-3zM17 5h2v1h-2zM28 5h2v1h-2zM17 6h2v1h-2zM28 6h2v1h-2zM17 7h2v1h-2zM28 7h2v1h-2zM17 8h2v1h-2zM28 8h2v1h-2zM17 9h3v1h-3zM27 9h3v1h-3zM17 10h4v1h-4zM26 10h4v1h-4zM17 11h4v1h-4zM26 11h4v1h-4zM17 12h4v1h-4zM26 12h4v1h-4zM17 13h4v1h-4zM26 13h4v1h-4zM17 14h5v1h-5zM25 14h5v1h-5zM2 17h13v1h-13zM2 18h4v1h-4zM11 18h4v1h-4zM2 19h3v1h-3zM12 19h3v1h-3zM2 20h2v1h-2zM13 20h2v1h-2zM2 21h2v1h-2zM13 21h2v1h-2zM2 22h2v1h-2zM13 22h2v1h-2zM2 23h2v1h-2zM13 23h2v1h-2zM2 24h3v1h-3zM12 24h3v1h-3zM2 25h4v1h-4zM11 25h4v1h-4zM2 26h4v1h-4zM11 26h4v1h-4zM2 27h4v1h-4zM11 27h4v1h-4zM2 28h4v1h-4zM11 28h4v1h-4zM2 29h5v1h-5zM10 29h5v1h-5z"/><path fill="#4A4A4A" d="M21 4h5v1h-5zM20 5h7v1h-7zM20 6h2v1h-2zM25 6h2v1h-2zM20 7h2v1h-2zM23 7h1v1h-1zM25 7h2v1h-2zM20 8h7v1h-7zM21 9h5v1h-5zM22 10h3v1h-3zM6 19h5v1h-5zM5 20h7v1h-7zM5 21h2v1h-2zM10 21h2v1h-2zM5 22h2v1h-2zM8 22h1v1h-1zM10 22h2v1h-2zM5 23h7v1h-7zM6 24h5v1h-5zM7 25h3v1h-3z"/><path fill="#8A8A8A" d="M21 3h5v1h-5zM20 4h1v1h-1zM26 4h1v1h-1zM19 5h1v1h-1zM27 5h1v1h-1zM19 6h1v1h-1zM27 6h1v1h-1zM19 7h1v1h-1zM27 7h1v1h-1zM19 8h1v1h-1zM27 8h1v1h-1zM20 9h1v1h-1zM26 9h1v1h-1zM21 10h1v1h-1zM25 10h1v1h-1zM22 14h3v1h-3zM6 18h5v1h-5zM5 19h1v1h-1zM11 19h1v1h-1zM4 20h1v1h-1zM12 20h1v1h-1zM4 21h1v1h-1zM12 21h1v1h-1zM4 22h1v1h-1zM12 22h1v1h-1zM4 23h1v1h-1zM12 23h1v1h-1zM5 24h1v1h-1zM11 24h1v1h-1zM6 25h1v1h-1zM10 25h1v1h-1zM7 29h3v1h-3z"/><path fill="#262626" d="M22 6h3v1h-3zM22 7h1v1h-1zM24 7h1v1h-1zM21 12h5v1h-5zM7 21h3v1h-3zM7 22h1v1h-1zM9 22h1v1h-1zM6 27h5v1h-5z"/></svg>';
+function validLux(g){
+  if(!g||!LUX.LEVELS[g.level])return false;
+  const N=g.n*g.n;
+  return g.n>=3&&g.n<=9&&Array.isArray(g.start)&&g.start.length===N&&Array.isArray(g.lights)&&g.lights.length===N&&Array.isArray(g.undo);
+}
+function luxTitle(g){
+  if(!g)return 'LuX';
+  if(g.kind==='daily')return 'LuX · Grille du '+(g.date===todayKey()?'jour':shortDay(g.date));
+  return 'LuX · Grille '+LEVEL_ADJ[g.level];
+}
+
+/* ---------- Chrono : il démarre au premier appui ---------- */
+let luxRunSince=null;
+function luxElapsed(){const g=LX.game;if(!g)return 0;return (g.elapsed||0)+(luxRunSince?Date.now()-luxRunSince:0);}
+function luxTimerSync(){
+  const g=LX.game;
+  const want=!!(g&&!g.solved&&g.started&&S.screen==='lux'&&!document.hidden&&splashGone&&$('#quit').hidden&&!document.querySelector('.ov.pause'));
+  if(want&&!luxRunSince)luxRunSince=Date.now();
+  else if(!want&&luxRunSince){g.elapsed=(g.elapsed||0)+Date.now()-luxRunSince;luxRunSince=null;save();}
+  showLuxTime();
+}
+function showLuxTime(){$('#lux-time').textContent=S.prefs.timer?'Temps '+clock(luxElapsed()):'Temps masqué';}
+setInterval(()=>{if(luxRunSince)showLuxTime();},500);
+
+/* ---------- Partie ---------- */
+function luxMake(kind,level,dateKey){
+  const seed=kind==='daily'?BIN.hashStr('LuX|'+dateKey):(Math.random()*4294967296)>>>0;
+  const p=LUX.generate(level,BIN.rngFrom(seed));
+  return {kind,level,date:dateKey||null,n:p.n,start:p.lights.slice(),lights:p.lights.slice(),par:p.par,
+    elapsed:0,hints:0,moves:0,started:false,shown:false,solved:false,undo:[],redo:[]};
+}
+function luxStart(g,msg){
+  luxRunSince=null;
+  LX.game=g;
+  luxBuild();luxRefresh();luxHelpNote();
+  luxMessage(msg||'');
+  save();luxTimerSync();
+}
+async function luxConfirmLeave(){
+  const g=LX.game;
+  if(!g||g.solved||!g.started)return true;
+  return confirmDlg('Laisser la grille en cours ?','Elle sera remplacée. Votre progression sur cette grille sera perdue.','Changer de grille');
+}
+async function luxDaily(){
+  const key=todayKey();
+  if(LX.game&&LX.game.kind==='daily'&&LX.game.date===key){luxMessage(LX.game.solved?'Grille du jour déjà résolue. Revenez demain !':'Grille du jour en cours');return;}
+  if(!(await luxConfirmLeave()))return;
+  const g=luxMake('daily','moyen',key);
+  const done=LX.daily[key];
+  if(done){g.lights=g.lights.map(()=>0);g.solved=true;g.started=true;g.elapsed=done.time;g.moves=done.moves;g.hints=done.hints||0;}
+  luxStart(g,done?'Grille du jour déjà résolue en '+words(done.time)+' et '+done.moves+' coups. Revenez demain !':'Grille du jour, 5 × 5 : la même pour tout le monde aujourd’hui');
+}
+async function luxNew(level){
+  level=LUX.LEVELS[level]?level:($('#lux-level').value||'moyen');
+  if(!(await luxConfirmLeave()))return;
+  LX.prefs.level=level;$('#lux-level').value=level;
+  const g=luxMake('free',level);
+  luxStart(g,'Nouvelle grille '+LEVEL_ADJ[level]+', '+g.n+' × '+g.n+' : '+g.par+' coups au minimum');
+}
+function luxRestart(){
+  const g=LX.game;if(!g)return;
+  if(g.solved&&g.kind==='daily'){luxMessage('La grille du jour est déjà résolue.');return;}
+  confirmDlg('Recommencer cette grille depuis le début ?','Les lumières reviennent comme au départ, le chrono repart de zéro.','Recommencer').then(ok=>{
+    if(!ok)return;
+    Object.assign(g,{lights:g.start.slice(),elapsed:0,hints:0,moves:0,started:false,shown:false,solved:false,undo:[],redo:[]});
+    luxStart(g,'Grille remise à zéro');
+  });
+}
+function openLux(){
+  showScreen('lux');
+  if(!LX.game)luxDaily();
+  else if(LX.game.solved&&!(LX.game.kind==='daily'&&LX.game.date===todayKey())&&!LX.daily[todayKey()])luxDaily();
+  if(!LX.prefs.rulesSeen){LX.prefs.rulesSeen=true;save();setTimeout(luxRules,60);}
+}
+
+/* ---------- Plateau ---------- */
+const luxBoard=$('#luxboard');
+let luxFocus=0;
+const luxCells=()=>$$('.lc',luxBoard);
+function luxBuild(){
+  const g=LX.game,n=g.n;
+  $('#w-lux').style.setProperty('--n',n);
+  luxBoard.innerHTML='';
+  luxBoard.classList.remove('won');
+  luxBoard.setAttribute('aria-label','Grille de LuX, '+n+' lignes et '+n+' colonnes');
+  if(luxFocus>=n*n)luxFocus=0;
+  for(let i=0;i<n*n;i++){
+    const r=Math.floor(i/n),c=i%n;
+    const b=el('button',{type:'button',class:'lc',role:'gridcell','data-i':i,tabindex:i===luxFocus?'0':'-1'});
+    b.style.setProperty('--d',((r+c)*55)+'ms');
+    luxBoard.appendChild(b);
+  }
+  $('#lux-level').value=g.level;
+}
+function luxRefresh(){
+  const g=LX.game;if(!g)return;
+  const s=g.shown&&!g.solved?LUX.solve(g.n,g.lights):null;
+  luxCells().forEach((b,i)=>{
+    const on=!!g.lights[i],dot=!!(s&&s.x[i]);
+    const key=(on?'1':'0')+(dot?'d':'');
+    if(b.dataset.k!==key){
+      b.classList.toggle('on',on);
+      b.innerHTML=on?BULB_ON:BULB_OFF;
+      b.classList.toggle('dot',dot);
+      b.dataset.k=key;
+    }
+    b.setAttribute('aria-label','Ligne '+(Math.floor(i/g.n)+1)+', colonne '+(i%g.n+1)+' : '+(on?'allumée':'éteinte')+(dot?', à appuyer':''));
+  });
+  luxBoard.classList.toggle('locked',!!g.solved);
+  $('#lux-title').textContent=luxTitle(g);
+  if(S.screen==='lux')document.title=luxTitle(g)+' · SobreJoK';
+  const lit=g.lights.reduce((a,v)=>a+v,0);
+  $('#lux-count').textContent='Allumées '+lit+' / '+g.n*g.n;
+  $('#lux-moves').textContent='Coups '+g.moves+' · minimum '+g.par;
+  $('#lux-undo').disabled=!g.undo.length||g.solved;
+  $('#lux-redo').disabled=!g.redo.length||g.solved;
+  $('#lux-hint').disabled=!!g.solved;
+  $('#lux-show').disabled=!!g.solved;
+  $('#lux-show').setAttribute('aria-pressed',g.shown&&!g.solved?'true':'false');
+  showLuxTime();
+  buildGames();
+}
+function luxMessage(t,kind){const m=$('#lux-msg');m.textContent=t||'';m.className='fill'+(kind?' '+kind:'');}
+function luxHelpNote(){
+  const n=$('#lux-note');n.className='note plain';
+  n.textContent='Éteignez toutes les lumières. Chaque appui inverse la case et ses quatre voisines : en haut, en bas, à gauche, à droite.';
+}
+function luxNote(title,text){const n=$('#lux-note');n.className='note';n.innerHTML='<span class="t">'+escH(title)+'</span>'+escH(text);}
+
+/* ---------- Jouer ---------- */
+// rec : absent = nouvel appui ; -1 = annulation ; +1 = rétablissement
+function luxPress(i,rec){
+  const g=LX.game;if(!g||g.solved)return;
+  LUX.press(g.n,g.lights,i);
+  if(rec===undefined){g.undo.push(i);g.redo=[];if(g.undo.length>500)g.undo.shift();g.moves++;}
+  else g.moves+=rec;
+  g.started=true;
+  const cells=luxCells();
+  for(const j of LUX.affected(g.n,i)){const c=cells[j];c.classList.remove('flip');void c.offsetWidth;c.classList.add('flip');}
+  $$('.lc.hint',luxBoard).forEach(b=>b.classList.remove('hint'));
+  luxRefresh();save();luxTimerSync();
+  if(!g.lights.some(v=>v)){luxWin();return;}
+  if(g.moves>=g.par*3&&g.moves%10===0&&!g.shown)luxMessage('Astuce : appuyer deux fois sur une case l’annule, et l’ordre des appuis ne compte pas.');
+  else luxMessage('');
+}
+function luxUndo(){const g=LX.game;if(!g||g.solved||!g.undo.length)return;const i=g.undo.pop();g.redo.push(i);luxPress(i,-1);}
+function luxRedo(){const g=LX.game;if(!g||g.solved||!g.redo.length)return;const i=g.redo.pop();g.undo.push(i);luxPress(i,1);}
+function luxHint(){
+  const g=LX.game;if(!g||g.solved)return;
+  const s=LUX.solve(g.n,g.lights);if(!s)return;
+  const i=s.x.findIndex(v=>v);
+  g.hints++;save();
+  const c=luxCells()[i];c.classList.remove('hint');void c.offsetWidth;c.classList.add('hint');
+  luxFocusCell(i);
+  luxNote('Indice · ligne '+(Math.floor(i/g.n)+1)+', colonne '+(i%g.n+1),'Appuyez sur la case qui clignote. D’ici, il reste '+s.w+' coup'+(s.w>1?'s':'')+' au minimum.');
+}
+function luxToggleShow(){
+  const g=LX.game;if(!g||g.solved)return;
+  g.shown=!g.shown;
+  if(g.shown)g.hints++;
+  save();luxRefresh();
+  if(g.shown)luxNote('Solution affichée','Les cases encadrées de rouge sont celles sur lesquelles appuyer, une fois chacune, dans n’importe quel ordre. Cette grille ne comptera pas pour les records.');
+  else luxHelpNote();
+}
+luxBoard.addEventListener('click',e=>{
+  const b=e.target.closest('.lc');if(!b)return;
+  if(e.detail===0)return; // clic produit par le clavier : déjà traité
+  const i=+b.dataset.i;luxFocusCell(i,true);luxPress(i);
+});
+function luxFocusCell(i,noFocus){
+  const cells=luxCells();
+  if(cells[luxFocus])cells[luxFocus].tabIndex=-1;
+  luxFocus=i;cells[i].tabIndex=0;
+  if(!noFocus)cells[i].focus({preventScroll:true});
+}
+luxBoard.addEventListener('keydown',e=>{
+  const b=e.target.closest('.lc');if(!b||e.metaKey||e.ctrlKey||e.altKey)return;
+  const g=LX.game,n=g.n,i=+b.dataset.i,r=Math.floor(i/n),c=i%n;
+  const mv={ArrowUp:[-1,0],ArrowDown:[1,0],ArrowLeft:[0,-1],ArrowRight:[0,1]}[e.key];
+  if(mv){e.preventDefault();luxFocusCell(((r+mv[0]+n)%n)*n+(c+mv[1]+n)%n);return;}
+  if(e.key===' '||e.key==='Enter'){e.preventDefault();luxPress(i);}
+});
+$('#lux-level').addEventListener('change',()=>{LX.prefs.level=$('#lux-level').value;save();});
+
+function luxWin(){
+  const g=LX.game;
+  g.elapsed=luxElapsed();luxRunSince=null;
+  g.solved=true;g.undo=[];g.redo=[];
+  const t=g.elapsed,prevT=LX.best[g.level],prevM=LX.bestMoves[g.level],clean=!g.hints;
+  if(g.kind==='daily'&&!LX.daily[g.date])LX.daily[g.date]={time:t,moves:g.moves,hints:g.hints};
+  if(clean){
+    if(prevT==null||t<prevT)LX.best[g.level]=t;
+    if(prevM==null||g.moves<prevM)LX.bestMoves[g.level]=g.moves;
+  }
+  save();luxRefresh();
+  luxBoard.classList.add('won');
+  const perfect=g.moves===g.par;
+  luxMessage('Tout est éteint en '+words(t)+' et '+g.moves+' coups'+(perfect?' : le minimum !':' (minimum '+g.par+')'),'ok');
+  setTimeout(()=>{
+    if(LX.game!==g||S.screen!=='lux')return;
+    openDialog({title:'Grille résolue',heading:false,width:410,build:b=>{
+      b.appendChild(el('div',{class:'dlg-row'},el('div',{class:'dlg-ico','aria-hidden':'true',html:LUX_ICON}),
+        el('div',{style:'display:flex;flex-direction:column;gap:6px'},
+          el('p',{html:'<strong>'+(perfect?'Parfait, toutes les lumières sont éteintes au plus court !':'Bravo, toutes les lumières sont éteintes !')+'</strong>'}),
+          el('p',{text:g.kind==='daily'?'Grille du '+(g.date===todayKey()?'jour':shortDay(g.date))+', 5 × 5.':'Grille '+LEVEL_ADJ[g.level]+', '+g.n+' × '+g.n+'.'}))));
+      const sc=el('div',{class:'score'});
+      const row=(a,v,strong)=>{sc.appendChild(el('span',{text:a}));sc.appendChild(el(strong?'strong':'span',{text:v}));};
+      row('Temps',words(t),true);
+      row('Coups',g.moves+' (minimum '+g.par+')');
+      row('Indices',g.hints?String(g.hints):'aucun');
+      if(!clean)row('Records '+LEVEL_LABEL[g.level].toLowerCase(),'cette grille ne compte pas (indice ou solution)');
+      else{
+        row('Record de temps',prevT==null?'premier record !':t<prevT?words(t)+' : nouveau record !':words(LX.best[g.level]));
+        row('Moins de coups',prevM==null?g.moves+' : premier record !':g.moves<prevM?g.moves+' : nouveau record !':String(LX.bestMoves[g.level]));
+      }
+      b.appendChild(sc);
+    },buttons:[{label:'Revenir aux jeux',value:'games',left:true},{label:'Fermer',value:null,cancel:true},{label:'Nouvelle grille',value:'new',default:true}]}).then(v=>{
+      if(v==='new')luxNew(g.kind==='daily'?'moyen':g.level);
+      else if(v==='games')showScreen('games');
+    });
+  },1400);
+}
+function luxRules(){
+  openDialog({title:'Règles de LuX',width:480,build:b=>{
+    b.appendChild(el('p',{text:'Éteignez toutes les lumières de la grille.'}));
+    b.appendChild(el('ul',{html:
+      '<li>Appuyer sur une case <strong>inverse cette case et ses quatre voisines</strong> (en haut, en bas, à gauche, à droite) : une lampe allumée s’éteint, une lampe éteinte s’allume.</li>'+
+      '<li>Les diagonales ne sont pas touchées, et le bord de la grille ne fait pas le tour.</li>'+
+      '<li>L’<strong>ordre</strong> des appuis ne compte pas, et appuyer <strong>deux fois</strong> sur la même case revient à ne rien faire.</li>'+
+      '<li>Chaque grille se résout. Le <strong>nombre minimum de coups</strong> est affiché : à vous de faire aussi bien.</li>'+
+      '<li>Facile et Moyen : 5 × 5. Difficile : 6 × 6.</li>'}));
+    b.appendChild(el('div',{class:'cap',text:'COMMANDES'}));
+    b.appendChild(el('div',{class:'keys',html:
+      '<b>Clic</b><span>appuyer sur la case</span>'+
+      '<b>Flèches</b><span>se déplacer dans la grille</span>'+
+      '<b>Espace, Entrée</b><span>appuyer sur la case choisie</span>'+
+      '<b>H</b><span>indice : une case du plan le plus court</span>'+
+      '<b>S</b><span>montrer ou cacher la solution</span>'+
+      '<b>'+MOD+'Z</b><span>annuler</span>'}));
+    b.appendChild(el('p',{style:'font-size:13px;color:var(--mute)',text:'Astuce classique : éteignez une ligne en appuyant juste en dessous de chaque lampe allumée, puis descendez ligne par ligne.'}));
+  },buttons:[{label:'Jouer',value:true,default:true,cancel:true}]});
+}
+
+/* =========================================================
    Dialogues (remplacent alert / confirm)
    ========================================================= */
 function openDialog(opt){
@@ -3069,9 +4077,9 @@ function inBin(){return S.screen==='bin';}
 function menuDefs(){
   const P=S.prefs,g=S.game;
   // Édition agit sur le jeu affiché (BiN ou ReX)
-  const ed=S.screen==='sol'?{g:SL.game,undo:solUndo,redo:solRedo,hint:null,clear:null}:S.screen==='rex'?{g:RX.game,undo:rexUndo,redo:rexRedo,hint:rexHint,clear:rexClear}:{g:inBin()?S.game:null,undo,redo,hint,clear:clearGrid};
+  const ed=S.screen==='fil'?{g:FL.game,undo:filUndo,redo:filRedo,hint:filHint,clear:filClear}:S.screen==='lux'?{g:LX.game,undo:luxUndo,redo:luxRedo,hint:luxHint,clear:null}:S.screen==='sol'?{g:SL.game,undo:solUndo,redo:solRedo,hint:null,clear:null}:S.screen==='rex'?{g:RX.game,undo:rexUndo,redo:rexRedo,hint:rexHint,clear:rexClear}:{g:inBin()?S.game:null,undo,redo,hint,clear:clearGrid};
   ed.live=!!(ed.g&&!ed.g.solved);
-  ed.filled=!!(ed.g&&(S.screen==='rex'?ed.g.cells.some(v=>v):ed.g.moves));
+  ed.filled=!!(ed.g&&(S.screen==='rex'?ed.g.cells.some(v=>v):S.screen==='fil'?ed.g.path.length:ed.g.moves));
   return [
     {id:'logo',logo:true,label:'SobreJoK',items:[{l:'À propos de SobreJoK…',a:about}]},
     {id:'file',label:'Fichier',items:[
@@ -3092,6 +4100,16 @@ function menuDefs(){
       {l:'SoL · Nouvelle donne, pioche par 1',a:()=>{showScreen('sol');solNew(1);}},
       {l:'SoL · Nouvelle donne, pioche par 3',a:()=>{showScreen('sol');solNew(3);}},
       {l:'SoL · Recommencer la donne…',dis:S.screen!=='sol'||!SL.game||!SL.game.undo.length,a:solRestart},'-',
+      {l:'FiL · Grille du jour',a:()=>{showScreen('fil');filDaily();}},
+      {l:'FiL · Nouvelle grille facile',a:()=>{showScreen('fil');filNew('facile');}},
+      {l:'FiL · Nouvelle grille moyenne',a:()=>{showScreen('fil');filNew('moyen');}},
+      {l:'FiL · Nouvelle grille difficile',a:()=>{showScreen('fil');filNew('difficile');}},
+      {l:'FiL · Recommencer la grille…',dis:S.screen!=='fil'||!FL.game,a:filRestart},'-',
+      {l:'LuX · Grille du jour',a:()=>{showScreen('lux');luxDaily();}},
+      {l:'LuX · Nouvelle grille facile',a:()=>{showScreen('lux');luxNew('facile');}},
+      {l:'LuX · Nouvelle grille moyenne',a:()=>{showScreen('lux');luxNew('moyen');}},
+      {l:'LuX · Nouvelle grille difficile',a:()=>{showScreen('lux');luxNew('difficile');}},
+      {l:'LuX · Recommencer la grille…',dis:S.screen!=='lux'||!LX.game,a:luxRestart},'-',
       {l:'Revenir aux jeux',dis:S.screen==='games',a:()=>showScreen('games')},'-',
       {l:'Quitter',a:quitApp}]},
     {id:'edit',label:'Édition',items:[
@@ -3103,20 +4121,25 @@ function menuDefs(){
       {l:'Tout envoyer aux fondations (SoL)',k:'F',dis:S.screen!=='sol'||!SL.game||SL.game.solved,a:solAllFound}]},
     {id:'view',label:'Affichage',items:[
       {l:'Signaler les erreurs',chk:P.errors,a:()=>{P.errors=!P.errors;save();if(RX.game)rexRefresh();if(S.game){refresh();setMessage(P.errors?'Les erreurs s’affichent en jaune':'Erreurs masquées jusqu’à la fin de la grille');}}},
-      {l:'Afficher le chrono',chk:P.timer,a:()=>{P.timer=!P.timer;save();showTime();showDemTime();showRexTime();showSolTime();}},'-',
+      {l:'Afficher le chrono',chk:P.timer,a:()=>{P.timer=!P.timer;save();showTime();showDemTime();showRexTime();showSolTime();showFilTime();showLuxTime();}},'-',
       {l:'Croix automatiques (ReX)',chk:RX.prefs.autoX,a:()=>{RX.prefs.autoX=!RX.prefs.autoX;save();if(RX.game)rexRefresh();}},
-      {l:'Jeu quatre couleurs (SoL)',chk:SL.prefs.four,a:()=>{SL.prefs.four=!SL.prefs.four;save();if(SL.game)solRender(true);}}]},
+      {l:'Jeu quatre couleurs (SoL)',chk:SL.prefs.four,a:()=>{SL.prefs.four=!SL.prefs.four;save();if(SL.game)solRender(true);}},
+      {l:'Montrer la solution (LuX)',k:'S',chk:!!(LX.game&&LX.game.shown&&!LX.game.solved),dis:S.screen!=='lux'||!LX.game||LX.game.solved,a:luxToggleShow}]},
     {id:'win',label:'Fenêtre',items:[
       {l:'Jeux',chk:S.screen==='games',a:()=>showScreen('games')},
       {l:'BiN',chk:S.screen==='bin',a:openBin},
       {l:'DeM',chk:S.screen==='dem',a:openDem},
       {l:'ReX',chk:S.screen==='rex',a:openRex},
-      {l:'SoL',chk:S.screen==='sol',a:openSol}]},
+      {l:'SoL',chk:S.screen==='sol',a:openSol},
+      {l:'FiL',chk:S.screen==='fil',a:openFil},
+      {l:'LuX',chk:S.screen==='lux',a:openLux}]},
     {id:'help',label:'Aide',items:[
       {l:'Règles de BiN…',a:rules},
       {l:'Règles de DeM…',a:demRules},
       {l:'Règles de ReX…',a:rexRules},
-      {l:'Règles de SoL…',a:solRules},'-',
+      {l:'Règles de SoL…',a:solRules},
+      {l:'Règles de FiL…',a:filRules},
+      {l:'Règles de LuX…',a:luxRules},'-',
       {l:'À propos de SobreJoK…',a:about}]}
   ];
 }
@@ -3176,7 +4199,9 @@ document.addEventListener('pointerdown',e=>{if(menuEl&&!e.target.closest('.menu'
 const ACT={toGames:()=>showScreen('games'),daily:openDaily,newGrid:()=>newGrid(),undo,redo,hint,clear:clearGrid,rules,
   demNew:()=>demStart($('#dem-level').value),demMode:demToggleMode,demDig:()=>demSetMode(false),demFlag:()=>demSetMode(true),demRules,
   rexDaily,rexNew:()=>rexNew(),rexUndo,rexRedo,rexHint,rexClear,rexRules,
-  solDaily,solNew:()=>solNew(+$('#sol-draw').value),solUndo,solRedo,solFound:solAllFound,solRules};
+  solDaily,solNew:()=>solNew(+$('#sol-draw').value),solUndo,solRedo,solFound:solAllFound,solRules,
+  filDaily,filNew:()=>filNew(),filUndo,filRedo,filHint,filClear,filRules,
+  luxDaily,luxNew:()=>luxNew(),luxUndo,luxRedo,luxHint,luxShow:luxToggleShow,luxRules};
 document.addEventListener('click',e=>{
   const b=e.target.closest('[data-act]');if(!b||b.disabled)return;
   const f=ACT[b.dataset.act];if(f)f();
@@ -3187,6 +4212,16 @@ document.addEventListener('keydown',e=>{
   if(e.key==='Escape'&&menuEl){closeMenus();return;}
   if(menuEl)return;
   const mod=e.metaKey||e.ctrlKey,k=e.key.toLowerCase();
+  if(S.screen==='fil'||S.screen==='lux'){
+    const F=S.screen==='fil';
+    if(mod&&k==='z'&&!e.shiftKey){e.preventDefault();F?filUndo():luxUndo();}
+    else if(mod&&(k==='y'||(k==='z'&&e.shiftKey))){e.preventDefault();F?filRedo():luxRedo();}
+    else if(!mod&&!e.altKey&&!/SELECT|INPUT/.test(e.target.tagName||'')){
+      if(k==='h'){e.preventDefault();F?filHint():luxHint();}
+      else if(k==='s'&&!F){e.preventDefault();luxToggleShow();}
+    }
+    return;
+  }
   if(S.screen==='sol'){
     if(mod&&k==='z'&&!e.shiftKey){e.preventDefault();solUndo();}
     else if(mod&&(k==='y'||(k==='z'&&e.shiftKey))){e.preventDefault();solRedo();}
@@ -3225,6 +4260,10 @@ if(RX.game){rexBuild();rexRefresh();if(!RX.game.solved&&RX.game.moves)rexMessage
 rexHelpNote();
 $('#sol-draw').value=String(SL.prefs.draw);
 if(SL.game&&!SL.game.solved&&SL.game.st.moves)solMessage('Partie reprise là où vous l’aviez laissée');
+$('#fil-level').value=FIL.LEVELS[FL.prefs.level]?FL.prefs.level:'moyen';
+if(FL.game){filBuild();filRefresh();filHelpNote();if(!FL.game.solved&&FL.game.path.length)filMessage('Partie reprise là où vous l’aviez laissée');}
+$('#lux-level').value=LUX.LEVELS[LX.prefs.level]?LX.prefs.level:'moyen';
+if(LX.game){luxBuild();luxRefresh();luxHelpNote();if(!LX.game.solved&&LX.game.started)luxMessage('Partie reprise là où vous l’aviez laissée');}
 clearNote();
 window.addEventListener('pagehide',()=>{timerSync();try{foldTimers();localStorage.setItem(STORE,JSON.stringify(snapshot()));}catch(e){}});
 
