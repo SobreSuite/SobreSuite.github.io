@@ -16,14 +16,14 @@ Chaque application de la SobreSuite tient dans **un seul fichier HTML**. On l'ou
 | <img src="logos/sobrepix-icone.svg" width="32" alt=""> | [SobrePiX](https://sobresuite.github.io/apps/SobrePiX.html) | Retouche photo frugale | Disponible |
 | <img src="logos/sobrepdf-icone.svg" width="32" alt=""> | [SobrePdF](https://sobresuite.github.io/apps/SobrePdF.html) | L'outil PDF du quotidien | Disponible |
 | <img src="logos/sobretab-icone.svg" width="32" alt=""> | SobreTaB | Tableaux simples | Bientôt |
-| <img src="logos/sobrecal-icone.svg" width="32" alt=""> | SobreCaL | Calculatrice futée | Bientôt |
+| <img src="logos/sobrezik-icone.svg" width="32" alt=""> | [SobreZiK](https://sobresuite.github.io/apps/SobreZiK.html) | Lecteur de musique frugal | Disponible |
 | <img src="logos/sobrejok-icone.svg" width="32" alt=""> | [SobreJoK](https://sobresuite.github.io/apps/SobreJoK.html) | Jeux old school pour les pauses café | Disponible |
 
 - **SobreTeX** — un traitement de texte à l'ancienne, façon Word 5.1, qui écrit le LaTeX à votre place. Pensé pour celles et ceux qui n'en ont jamais écrit une ligne.
 - **SobrePiX** — recadrer, faire pivoter, écrire, dessiner, changer la taille (pixels ou centimètres) et tramer façon Mac 1984. Enregistre une copie en JPEG, PNG ou WebP.
 - **SobrePdF** — assembler plusieurs PDF, réorganiser les pages, pivoter, extraire, écrire sur la page, remplir les formulaires, placer une signature.
 - **SobreTaB** — des tableaux simples, sans usine à gaz. En préparation.
-- **SobreCaL** — une calculatrice façon HP des années 80, en notation classique ou NPI, avec un rouleau de papier imprimable. TVA, pourcentages, dates, conversions, calcul décimal exact. En préparation.
+- **SobreZiK** — un lecteur de musique façon lecteur de CD : la liste, la pochette en noir et blanc tramé (sans pochette, un disque qui tourne, avec une étiquette inventée pour chaque album) et une télécommande. MP3, FLAC, OGG, M4A, WAV. Rangez votre dossier de musique à côté du fichier : la liste repart toute seule au lancement suivant. La recherche des pochettes manquantes sur Internet est une option, désactivée par défaut.
 - **SobreJoK** — six petits jeux : BiN (ronds et lunes), DeM (démineur), ReX (une couronne par zone), SoL (solitaire), FiL (un fil par toutes les cases) et LuX (éteindre les lumières), avec une grille du jour la même pour tout le monde.
 
 ## Les principes
@@ -68,6 +68,7 @@ SobreSuite.github.io/
 │   ├── SobreTeX.html
 │   ├── SobrePiX.html
 │   ├── SobrePdF.html
+│   ├── SobreZiK.html
 │   └── SobreJoK.html
 └── logos/
     ├── <app>-logo.svg / .png   logo complet, 960 × 512 (icône, nom, devise)
