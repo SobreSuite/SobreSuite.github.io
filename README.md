@@ -20,7 +20,7 @@ Chaque application de la SobreSuite tient dans **un seul fichier HTML**. On l'ou
 | <img src="logos/sobrevox-icone.svg" width="32" alt=""> | [SobreVoX](https://sobresuite.github.io/apps/SobreVoX.html) | Éditeur audio frugal | Disponible |
 | <img src="logos/sobrejok-icone.svg" width="32" alt=""> | [SobreJoK](https://sobresuite.github.io/apps/SobreJoK.html) | Jeux old school pour les pauses café | Disponible |
 
-- **SobreTeX** — un traitement de texte à l'ancienne, façon Word 5.1, qui écrit le LaTeX à votre place. Pensé pour celles et ceux qui n'en ont jamais écrit une ligne.
+- **SobreTeX** — un traitement de texte à l'ancienne, façon Word 5.1, qui écrit le LaTeX à votre place. Pensé pour celles et ceux qui n'en ont jamais écrit une ligne. « Enregistrer sous… » demande ce que vous voulez faire du document (le modifier, l'envoyer, le diffuser, le lire sur une liseuse, le publier, le coller ailleurs) et propose le bon format : LaTeX, Word, OpenDocument, RTF, PDF, EPUB, Markdown ou texte brut, et Typst en mode Geek. Avant d'enregistrer, il signale ce qui ne passera pas (police remplacée, image à remettre, équation en texte brut). Il ouvre aussi les fichiers Markdown et texte.
 - **SobrePiX** — recadrer, faire pivoter, écrire, dessiner, changer la taille (pixels ou centimètres) et tramer façon Mac 1984. Enregistre une copie en JPEG, PNG ou WebP.
 - **SobrePdF** — assembler plusieurs PDF, réorganiser les pages, pivoter, extraire, écrire sur la page, remplir les formulaires, placer une signature.
 - **SobreTaB** — des tableaux simples, sans usine à gaz. En préparation.
