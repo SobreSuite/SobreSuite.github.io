@@ -530,8 +530,8 @@ const APPS=[
     desc:'Enregistrer sa voix, la nettoyer, la monter et la mixer avec de la musique, sans rien installer ni rien envoyer sur Internet.',
     feats:['Enregistrement au micro, plusieurs pistes','Couper, coller, déplacer : l’original reste intact','Préparer la voix en un clic : souffle, graves, volume, niveau en LUFS','Couper les blancs entre les phrases','Effets : égaliseur, compresseur, écho, réverbération, tempo','Lit MP3, WAV, FLAC, OGG, M4A ; exporte en MP3, WAV ou FLAC']},
   {id:'jok',repo:'SobreJoK',name:'SobreJoK',ready:true,tag:'Jeux old school pour les pauses café',
-    desc:'Six petits jeux pour souffler entre deux dossiers, avec une grille du jour la même pour tout le monde.',
-    feats:['BiN : ronds et lunes','DeM : le démineur','ReX : une couronne par zone','SoL : le solitaire','FiL : un fil par toutes les cases','LuX : éteindre les lumières','Grilles et donne du jour, records']}
+    desc:'Sept petits jeux pour souffler entre deux dossiers, avec une grille du jour la même pour tout le monde.',
+    feats:['BiN : ronds et lunes','DeM : le démineur','ReX : une couronne par zone','SoL : le solitaire','FiL : un fil par toutes les cases','LuX : éteindre les lumières','UfO : repousser l’invasion, au clavier ou au doigt','Grilles et donne du jour, records']}
 ];
 APPS.forEach(a=>{a.file='apps/'+a.repo+'.html';a.url=a.file;a.code=a.ready?REPO+'/blob/'+BRANCH+'/'+a.file:REPO;a.icon=ICONS[a.id];});
 const READY=APPS.filter(a=>a.ready).length;
