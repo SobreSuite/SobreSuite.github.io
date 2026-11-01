@@ -269,6 +269,52 @@ button,input,select,textarea{font:inherit;color:inherit;font-variant-ligatures:n
 #lux-note{max-width:calc(var(--q) * var(--n) + (var(--n) + 1) * 4px + 4px)}
 #lux-show[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
 
+/* ---------- UfO ---------- */
+#w-ufo{width:max-content}
+#w-ufo .stage{padding:14px 18px 12px;display:grid;grid-template-areas:"main";justify-items:center;gap:10px}
+@media (max-width:560px){#w-ufo .stage{padding:10px 8px 10px}}
+#ufo-wrap{position:relative;border:3px solid var(--ink);box-shadow:3px 3px 0 var(--ink);background:#000;box-sizing:content-box;line-height:0}
+#ufo-cv{display:block;image-rendering:pixelated;image-rendering:crisp-edges;touch-action:none;outline:none;cursor:default}
+#ufo-top{position:absolute;left:0;right:0;top:0;display:flex;justify-content:space-between;align-items:center;color:#fff;line-height:1;pointer-events:none;font-variant-numeric:tabular-nums;white-space:nowrap}
+#ufo-top b{font-weight:600;color:#FFE500}
+#ufo-wv{color:#c4c4c4}
+#ufo-ov{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:#fff;text-align:center;line-height:1.4;background:rgba(0,0,0,.55);padding:12px}
+#ufo-ov[hidden]{display:none}
+#ufo-ov .ov-t{font-size:clamp(20px,5vw,30px);font-weight:600;color:#FFE500;letter-spacing:.04em}
+#ufo-ov p{margin:0;font-size:14px}
+#ufo-ov .big{font-size:22px;font-weight:600}
+#ufo-ov .small{font-size:12px;color:#c4c4c4}
+#ufo-ov .btn{color:var(--ink)}
+#ufo-ov .pts{display:grid;grid-template-columns:max-content max-content;gap:6px 14px;align-items:center;margin:4px 0}
+#ufo-ov .pt{display:contents}
+#ufo-ov .pt img{image-rendering:pixelated;justify-self:center}
+#ufo-ov .pt span{font-size:14px;text-align:left}
+/* commandes tactiles : ◀ ▶ à gauche, Tir à droite ; cachées sur ordinateur */
+.ufo-main{grid-area:main;display:flex;flex-direction:column;align-items:center;gap:8px}
+#w-ufo .tc{display:none;gap:10px}
+#w-ufo .tc-left{grid-area:left}
+#w-ufo .tc-right{grid-area:right}
+body.ufo-touch #w-ufo .stage{grid-template-areas:"main main" "left right";grid-template-columns:1fr 1fr;column-gap:14px;row-gap:12px;justify-items:stretch}
+body.ufo-touch .ufo-main{justify-self:center}
+body.ufo-touch #w-ufo .tc{display:flex}
+body.ufo-touch #w-ufo .tc-right{justify-content:flex-end}
+#w-ufo .tb-btn{width:64px;height:60px;font-family:var(--ui);font-size:18px;font-weight:600;border:1px solid var(--ink);border-radius:8px;background:var(--paper);box-shadow:2px 2px 0 var(--ink);color:var(--ink);
+  touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent;padding:0}
+#w-ufo .tb-btn.down{background:var(--ink);color:var(--paper);box-shadow:none;transform:translate(2px,2px)}
+#w-ufo .tb-btn.fire{width:100%;max-width:150px;background:#D7141A;color:#fff;font-size:17px}
+#w-ufo .tb-btn.fire.down{background:#000}
+/* téléphone couché : tout pour l'écran de jeu */
+body.ufo-land #desk{padding:4px max(8px,env(safe-area-inset-right,0px)) 4px max(8px,env(safe-area-inset-left,0px))}
+body.ufo-land #w-ufo .tb,body.ufo-land #w-ufo .band,body.ufo-land #w-ufo .sb{display:none}
+body.ufo-land #w-ufo{border:0;box-shadow:none;background:transparent;width:100%;margin:0}
+body.ufo-land #w-ufo .stage{width:100%;grid-template-areas:"left main right";grid-template-columns:1fr auto 1fr;grid-template-rows:auto;column-gap:16px;padding:0;align-items:center}
+body.ufo-land #w-ufo .tc{align-self:end;margin-bottom:10px}
+body.ufo-land .ufo-main{gap:4px}
+body.ufo-land #w-ufo .tc-left{justify-content:flex-start;gap:12px}
+body.ufo-land #w-ufo .tc-right{justify-content:flex-end}
+body.ufo-land #w-ufo .tb-btn{width:68px;height:68px}
+body.ufo-land #w-ufo .tb-btn.fire{width:96px;height:96px;border-radius:50%;font-size:18px}
+
 /* ---------- Dialogues ---------- */
 .ov{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(255,255,255,.35)}
 .dlg{background:var(--paper);border:2px solid var(--ink);box-shadow:3px 3px 0 var(--ink);outline:1px solid var(--ink);outline-offset:-6px;padding:16px 18px;max-width:100%;max-height:100%;overflow:auto;display:flex;flex-direction:column;gap:12px}
@@ -549,10 +595,176 @@ button,input,select,textarea{font:inherit;color:inherit;font-variant-ligatures:n
       </div>
     </section>
 
+    <!-- UfO -->
+    <section class="win" id="w-ufo" aria-label="UfO" hidden>
+      <div class="tb">
+        <button class="wbox" type="button" style="left:8px" data-act="toGames" aria-label="Fermer UfO et revenir aux jeux"></button>
+        <span class="tb-title" id="ufo-title">UfO</span>
+      </div>
+      <div class="band" role="toolbar" aria-label="Outils de UfO">
+        <button class="btn" type="button" data-act="ufoNew">Nouvelle partie</button>
+        <button class="btn" type="button" data-act="ufoPause" id="ufo-pause" disabled>Pause</button>
+        <div class="sep"></div>
+        <button class="btn" type="button" data-act="ufoScores">Scores</button>
+        <div class="grow"></div>
+        <button class="btn ico" type="button" data-act="ufoRules" aria-label="Règles de UfO" title="Règles"><span style="font-weight:600;font-size:15px">?</span></button>
+      </div>
+      <div class="stage">
+        <div class="tc tc-left" aria-hidden="true">
+          <button class="tb-btn" type="button" data-k="left">◀</button>
+          <button class="tb-btn" type="button" data-k="right">▶</button>
+        </div>
+        <div class="ufo-main">
+          <div id="ufo-wrap">
+            <canvas id="ufo-cv" width="240" height="220" tabindex="0" aria-label="Écran de jeu de UfO"></canvas>
+            <div id="ufo-top" aria-hidden="true"><span>Score <b id="ufo-score">0000</b></span><span id="ufo-wv">Vague 1</span><span>Record <b id="ufo-best">0000</b></span></div>
+            <div id="ufo-ov"></div>
+          </div>
+        </div>
+        <div class="tc tc-right" aria-hidden="true">
+          <button class="tb-btn fire" type="button" data-k="fire">Tir</button>
+        </div>
+      </div>
+      <div class="sb">
+        <div class="fill" id="ufo-msg"></div>
+        <div class="num" id="ufo-wave">Vague 1 · Fusées 3</div>
+      </div>
+    </section>
+
   </main>
 </div>
 
 <script>
+/* =========================================================
+   SoL — solveur complet : dit si une position peut encore être gagnée.
+   Explore tous les coups utiles, y compris reprendre une carte des fondations,
+   déplacer une partie d'une colonne et, en pioche par 3, l'ordre exact du talon.
+   Réponse : 'win' (une suite gagnante existe), 'lose' (aucune, preuve complète)
+   ou 'unknown' (trop long à décider : on ne dit rien).
+   Fonction autonome : elle tourne aussi dans un Worker.
+   ========================================================= */
+function solFull(st0,limit,msLimit){
+  const suit=id=>(id/13)|0,rank=id=>id%13+1,red=id=>{const s=(id/13)|0;return s===1||s===2;};
+  const draw3=st0.draw===3;
+  // les fondations ne sont pas toujours rangées dans l'ordre des enseignes
+  const F0=[0,0,0,0];
+  for(const p of st0.found)if(p.length)F0[suit(p[0])]=p.length;
+  const C0=st0.tab.map((p,c)=>({h:p.slice(0,st0.down[c]),u:p.slice(st0.down[c])}));
+  const T0=st0.waste.concat(st0.stock.slice().reverse());
+  const W0=st0.waste.length;
+  const seen=new Set();
+  let nodes=0,aborted=false;
+  const t0=Date.now();
+  const canOn=(lead,onto)=>rank(onto)===rank(lead)+1&&red(onto)!==red(lead);
+  // carte prête pour les fondations
+  const playable=(id,F)=>F[suit(id)]===rank(id)-1;
+  // monter cette carte ne peut jamais nuire : plus personne n'en aura besoin comme support
+  const safe=(id,F)=>{
+    const r=rank(id);if(r<=2)return true;
+    const rd=red(id);
+    for(let s=0;s<4;s++){
+      const sr=s===1||s===2;
+      if(sr!==rd&&F[s]<r-1)return false;
+      if(F[s]<r-2)return false;
+    }
+    return true;
+  };
+  function flip(c){if(!c.u.length&&c.h.length)c.u.push(c.h.pop());}
+  // positions du talon accessibles (taille de la défausse après les tirages)
+  function access(T,w){
+    const n=T.length,out=[];
+    if(!n)return out;
+    if(!draw3){for(let i=0;i<n;i++)out.push(i+1);return out;}
+    const A=new Set();
+    if(w>0)A.add(w);
+    for(let a=w+3;;a+=3){if(a>=n){A.add(n);break;}A.add(a);}
+    for(let a=3;;a+=3){if(a>=n){A.add(n);break;}A.add(a);}
+    return [...A];
+  }
+  function key(C,T,w,F){
+    const cols=C.map(c=>c.h.join('.')+':'+c.u.join('.')).sort().join('/');
+    const tal=draw3?w+'>'+T.join('.'):T.slice().sort((a,b)=>a-b).join('.');
+    return F.join(',')+'|'+cols+'|'+tal;
+  }
+  function solve(C,T,w,F){
+    // coups sûrs d'abord, sans retour possible
+    let changed=true;
+    while(changed){
+      changed=false;
+      for(const c of C){
+        if(!c.u.length)continue;
+        const id=c.u[c.u.length-1];
+        if(playable(id,F)&&safe(id,F)){F[suit(id)]++;c.u.pop();flip(c);changed=true;}
+      }
+      if(!draw3)for(let k=0;k<T.length;k++){
+        const id=T[k];
+        if(playable(id,F)&&safe(id,F)){F[suit(id)]++;T.splice(k,1);k--;changed=true;}
+      }
+    }
+    if(C.every(c=>!c.h.length)&&(!draw3||!T.length))return true;
+    if(F[0]+F[1]+F[2]+F[3]===52)return true;
+    if(++nodes>limit||((nodes&1023)===0&&Date.now()-t0>msLimit)){aborted=true;return false;}
+    const k=key(C,T,w,F);
+    if(seen.has(k))return false;
+    seen.add(k);
+    const moves=[];
+    const empty=C.findIndex(c=>!c.h.length&&!c.u.length);
+    for(let a=0;a<7;a++){
+      const A=C[a];if(!A.u.length)continue;
+      const top=A.u[A.u.length-1];
+      if(playable(top,F))moves.push({k:'cf',a,p:A.u.length===1&&A.h.length?9:6});
+      for(let i=0;i<A.u.length;i++){
+        const lead=A.u[i];
+        const whole=i===0;
+        for(let b=0;b<7;b++){
+          if(b===a)continue;
+          const B=C[b];
+          if(B.u.length){
+            if(canOn(lead,B.u[B.u.length-1]))moves.push({k:'cc',a,b,i,p:whole?(A.h.length?10:5):3});
+          }else if(!B.h.length&&b===empty&&rank(lead)===13&&!(whole&&!A.h.length)){
+            moves.push({k:'cc',a,b,i,p:whole?8:2});
+          }
+        }
+      }
+    }
+    const acc=access(T,w);
+    for(const a of acc){
+      const id=T[a-1];
+      if(playable(id,F))moves.push({k:'tf',a,p:7});
+      for(let b=0;b<7;b++){
+        const B=C[b];
+        if(B.u.length?canOn(id,B.u[B.u.length-1]):(!B.h.length&&b===empty&&rank(id)===13))moves.push({k:'tc',a,b,p:4});
+      }
+    }
+    for(let s=0;s<4;s++){
+      if(!F[s])continue;
+      const id=s*13+F[s]-1;
+      for(let b=0;b<7;b++){
+        const B=C[b];
+        if(B.u.length?canOn(id,B.u[B.u.length-1]):(!B.h.length&&b===empty&&rank(id)===13))moves.push({k:'fc',f:s,b,p:1});
+      }
+    }
+    moves.sort((x,y)=>y.p-x.p);
+    for(const m of moves){
+      const C2=C.map(c=>({h:c.h.slice(),u:c.u.slice()}));
+      let T2=T,w2=w;const F2=F.slice();
+      if(m.k==='cf'){F2[suit(C2[m.a].u.pop())]++;flip(C2[m.a]);}
+      else if(m.k==='cc'){C2[m.b].u.push(...C2[m.a].u.splice(m.i));flip(C2[m.a]);}
+      else if(m.k==='tf'||m.k==='tc'){
+        T2=T.slice();const id=T2.splice(m.a-1,1)[0];w2=m.a-1;
+        if(m.k==='tf')F2[suit(id)]++;else C2[m.b].u.push(id);
+      }else{
+        const id=m.f*13+F2[m.f]-1;F2[m.f]--;C2[m.b].u.push(id);
+      }
+      if(solve(C2,T2,w2,F2))return true;
+      if(aborted)return false;
+    }
+    return false;
+  }
+  const r=solve(C0,T0.slice(),W0,F0);
+  return {result:r?'win':aborted?'unknown':'lose',nodes};
+}
+
 /* =========================================================
    FiL — moteur : un seul fil passe par toutes les cases,
    relie les numéros dans l'ordre, sans traverser les murs.
@@ -1520,7 +1732,7 @@ return {suit,rank,red,deal,solvedState,cardsAt,legal,apply,draw,won,allOpen,next
 'use strict';
 const $=(s,r=document)=>r.querySelector(s);
 const $$=(s,r=document)=>Array.from(r.querySelectorAll(s));
-const VERSION='0.1';
+const VERSION='0.2';
 const STORE='sobre-jok:v1';
 const IS_MAC=/Mac|iPhone|iPad/.test(navigator.platform||navigator.userAgent||'');
 const MOD=IS_MAC?'⌘':'Ctrl+';
@@ -1607,6 +1819,7 @@ function load(){
     if(o.sol){if(o.sol.prefs)Object.assign(SL.prefs,o.sol.prefs);if(o.sol.best)Object.assign(SL.best,o.sol.best);if(o.sol.daily&&typeof o.sol.daily==='object')SL.daily=o.sol.daily;if(o.sol.game&&validSol(o.sol.game))SL.game=o.sol.game;}
     if(o.fil){if(o.fil.prefs)Object.assign(FL.prefs,o.fil.prefs);if(o.fil.best)Object.assign(FL.best,o.fil.best);if(o.fil.daily&&typeof o.fil.daily==='object')FL.daily=o.fil.daily;if(o.fil.game&&validFil(o.fil.game))FL.game=o.fil.game;}
     if(o.lux){if(o.lux.prefs)Object.assign(LX.prefs,o.lux.prefs);if(o.lux.best)Object.assign(LX.best,o.lux.best);if(o.lux.bestMoves)Object.assign(LX.bestMoves,o.lux.bestMoves);if(o.lux.daily&&typeof o.lux.daily==='object')LX.daily=o.lux.daily;if(o.lux.game&&validLux(o.lux.game))LX.game=o.lux.game;}
+    if(o.ufo){if(o.ufo.prefs)Object.assign(UF.prefs,o.ufo.prefs);if(Array.isArray(o.ufo.scores))UF.scores=o.ufo.scores.filter(x=>x&&typeof x.score==='number').slice(0,5);}
   }catch(e){}
 }
 function validGame(g){
@@ -1624,7 +1837,7 @@ function foldTimers(){
   if(FL.game&&filRunSince){FL.game.elapsed=(FL.game.elapsed||0)+now-filRunSince;filRunSince=now;}
   if(LX.game&&luxRunSince){LX.game.elapsed=(LX.game.elapsed||0)+now-luxRunSince;luxRunSince=now;}
 }
-function snapshot(){return {v:1,prefs:S.prefs,best:S.best,daily:S.daily,game:S.game,dem:{prefs:D.prefs,best:D.best,game:D.game},rex:{prefs:RX.prefs,best:RX.best,daily:RX.daily,game:RX.game},sol:{prefs:SL.prefs,best:SL.best,daily:SL.daily,game:SL.game?Object.assign({},SL.game,{undo:SL.game.undo.length>40?[SL.game.undo[0]].concat(SL.game.undo.slice(-39)):SL.game.undo,redo:[]}):null},fil:{prefs:FL.prefs,best:FL.best,daily:FL.daily,game:FL.game?Object.assign({},FL.game,{undo:FL.game.undo.slice(-40),redo:[]}):null},lux:{prefs:LX.prefs,best:LX.best,bestMoves:LX.bestMoves,daily:LX.daily,game:LX.game?Object.assign({},LX.game,{undo:LX.game.undo.slice(-200),redo:[]}):null}};}
+function snapshot(){return {v:1,prefs:S.prefs,best:S.best,daily:S.daily,game:S.game,dem:{prefs:D.prefs,best:D.best,game:D.game},rex:{prefs:RX.prefs,best:RX.best,daily:RX.daily,game:RX.game},sol:{prefs:SL.prefs,best:SL.best,daily:SL.daily,game:SL.game?Object.assign({},SL.game,{lastWin:null,undo:SL.game.undo.length>40?[SL.game.undo[0]].concat(SL.game.undo.slice(-39)):SL.game.undo,redo:[]}):null},fil:{prefs:FL.prefs,best:FL.best,daily:FL.daily,game:FL.game?Object.assign({},FL.game,{undo:FL.game.undo.slice(-40),redo:[]}):null},lux:{prefs:LX.prefs,best:LX.best,bestMoves:LX.bestMoves,daily:LX.daily,game:LX.game?Object.assign({},LX.game,{undo:LX.game.undo.slice(-200),redo:[]}):null},ufo:{prefs:UF.prefs,scores:UF.scores}};}
 function save(){
   clearTimeout(saveTimer);
   saveTimer=setTimeout(()=>{
@@ -1655,6 +1868,7 @@ function timerSync(){
   solTimerSync();
   filTimerSync();
   luxTimerSync();
+  UFO.sync();
 }
 function showTime(){
   const t=$('#bin-time');
@@ -1990,7 +2204,8 @@ function buildGames(){
     gameTile('game-sol','','','','','',openSol,box);
     gameTile('game-fil','','','','','',openFil,box);
     gameTile('game-lux','','','','','',openLux,box);
-    $('#g-count').textContent='6 jeux';
+    gameTile('game-ufo','','','','','',openUfo,box);
+    $('#g-count').textContent='7 jeux';
   }
   // BiN
   const key=todayKey(),d=S.daily[key],g=S.game;
@@ -2027,7 +2242,10 @@ function buildGames(){
   if(lg&&!lg.solved&&lg.started)sl+='<br>Partie en cours : '+escH(lg.kind==='daily'?'grille du '+(lg.date===key?'jour':shortDay(lg.date)):'grille '+LEVEL_ADJ[lg.level]);
   const recl=['facile','moyen','difficile'].map(l=>LEVEL_LABEL[l][0]+' '+(LX.best[l]!=null?clock(LX.best[l]):'–')).join(' · ');
   gameTile('game-lux',LUX_ICON,'LuX','Éteindre les lumières',sl+'<br>Records : '+escH(recl),'LuX, éteindre les lumières',openLux,box);
+  // UfO
+  gameTile('game-ufo',UFO_ICON,'UfO','Repousser l’invasion',UFO.status(),'UfO, repousser l’invasion',openUfo,box);
 }
+function openUfo(){showScreen('ufo');}
 function openBin(){
   showScreen('bin');
   if(!S.game){openDaily();}
@@ -2046,15 +2264,17 @@ function showScreen(name){
   $('#w-sol').hidden=name!=='sol';
   $('#w-fil').hidden=name!=='fil';
   $('#w-lux').hidden=name!=='lux';
+  $('#w-ufo').hidden=name!=='ufo';
+  if(name==='ufo')UFO.open();else UFO.leave();
   if(name==='fil'&&FL.game){if(!filBoard.children.length)filBuild();filRefresh();filHelpNote();}
   if(name==='lux'&&LX.game){if(!luxBoard.children.length)luxBuild();luxRefresh();luxHelpNote();}
-  if(name==='sol'){solMetrics();if(SL.game){solRender(true);}setTimeout(()=>solBoard.focus({preventScroll:true}),0);}
+  if(name==='sol'){solMetrics();if(SL.game){solRender(true);solCheckSoon();}setTimeout(()=>solBoard.focus({preventScroll:true}),0);}
   if(name==='rex'&&RX.game){if(!rexBoard.children.length)rexBuild();rexRefresh();rexHelpNote();setTimeout(()=>{const c=rexBoard.children[rexFocus];c&&c.focus({preventScroll:true});},0);}
   if(name==='dem'&&D.game){if(!mines.children.length)buildMines();else demFit();demRefresh();demHelpNote();setTimeout(()=>{const c=mines.children[demFocus];c&&c.focus({preventScroll:true});},0);}
   if(name==='bin'&&S.game){if(!board.children.length)buildBoard();refresh();setTimeout(()=>{const c=$$('.cell',board)[focusIdx];c&&c.focus({preventScroll:true});},0);}
   if(name==='games'){buildGames();setTimeout(()=>{const g=$('#game-'+lastGame);g&&g.focus({preventScroll:true});},0);}
-  if(['bin','dem','rex','sol','fil','lux'].includes(name))lastGame=name;
-  document.title=(name==='bin'&&S.game?gameTitle(S.game)+' · ':name==='dem'&&D.game?'DeM · '+DEM_LEVELS[D.game.level].label+' · ':name==='rex'&&RX.game?rexTitle(RX.game)+' · ':name==='sol'&&SL.game?solTitle(SL.game)+' · ':name==='fil'&&FL.game?filTitle(FL.game)+' · ':name==='lux'&&LX.game?luxTitle(LX.game)+' · ':'')+'SobreJoK';
+  if(['bin','dem','rex','sol','fil','lux','ufo'].includes(name))lastGame=name;
+  document.title=(name==='bin'&&S.game?gameTitle(S.game)+' · ':name==='dem'&&D.game?'DeM · '+DEM_LEVELS[D.game.level].label+' · ':name==='rex'&&RX.game?rexTitle(RX.game)+' · ':name==='sol'&&SL.game?solTitle(SL.game)+' · ':name==='fil'&&FL.game?filTitle(FL.game)+' · ':name==='lux'&&LX.game?luxTitle(LX.game)+' · ':name==='ufo'?'UfO · ':'')+'SobreJoK';
   timerSync();
   buildMenubar();
 }
@@ -2855,7 +3075,7 @@ function rexRules(){
 /* =========================================================
    SoL : le solitaire (Klondike)
    ========================================================= */
-const SL=S.sol={prefs:{draw:1,four:false,rulesSeen:false},best:{p1:null,p3:null},daily:{},game:null};
+const SL=S.sol={prefs:{draw:1,four:false,rulesSeen:false,lostAlert:true},best:{p1:null,p3:null},daily:{},game:null};
 const RANKS=['','A','2','3','4','5','6','7','8','9','10','V','D','R'];
 const RANK_NAMES=['','As','2','3','4','5','6','7','8','9','10','Valet','Dame','Roi'];
 const SUIT_NAMES=['pique','cœur','carreau','trèfle'];
@@ -3043,10 +3263,11 @@ function solStart(g,msg){
   solMessage(msg||'');
   save();solTimerSync();
   if(S.screen==='sol')setTimeout(()=>solBoard.focus({preventScroll:true}),0);
+  solCheckSoon();
 }
 async function solConfirmLeave(){
   const g=SL.game;
-  if(!g||g.solved||!g.st.moves)return true;
+  if(!g||g.solved||!g.st.moves||g.lostAck)return true;
   return confirmDlg('Abandonner la donne en cours ?','Elle sera remplacée. Votre progression sur cette donne sera perdue.','Changer de donne');
 }
 async function solNew(draw){
@@ -3114,12 +3335,14 @@ function solAfter(msg){
   solMessage(msg||'');
   save();solTimerSync();
   if(SOL.won(g.st)){solWin();return;}
-  if(SOL.allOpen(g.st))solAutoFinish();
+  if(SOL.allOpen(g.st)){solAutoFinish();return;}
+  solCheckSoon();
 }
 function solUndo(){
   const g=SL.game;if(!g||g.solved||solBusy||!g.undo.length)return;
   g.redo.push(JSON.stringify(g.st));g.st=JSON.parse(g.undo.pop());
   solRender();solMessage('');save();
+  solCheckSoon();
 }
 function solRedo(){
   const g=SL.game;if(!g||g.solved||solBusy||!g.redo.length)return;
@@ -3175,6 +3398,108 @@ function solWin(){
       else if(v==='games')showScreen('games');
     });
   });
+}
+
+/* ---------- Donne perdue ? ----------
+   Après chaque coup, le solveur complet cherche en arrière-plan (dans un Worker)
+   s'il reste une suite de coups gagnante. L'alerte ne s'affiche que s'il a la preuve
+   qu'il n'y en a plus : si le calcul est trop long, il ne dit rien. */
+let solWorker=null,solJobId=0;
+const solJobs=new Map();
+function solRun(st,limit,ms){
+  return new Promise(res=>{
+    if(solWorker===null){
+      try{
+        const src=solFull.toString()+'\nonmessage=function(e){var d=e.data;postMessage({id:d.id,r:solFull(d.st,d.limit,d.ms)});};';
+        solWorker=new Worker(URL.createObjectURL(new Blob([src],{type:'text/javascript'})));
+        solWorker.onmessage=e=>{const j=solJobs.get(e.data.id);if(j){solJobs.delete(e.data.id);j.res(e.data.r);}};
+        solWorker.onerror=e=>{
+          // Worker refusé (certains navigateurs, fichier local) : on calcule ici, plus brièvement
+          e.preventDefault&&e.preventDefault();
+          try{solWorker.terminate();}catch(x){}
+          solWorker=false;
+          for(const [id,j] of solJobs){solJobs.delete(id);j.res(solFull(j.st,Math.min(j.limit,40000),400));}
+        };
+      }catch(e){solWorker=false;}
+    }
+    if(solWorker){const id=++solJobId;solJobs.set(id,{res,st,limit});solWorker.postMessage({id,st,limit,ms});}
+    else setTimeout(()=>res(solFull(st,Math.min(limit,40000),400)),0);
+  });
+}
+let solCheckTimer=null,solChecking=false,solCheckAgain=false;
+function solCheckSoon(){
+  clearTimeout(solCheckTimer);
+  if(!SL.prefs.lostAlert)return;
+  solCheckTimer=setTimeout(solCheck,350);
+}
+async function solCheck(){
+  const g=SL.game;
+  if(!g||g.solved||solBusy||!SL.prefs.lostAlert)return;
+  if(solChecking){solCheckAgain=true;return;}
+  solChecking=true;
+  const snap=JSON.stringify(g.st);
+  const r=await solRun(JSON.parse(snap),250000,2500);
+  solChecking=false;
+  if(solCheckAgain){solCheckAgain=false;solCheckSoon();}
+  // la position a changé entre-temps : la réponse ne vaut plus
+  if(SL.game!==g||g.solved||JSON.stringify(g.st)!==snap||!SL.prefs.lostAlert)return;
+  if(r.result==='win'){g.lastWin=snap;if(g.lostAck){g.lostAck=false;solMessage('');}}
+  else if(r.result==='lose')solLost(g);
+}
+function solToggleAlert(){
+  SL.prefs.lostAlert=!SL.prefs.lostAlert;save();
+  if(SL.prefs.lostAlert){if(SL.game)SL.game.lostAck=false;solCheckSoon();solMessage('SoL vous préviendra si la donne ne peut plus être gagnée.');}
+  else{clearTimeout(solCheckTimer);solMessage('Plus d’alerte quand la donne est perdue.');}
+}
+function solLost(g){
+  const fromStart=!g.undo.length;
+  solMessage(fromStart?'Cette donne ne peut pas être gagnée.':'Cette donne ne peut plus être gagnée.','warn');
+  if(g.lostAck||S.screen!=='sol'||document.querySelector('.ov'))return;
+  g.lostAck=true;
+  const buttons=[{label:'Continuer',value:null,cancel:true,left:!fromStart},{label:'Nouvelle donne',value:'new',default:fromStart}];
+  if(!fromStart)buttons.push({label:'Revenir en arrière',value:'back',default:true});
+  openDialog({title:'Donne perdue',heading:false,width:440,build:b=>{
+    b.appendChild(el('div',{class:'dlg-row'},el('div',{class:'dlg-ico','aria-hidden':'true',text:'!'}),
+      el('div',{style:'display:flex;flex-direction:column;gap:6px'},
+        el('p',{html:'<strong>'+(fromStart?'Cette donne ne peut pas être gagnée.':'Cette donne ne peut plus être gagnée.')+'</strong>'}),
+        el('p',{text:fromStart?'Même en jouant parfaitement : les cartes sont mal tombées. Mieux vaut en prendre une autre.':
+          'Même en déplaçant autrement les cartes, en reprenant des cartes aux fondations ou en tournant encore la pioche, aucune suite de coups ne permet plus de tout ranger.'}),
+        fromStart?null:el('p',{style:'font-size:13px;color:var(--mute)',text:'« Revenir en arrière » annule vos derniers coups jusqu’au dernier moment où la donne pouvait encore être gagnée.'}))));
+  },buttons}).then(v=>{
+    if(SL.game!==g)return;
+    if(v==='back')solBackToWinnable();
+    else if(v==='new')solNew(g.st.draw);
+  });
+}
+// Les positions gagnables précèdent toujours les positions perdues :
+// on cherche la frontière dans l'historique par dichotomie.
+async function solBackToWinnable(){
+  const g=SL.game;if(!g||g.solved||solBusy||!g.undo.length)return;
+  solBusy=true;solStatus();solMessage('Recherche du dernier moment gagnable…');
+  const at=i=>i===g.undo.length?JSON.stringify(g.st):g.undo[i];
+  const test=async i=>(await solRun(JSON.parse(at(i)),150000,1500)).result;
+  let lo=g.lastWin?g.undo.lastIndexOf(g.lastWin):-1,hi=g.undo.length,never=false,ok=true;
+  if(lo<0){
+    const r=await test(0);
+    if(r==='win')lo=0;else{ok=false;never=r==='lose';}
+  }
+  while(ok&&hi-lo>1){
+    if(SL.game!==g){solBusy=false;return;}
+    const mid=(lo+hi)>>1;
+    if((await test(mid))==='win')lo=mid;else hi=mid;
+  }
+  solBusy=false;
+  if(SL.game!==g){solStatus();return;}
+  if(!ok){
+    solStatus();
+    solMessage(never?'Cette donne n’était pas gagnable dès le départ.':'Impossible de retrouver un moment gagnable : essayez Annuler, ou une nouvelle donne.','warn');
+    return;
+  }
+  const n=g.undo.length-lo;
+  for(let k=0;k<n;k++){g.redo.push(JSON.stringify(g.st));g.st=JSON.parse(g.undo.pop());}
+  g.lastWin=JSON.stringify(g.st);g.lostAck=false;
+  solRender();save();solStatus();
+  solMessage(n+' coup'+(n>1?'s':'')+' annulé'+(n>1?'s':'')+' : la donne peut de nouveau être gagnée.','ok');
 }
 
 /* ---------- La cascade de la victoire ---------- */
@@ -3330,6 +3655,8 @@ function solRules(){
     b.appendChild(el('ul',{html:
       '<li>Dans les sept colonnes, on empile en <strong>descendant</strong> et en <strong>alternant rouge et noir</strong> : un 6 noir sur un 7 rouge.</li>'+
       '<li>On peut déplacer une suite entière. Seul un <strong>Roi</strong>, ou une suite qui commence par un Roi, va sur une colonne vide.</li>'+
+      '<li>Une carte posée sur une fondation peut <strong>redescendre</strong> sur une colonne, si elle respecte la règle.</li>'+
+      '<li>Quand plus aucune suite de coups ne permet de gagner, SoL vous prévient et propose de revenir au dernier moment gagnable (Affichage › Prévenir si la donne est perdue).</li>'+
       '<li>La pioche, en haut à gauche, retourne 1 ou 3 cartes. Tours de pioche illimités.</li>'+
       '<li>La donne du jour, en pioche par 1, est la même pour tout le monde et toujours gagnable.</li>'+
       '<li>Jeu quatre couleurs : le carreau bleu compte comme rouge, le trèfle vert comme noir.</li>'}));
@@ -3985,6 +4312,398 @@ function luxRules(){
 }
 
 /* =========================================================
+   UfO — arcade spatiale : repousser l'invasion
+   Tous les dessins sont originaux.
+   ========================================================= */
+const UF=S.ufo={prefs:{sound:false,rulesSeen:false},scores:[]};
+const UFO_ICON='<svg viewBox="0 0 32 32" shape-rendering="crispEdges" aria-hidden="true"><path fill="#000000" d="M0 0h32v1h-32zM0 1h32v1h-32zM0 2h32v1h-32zM0 3h3v1h-3zM4 3h24v1h-24zM29 3h3v1h-3zM0 4h13v1h-13zM19 4h13v1h-13zM0 5h13v1h-13zM19 5h13v1h-13zM0 6h11v1h-11zM21 6h11v1h-11zM0 7h11v1h-11zM21 7h11v1h-11zM0 8h7v1h-7zM25 8h7v1h-7zM0 9h7v1h-7zM25 9h7v1h-7zM0 10h5v1h-5zM27 10h5v1h-5zM0 11h5v1h-5zM27 11h5v1h-5zM0 12h7v1h-7zM25 12h3v1h-3zM29 12h3v1h-3zM0 13h4v1h-4zM5 13h2v1h-2zM25 13h7v1h-7zM0 14h11v1h-11zM13 14h6v1h-6zM21 14h11v1h-11zM0 15h11v1h-11zM13 15h6v1h-6zM21 15h11v1h-11zM0 16h9v1h-9zM11 16h10v1h-10zM23 16h9v1h-9zM0 17h9v1h-9zM11 17h10v1h-10zM23 17h9v1h-9zM0 18h16v1h-16zM17 18h15v1h-15zM0 19h3v1h-3zM4 19h11v1h-11zM18 19h14v1h-14zM0 20h15v1h-15zM18 20h9v1h-9zM28 20h4v1h-4zM0 21h14v1h-14zM19 21h13v1h-13zM0 22h14v1h-14zM19 22h13v1h-13zM0 23h13v1h-13zM20 23h12v1h-12zM0 24h6v1h-6zM7 24h5v1h-5zM21 24h11v1h-11zM0 25h11v1h-11zM14 25h1v1h-1zM18 25h1v1h-1zM22 25h3v1h-3zM26 25h6v1h-6zM0 26h11v1h-11zM12 26h3v1h-3zM18 26h3v1h-3zM22 26h10v1h-10zM0 27h15v1h-15zM18 27h14v1h-14zM0 28h2v1h-2zM30 28h2v1h-2zM0 29h32v1h-32zM0 30h32v1h-32zM0 31h32v1h-32z"/><path fill="#FFFFFF" d="M3 3h1v1h-1zM13 6h2v1h-2zM13 7h2v1h-2zM28 12h1v1h-1zM16 18h1v1h-1zM3 19h1v1h-1zM15 19h3v1h-3zM15 20h1v1h-1zM17 20h1v1h-1zM14 21h5v1h-5zM14 22h1v1h-1zM18 22h1v1h-1zM13 23h7v1h-7zM12 24h9v1h-9zM11 25h2v1h-2zM15 25h3v1h-3zM20 25h2v1h-2zM25 25h1v1h-1zM11 26h1v1h-1zM15 26h3v1h-3zM21 26h1v1h-1z"/><path fill="#1F3FD1" d="M13 4h6v1h-6zM13 5h6v1h-6zM11 6h2v1h-2zM15 6h6v1h-6zM11 7h2v1h-2zM15 7h6v1h-6zM16 20h1v1h-1zM15 22h3v1h-3z"/><path fill="#FFE500" d="M9 10h2v1h-2zM15 10h2v1h-2zM21 10h2v1h-2zM9 11h2v1h-2zM15 11h2v1h-2zM21 11h2v1h-2z"/><path fill="#D7141A" d="M7 8h18v1h-18zM7 9h18v1h-18zM5 10h4v1h-4zM11 10h4v1h-4zM17 10h4v1h-4zM23 10h4v1h-4zM5 11h4v1h-4zM11 11h4v1h-4zM17 11h4v1h-4zM23 11h4v1h-4zM7 12h18v1h-18zM7 13h18v1h-18zM11 14h2v1h-2zM19 14h2v1h-2zM11 15h2v1h-2zM19 15h2v1h-2zM9 16h2v1h-2zM21 16h2v1h-2zM9 17h2v1h-2zM21 17h2v1h-2zM13 25h1v1h-1zM19 25h1v1h-1zM15 27h3v1h-3z"/><path fill="#128A2E" d="M2 28h28v1h-28z"/><path fill="#8A8A8A" d="M28 3h1v1h-1zM4 13h1v1h-1zM27 20h1v1h-1zM6 24h1v1h-1z"/></svg>';
+const UFO=(function(){
+'use strict';
+/* ---------- Dessins : grilles de pixels, « # » prend la couleur de la rangée ---------- */
+const SPR={"saucer":[["....bbb....","...bwbbb...",".#########.","##y##y##y##",".#########.","...#...#...","..#.....#..","..........."],["....bbb....","...bwbbb...",".#########.","###y##y##y#",".#########.","...#...#...","...#...#...","..........."]],"probe":[[".....y.....",".....#.....","....###....","..#######..","####kwk####","..#######..","....r.r....","..........."],["...........",".....#.....","....###....","..#######..","####kwk####","..#######..","....rrr....",".....r....."]],"sat":[["bb.......bb","bb...y...bb","bb..###..bb","bb#######bb","bb..###..bb","bb..#.#..bb","bb.......bb","..........."],["bb.......bb","bb.......bb","bb..###..bb","bb#######bb","bb..###..bb","bb..#.#..bb","bb.......bb","..........."]],"mother":[[".....######.....","...##########...",".##############.","##y##y##y##y##y#",".##############.","...#..#..#..#...","................"],[".....######.....","...##########...",".##############.","#y##y##y##y##y##",".##############.","....#..#..#..#..","................"]],"ship":[[".....w.....","....www....","....wbw....","...wwwww...","...wbbbw...","..wwwwwww..",".wwwwwwwww.","wwr.www.rww","w...www...w","....rrr...."]],"boom":[["#...#...#..",".#..#..#...","..#.#.#..#.","##.......##","..#.#.#.#..",".#..#..#.#.","#...#....#.","..........."]]};
+const PAL={w:'#FFFFFF',b:'#1F3FD1',y:'#FFE500',r:'#D7141A',k:'#000000',g:'#128A2E',o:'#B85400',v:'#7A1FB8'};
+const KINDS=[
+  {spr:'saucer',col:'#D7141A',pts:30,name:'Soucoupe'},
+  {spr:'probe',col:'#128A2E',pts:20,name:'Sonde'},
+  {spr:'probe',col:'#128A2E',pts:20,name:'Sonde'},
+  {spr:'sat',col:'#C4C4C4',pts:10,name:'Satellite'},
+  {spr:'sat',col:'#C4C4C4',pts:10,name:'Satellite'}
+];
+const sprCache={};
+function sprite(name,frame,col){
+  const key=name+frame+col;
+  if(sprCache[key])return sprCache[key];
+  const rows=SPR[name][frame%SPR[name].length],h=rows.length,w=rows[0].length;
+  const c=document.createElement('canvas');c.width=w;c.height=h;
+  const x=c.getContext('2d');
+  rows.forEach((r,yy)=>{for(let xx=0;xx<w;xx++){const ch=r[xx];if(ch==='.')continue;x.fillStyle=ch==='#'?col:PAL[ch];x.fillRect(xx,yy,1,1);}});
+  return sprCache[key]=c;
+}
+function spriteURL(name,col,scale){
+  const s=sprite(name,0,col),c=document.createElement('canvas');
+  c.width=s.width*scale;c.height=s.height*scale;
+  const x=c.getContext('2d');x.imageSmoothingEnabled=false;x.drawImage(s,0,0,c.width,c.height);
+  return c.toDataURL();
+}
+const best=()=>UF.scores.length?UF.scores[0].score:0;
+
+/* ---------- Son (désactivé par défaut) : quelques bips carrés ---------- */
+let AC=null;
+function beep(f,d,type,vol,slide){
+  if(!UF.prefs.sound)return;
+  try{
+    AC=AC||new (window.AudioContext||window.webkitAudioContext)();
+    const o=AC.createOscillator(),g=AC.createGain(),t=AC.currentTime;
+    o.type=type||'square';o.frequency.setValueAtTime(f,t);
+    if(slide)o.frequency.exponentialRampToValueAtTime(slide,t+d);
+    g.gain.setValueAtTime(vol||.05,t);g.gain.exponentialRampToValueAtTime(.0001,t+d);
+    o.connect(g);g.connect(AC.destination);o.start(t);o.stop(t+d);
+  }catch(e){}
+}
+const MARCH=[98,87,78,73];let marchI=0;
+
+/* ---------- Le jeu ---------- */
+const W=240,H=220,PY=196,ROWS=5,COLS=11,DX=16,DY=14;
+const cv=$('#ufo-cv'),ctx=cv.getContext('2d');
+let U=null;            // partie en cours
+let state='title';     // title | play | pause | dying | over | wave
+const keys={left:false,right:false,fire:false};
+// étoiles du fond, fixes, quelques-unes scintillent
+const STARS=[];(function(){let a=12345;const r=()=>(a=(a*1103515245+12345)>>>0)/4294967296;for(let i=0;i<60;i++)STARS.push({x:Math.floor(r()*W),y:Math.floor(r()*H),t:r()});})();
+
+function makeRocks(){
+  // quatre astéroïdes de 22 × 14, au bord irrégulier, qui s'effritent
+  const rocks=[];
+  for(let k=0;k<4;k++){
+    const w=22,h=14,px=new Uint8Array(w*h),x0=Math.round(30+k*((W-60-w)/3)),y0=166;
+    let a=(k+3)*7919;const r=()=>(a=(a*1103515245+12345)>>>0)/4294967296;
+    const rad=[];for(let t=0;t<16;t++)rad.push(.78+r()*.26);
+    for(let y=0;y<h;y++)for(let x=0;x<w;x++){
+      const dx=(x+.5-w/2)/(w/2),dy=(y+.5-h/2)/(h/2),ang=Math.atan2(dy,dx),d=Math.hypot(dx,dy);
+      const i=Math.floor(((ang+Math.PI)/(2*Math.PI))*16)%16;
+      if(d<rad[i])px[y*w+x]=r()<.22?2:1; // 2 = cratère plus sombre
+    }
+    rocks.push({x:x0,y:y0,w,h,px});
+  }
+  return rocks;
+}
+function newWave(){
+  const drop=Math.min(30,(U.wave-1)*6);
+  U.aliens=[];
+  for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++)U.aliens.push({r,c,alive:true});
+  U.fx=24;U.fy=30+drop;U.dir=1;U.frame=0;U.stepAt=0;
+  U.shots=[];U.bombs=[];U.booms=[];
+  U.mother=null;U.motherAt=now()+18000+Math.random()*12000;
+  U.bombAt=now()+1500;
+}
+function newGame(){
+  U={score:0,lives:3,wave:1,extra:false,px:W/2,shot:null,rocks:makeRocks(),deadUntil:0};
+  newWave();
+  state='play';
+  overlay(null);
+  hud();
+  setMessage('Vague 1. Bonne chance !');
+}
+const now=()=>performance.now();
+function alive(){return U.aliens.filter(a=>a.alive);}
+function alienBox(a){return {x:U.fx+a.c*DX,y:U.fy+a.r*DY,w:11,h:8};}
+function hit(b,x,y,w,h){return x<b.x+b.w&&x+w>b.x&&y<b.y+b.h&&y+h>b.y;}
+function rockHit(x,y,w,h,carve){
+  for(const R of U.rocks){
+    if(!hit(R,x,y,w,h))continue;
+    for(let yy=Math.max(0,y-R.y);yy<Math.min(R.h,y+h-R.y);yy++)for(let xx=Math.max(0,x-R.x);xx<Math.min(R.w,x+w-R.x);xx++){
+      if(R.px[yy*R.w+xx]){
+        if(carve){
+          for(let dy=-2;dy<=2;dy++)for(let dx=-2;dx<=2;dx++){
+            if(Math.abs(dx)+Math.abs(dy)>3||Math.random()<.25)continue;
+            const X=xx+dx,Y=yy+dy;if(X>=0&&Y>=0&&X<R.w&&Y<R.h)R.px[Y*R.w+X]=0;
+          }
+        }
+        return true;
+      }
+    }
+  }
+  return false;
+}
+function addScore(p){
+  U.score+=p;
+  if(!U.extra&&U.score>=1500){U.extra=true;U.lives++;setMessage('Une fusée en plus !','ok');beep(660,.3,'square',.05,1320);}
+  hud();
+}
+function update(t){
+  if(state!=='play')return;
+  // le joueur
+  if(t>U.deadUntil){
+    if(keys.left)U.px-=1.6;
+    if(keys.right)U.px+=1.6;
+    U.px=Math.max(7,Math.min(W-7,U.px));
+    if(keys.fire&&!U.shot){U.shot={x:Math.round(U.px),y:PY-2};beep(880,.08,'square',.03,440);}
+  }
+  // le tir du joueur
+  if(U.shot){
+    U.shot.y-=4.5;
+    const sx=U.shot.x,sy=U.shot.y;
+    if(sy<10)U.shot=null;
+    else if(rockHit(sx,sy,1,4,true))U.shot=null;
+    else{
+      for(const a of U.aliens){
+        if(!a.alive)continue;const b=alienBox(a);
+        if(hit(b,sx,sy,1,4)){a.alive=false;U.shot=null;U.booms.push({x:b.x,y:b.y,until:t+260});addScore(KINDS[a.r].pts);beep(180,.15,'sawtooth',.05,60);break;}
+      }
+      if(U.shot&&U.mother&&hit({x:U.mother.x,y:18,w:16,h:6},sx,sy,1,4)){
+        const p=[50,100,150,300][Math.floor(Math.random()*4)];
+        U.booms.push({x:U.mother.x+2,y:17,until:t+600,pts:p});addScore(p);U.mother=null;U.shot=null;beep(300,.4,'square',.05,1200);
+      }
+      // un tir peut en arrêter un autre
+      if(U.shot)for(let i=0;i<U.bombs.length;i++){const B=U.bombs[i];if(Math.abs(B.x-sx)<=1&&B.y<=sy+4&&B.y+5>=sy){U.bombs.splice(i,1);U.shot=null;break;}}
+    }
+  }
+  // la formation avance par à-coups, de plus en plus vite
+  const live=alive();
+  if(!live.length){state='wave';U.wave++;setMessage('Vague '+U.wave+' !','ok');overlay('Vague '+U.wave,'');setTimeout(()=>{if(state==='wave'){newWave();state='play';overlay(null);}},1600);return;}
+  const stepMs=Math.max(28,(26+live.length*13)*Math.pow(.92,U.wave-1));
+  if(t>=U.stepAt){
+    U.stepAt=t+stepMs;
+    let minX=1e9,maxX=-1e9,maxY=0;
+    for(const a of live){const b=alienBox(a);minX=Math.min(minX,b.x);maxX=Math.max(maxX,b.x+b.w);maxY=Math.max(maxY,b.y+b.h);}
+    if((U.dir>0&&maxX+2>W-3)||(U.dir<0&&minX-2<3)){U.fy+=6;U.dir=-U.dir;}
+    else U.fx+=2*U.dir;
+    U.frame^=1;
+    beep(MARCH[marchI++%4],.07,'square',.04);
+    // les envahisseurs rongent les astéroïdes qu'ils traversent
+    for(const a of live){const b=alienBox(a);rockHit(b.x,b.y,b.w,b.h,true);}
+    if(maxY+6>=PY-2){gameOver('Ils ont atterri !');return;}
+  }
+  // tirs ennemis : depuis le bas d'une colonne au hasard
+  if(t>=U.bombAt&&U.bombs.length<1+Math.min(3,U.wave)){
+    U.bombAt=t+Math.max(350,1150-U.wave*80)*(.6+Math.random()*.8);
+    const cols={};for(const a of live)if(!cols[a.c]||cols[a.c].r<a.r)cols[a.c]=a;
+    const list=Object.values(cols);
+    // une fois sur deux, la colonne la plus proche de la fusée
+    let a=list[Math.floor(Math.random()*list.length)];
+    if(Math.random()<.35){a=list.reduce((m,x)=>Math.abs(alienBox(x).x+5-U.px)<Math.abs(alienBox(m).x+5-U.px)?x:m,a);}
+    const b=alienBox(a);U.bombs.push({x:b.x+5,y:b.y+8,f:0});
+  }
+  for(let i=U.bombs.length-1;i>=0;i--){
+    const B=U.bombs[i];B.y+=1.5+U.wave*.12;B.f++;
+    if(B.y>H){U.bombs.splice(i,1);continue;}
+    if(rockHit(B.x-1,B.y,3,5,true)){U.bombs.splice(i,1);continue;}
+    if(t>U.deadUntil&&hit({x:U.px-5,y:PY,w:11,h:10},B.x-1,B.y,3,5)){U.bombs.splice(i,1);playerHit(t);}
+  }
+  // le vaisseau-mère
+  if(!U.mother&&t>=U.motherAt&&live.length>6){const d=Math.random()<.5?1:-1;U.mother={x:d>0?-16:W,d};}
+  if(U.mother){
+    U.mother.x+=.8*U.mother.d;
+    if(U.frame!==U.mother.f){U.mother.f=U.frame;beep(520,.05,'triangle',.03);}
+    if(U.mother.x<-18||U.mother.x>W+2){U.mother=null;U.motherAt=t+20000+Math.random()*15000;}
+  }
+}
+function playerHit(t){
+  U.lives--;hud();
+  U.booms.push({x:U.px-5,y:PY,until:t+900,big:true});
+  beep(120,.6,'sawtooth',.06,40);
+  U.shot=null;U.bombs=[];
+  if(U.lives<=0){U.deadUntil=t+99999;setTimeout(()=>gameOver('Plus de fusée.'),900);return;}
+  U.deadUntil=t+1300;
+  setMessage(U.lives===1?'Dernière fusée !':'Touché ! Encore '+U.lives+' fusées.','warn');
+}
+function gameOver(why){
+  if(state==='over')return;
+  state='over';
+  const sc=U.score,prev=best();
+  const entry={score:sc,wave:U.wave,date:new Date().toISOString().slice(0,10)};
+  UF.scores.push(entry);UF.scores.sort((a,b)=>b.score-a.score);UF.scores=UF.scores.slice(0,5);save();
+  hud();
+  setMessage('Partie terminée : '+sc+' points.','warn');
+  overlay('Partie terminée','<p>'+escH(why)+'</p><p class="big">'+sc+' points</p><p>'+(sc>prev&&sc>0?'Nouveau record !':'Record : '+best())+'</p><p class="small">'+(touchMode?'Touchez l’écran pour rejouer':'Espace ou Entrée pour rejouer')+'</p>');
+  beep(220,.9,'square',.05,55);
+}
+function draw(t){
+  ctx.fillStyle='#000';ctx.fillRect(0,0,W,H);
+  for(const s of STARS){const tw=(Math.sin(t/700+s.t*40)+1)/2;ctx.fillStyle=s.t<.15?(tw>.5?'#FFFFFF':'#4a4a4a'):'#5a5a5a';ctx.fillRect(s.x,s.y,1,1);}
+  if(!U)return;
+  // sol
+  ctx.fillStyle='#128A2E';ctx.fillRect(0,208,W,1);
+  // astéroïdes
+  for(const R of U.rocks)for(let y=0;y<R.h;y++)for(let x=0;x<R.w;x++){const v=R.px[y*R.w+x];if(v){ctx.fillStyle=v===2?'#4a4a4a':'#8a8a8a';ctx.fillRect(R.x+x,R.y+y,1,1);}}
+  // formation
+  for(const a of U.aliens){if(!a.alive)continue;const k=KINDS[a.r],b=alienBox(a);ctx.drawImage(sprite(k.spr,U.frame,k.col),b.x,b.y);}
+  if(U.mother)ctx.drawImage(sprite('mother',U.frame,'#7A1FB8'),Math.round(U.mother.x),18);
+  // explosions
+  for(let i=U.booms.length-1;i>=0;i--){const B=U.booms[i];if(t>B.until){U.booms.splice(i,1);continue;}
+    if(B.pts){ctx.fillStyle='#FFE500';ctx.font='8px "Pixelify Sans", monospace';ctx.textBaseline='top';ctx.fillText(String(B.pts),B.x,B.y);}
+    else ctx.drawImage(sprite('boom',0,B.big?'#D7141A':'#FFE500'),B.x,B.y);}
+  // tirs
+  if(U.shot){ctx.fillStyle='#FFFFFF';ctx.fillRect(U.shot.x,Math.round(U.shot.y),1,4);}
+  for(const B of U.bombs){ctx.fillStyle='#FFE500';const y=Math.round(B.y),z=(B.f>>2)&1;ctx.fillRect(B.x+(z?1:-1),y,1,1);ctx.fillRect(B.x,y+1,1,1);ctx.fillRect(B.x+(z?-1:1),y+2,1,1);ctx.fillRect(B.x,y+3,1,1);ctx.fillRect(B.x+(z?1:-1),y+4,1,1);}
+  // la fusée (elle clignote juste après avoir été touchée)
+  if(state!=='over'&&(t>U.deadUntil||(Math.floor(t/120)%2&&t>U.deadUntil-900))){
+    if(t>U.deadUntil||U.lives>0)ctx.drawImage(sprite('ship',0,'#FFFFFF'),Math.round(U.px)-5,PY);
+  }
+  // vies en bas à gauche
+  for(let i=0;i<U.lives-1&&i<5;i++)ctx.drawImage(sprite('ship',0,'#FFFFFF'),4+i*13,210);
+}
+
+/* ---------- Boucle : pas fixe de 1/60 s, seulement quand UfO est à l'écran ---------- */
+let lastT=0,acc=0,running=false;
+function loop(t){
+  if(S.screen!=='ufo'){running=false;return;}
+  if(!lastT)lastT=t;
+  acc+=Math.min(100,t-lastT);lastT=t;
+  while(acc>=1000/60){update(t);acc-=1000/60;}
+  draw(t);
+  requestAnimationFrame(loop);
+}
+function startLoop(){if(running)return;running=true;lastT=0;acc=0;requestAnimationFrame(loop);}
+
+/* ---------- Autour de l'écran de jeu ---------- */
+function hud(){
+  $('#ufo-score').textContent=String(U?U.score:0).padStart(4,'0');
+  $('#ufo-best').textContent=String(Math.max(best(),U?U.score:0)).padStart(4,'0');
+  $('#ufo-wave').textContent='Vague '+(U?U.wave:1)+' · Fusées '+(U?Math.max(0,U.lives):3);
+  $('#ufo-wv').textContent='Vague '+(U?U.wave:1);
+  const p=$('#ufo-pause');
+  p.disabled=!(state==='play'||state==='pause');
+  p.textContent=state==='pause'?'Reprendre':'Pause';
+}
+function setMessage(t,kind){const m=$('#ufo-msg');m.textContent=t||'';m.className='fill'+(kind?' '+kind:'');}
+function overlay(title,html){
+  const o=$('#ufo-ov');
+  if(!title){o.hidden=true;return;}
+  o.hidden=false;
+  o.innerHTML='<div class="ov-t">'+escH(title)+'</div>'+(html||'');
+}
+function titleScreen(){
+  state='title';
+  const row=(spr,col,txt)=>'<div class="pt"><img src="'+spriteURL(spr,col,3)+'" alt=""><span>'+txt+'</span></div>';
+  overlay('UfO','<p>Repoussez l’invasion avant qu’elle n’atterrisse.</p>'+
+    '<div class="pts">'+row('mother','#7A1FB8','? points')+row('saucer','#D7141A','30 points')+row('probe','#128A2E','20 points')+row('sat','#C4C4C4','10 points')+'</div>'+
+    '<button class="btn default" type="button" data-act="ufoNew">Jouer</button><p class="small">'+(touchMode?'Touchez l’écran pendant la partie pour la mettre en pause':'ou Espace')+'</p>');
+  hud();
+}
+function pause(on){
+  if(on&&state==='play'){state='pause';overlay('Pause','<p class="small">'+(touchMode?'Touchez l’écran pour reprendre':'P ou Espace pour reprendre')+'</p>');setMessage('Pause');keys.left=keys.right=keys.fire=false;}
+  else if(!on&&state==='pause'){state='play';overlay(null);setMessage('');lastT=0;}
+  hud();
+}
+// pause automatique : autre jeu à l'écran, fenêtre cachée, dialogue ou menu ouvert
+function sync(){
+  if(state==='play'&&(S.screen!=='ufo'||document.hidden||document.querySelector('.ov.pause')||menuEl||!$('#quit').hidden))pause(true);
+}
+window.addEventListener('blur',()=>{if(S.screen==='ufo')pause(true);});
+
+/* ---------- Taille : pixels nets, le plus grand possible ----------
+   - ordinateur : l'écran seul, au clavier ;
+   - téléphone en hauteur : l'écran, puis ◀ ▶ à gauche et Tir à droite en dessous ;
+   - téléphone couché : ◀ ▶ au bord gauche, Tir au bord droit, sans barre d'outils ni barre d'état.
+   Les boutons ne s'affichent que sur écran tactile ; une touche du clavier les cache, un appui du doigt les remet. */
+let touchMode=window.matchMedia('(hover:none) and (pointer:coarse)').matches;
+function setTouch(v){if(v===touchMode)return;touchMode=v;fit();if(state==='title')titleScreen();}
+function fit(){
+  const on=S.screen==='ufo';
+  const vw=document.documentElement.clientWidth,vh=window.innerHeight;
+  const land=on&&touchMode&&vw>vh&&vh<=560;
+  document.body.classList.toggle('ufo-land',land);
+  document.body.classList.toggle('ufo-touch',on&&touchMode);
+  if(!on)return;
+  let s;
+  if(land)s=Math.min((vh-44)/H,(vw-2*Math.min(180,vw*.22)-40)/W);
+  else s=Math.min((vw-(vw<=560?46:80))/W,(vh-(touchMode?300:230))/H);
+  s=s>=2?Math.floor(s*2)/2:Math.max(1,Math.floor(s*8)/8);
+  s=Math.min(s,3.5);
+  cv.style.width=W*s+'px';cv.style.height=H*s+'px';
+  $('#ufo-wrap').style.width=W*s+'px';
+  $('.ufo-main').style.width=W*s+6+'px';
+  const top=$('#ufo-top');top.style.height=14*s+'px';top.style.padding='0 '+Math.round(5*s)+'px';top.style.fontSize=Math.max(10,Math.round(7*s))+'px';
+}
+window.addEventListener('resize',fit);
+window.addEventListener('orientationchange',()=>setTimeout(fit,250));
+
+/* ---------- Clavier et boutons tactiles ---------- */
+const KEYMAP={ArrowLeft:'left',ArrowRight:'right',q:'left',a:'left',d:'right',' ':'fire',ArrowUp:'fire',z:'fire',w:'fire'};
+function keyDown(e){
+  if(e.metaKey||e.ctrlKey||e.altKey)return;
+  if(/INPUT|SELECT|TEXTAREA/.test(e.target.tagName||''))return;
+  const k=e.key.length===1?e.key.toLowerCase():e.key;
+  if(k==='p'){e.preventDefault();setTouch(false);pause(state==='play');return;}
+  if((k===' '||k==='Enter')&&(state==='title'||state==='over')){e.preventDefault();setTouch(false);newGame();return;}
+  if(k===' '&&state==='pause'){e.preventDefault();pause(false);return;}
+  const a=KEYMAP[k];
+  if(a){e.preventDefault();keys[a]=true;setTouch(false);}
+}
+document.addEventListener('keyup',e=>{const k=e.key.length===1?e.key.toLowerCase():e.key;const a=KEYMAP[k];if(a)keys[a]=false;});
+$$('#w-ufo .tb-btn').forEach(b=>{
+  const a=b.dataset.k;
+  const on=e=>{e.preventDefault();if(state==='title'||state==='over'){if(a==='fire')newGame();return;}if(state==='pause')pause(false);keys[a]=true;b.classList.add('down');};
+  const off=()=>{keys[a]=false;b.classList.remove('down');};
+  b.addEventListener('pointerdown',on);b.addEventListener('pointerup',off);b.addEventListener('pointercancel',off);b.addEventListener('pointerleave',off);
+  b.addEventListener('contextmenu',e=>e.preventDefault());
+});
+function tapStart(e){
+  if(e.target.closest('button'))return;
+  if(state==='title'||state==='over'){e.preventDefault();newGame();}
+  else if(state==='pause'){e.preventDefault();pause(false);}
+  else if(state==='play'&&e.pointerType==='touch'){e.preventDefault();pause(true);}
+}
+cv.addEventListener('pointerdown',tapStart);
+$('#ufo-ov').addEventListener('pointerdown',tapStart);
+document.addEventListener('pointerdown',e=>{if(e.pointerType==='touch')setTouch(true);if(S.screen==='ufo'&&e.target.closest('[data-menu]'))pause(true);},true);
+
+/* ---------- Dialogues ---------- */
+function rules(){
+  const was=state;pause(true);
+  return openDialog({title:'Règles de UfO',width:480,build:b=>{
+    b.appendChild(el('p',{text:'Une flotte venue d’ailleurs descend vers le sol. Abattez-la avant qu’elle n’atterrisse.'}));
+    b.appendChild(el('ul',{html:
+      '<li>La flotte avance de côté, puis descend d’un cran à chaque bord. Plus elle perd de vaisseaux, plus elle accélère.</li>'+
+      '<li>Une seule fusée tire à la fois : visez juste. Un tir peut arrêter un tir ennemi.</li>'+
+      '<li>Les <strong>astéroïdes</strong> vous protègent, mais s’effritent sous les tirs, des deux côtés.</li>'+
+      '<li>Soucoupe : 30 points. Sonde : 20. Satellite : 10. Le <strong>vaisseau-mère</strong> qui passe en haut vaut 50, 100, 150 ou 300 points.</li>'+
+      '<li>Trois fusées, une de plus à 1 500 points. Chaque vague suivante part un peu plus bas et va un peu plus vite.</li>'}));
+    b.appendChild(el('div',{class:'cap',text:'COMMANDES'}));
+    b.appendChild(el('div',{class:'keys',html:
+      '<b>← →  ou  Q D</b><span>se déplacer</span>'+
+      '<b>Espace ou ↑</b><span>tirer</span>'+
+      '<b>P</b><span>pause</span>'+
+      '<b>Sur téléphone</b><span>◀ ▶ à gauche, Tir à droite ; touchez l’écran de jeu pour la pause. Couchez le téléphone pour jouer en grand.</span>'}));
+    b.appendChild(el('p',{style:'font-size:13px;color:var(--mute)',text:'Le son est coupé au départ : Affichage › Son (UfO).'}));
+  },buttons:[{label:'Jouer',value:true,default:true,cancel:true}]}).then(()=>{if(was==='play'&&state==='pause')pause(false);});
+}
+function scores(){
+  pause(true);
+  openDialog({title:'Meilleurs scores de UfO',width:380,build:b=>{
+    if(!UF.scores.length){b.appendChild(el('p',{text:'Pas encore de score. À vous de jouer !'}));return;}
+    const sc=el('div',{class:'score'});
+    UF.scores.forEach((s,i)=>{sc.appendChild(el('span',{text:(i+1)+'.'}));sc.appendChild(el(i?'span':'strong',{text:s.score+' points · vague '+s.wave+' · '+new Date(s.date).toLocaleDateString('fr-FR',{day:'numeric',month:'short'})}));});
+    b.appendChild(sc);
+  },buttons:[{label:'OK',value:true,default:true,cancel:true}]});
+}
+
+/* ---------- Entrée et sortie de l'écran ---------- */
+function open(){
+  fit();
+  if(state==='title')titleScreen();
+  hud();
+  startLoop();
+  if(!UF.prefs.rulesSeen){UF.prefs.rulesSeen=true;save();setTimeout(rules,60);}
+}
+function leave(){
+  pause(true);
+  keys.left=keys.right=keys.fire=false;
+  document.body.classList.remove('ufo-land','ufo-touch');
+}
+function toggleSound(){UF.prefs.sound=!UF.prefs.sound;save();if(UF.prefs.sound)beep(660,.1);}
+function status(){
+  let s=UF.scores.length?'Record : '+best()+' points, vague '+UF.scores[0].wave:'Pas encore de record';
+  if(state==='play'||state==='pause')s+='<br>Partie en cours : vague '+U.wave+', '+U.score+' points';
+  return s;
+}
+return {open,leave,fit,sync,keyDown,newGame:()=>{if(S.screen!=='ufo')showScreen('ufo');newGame();},
+  pause:()=>pause(state==='play'),rules,scores,toggleSound,status,
+  state:()=>state};
+})();
+
+/* =========================================================
    Dialogues (remplacent alert / confirm)
    ========================================================= */
 function openDialog(opt){
@@ -4110,6 +4829,9 @@ function menuDefs(){
       {l:'LuX · Nouvelle grille moyenne',a:()=>{showScreen('lux');luxNew('moyen');}},
       {l:'LuX · Nouvelle grille difficile',a:()=>{showScreen('lux');luxNew('difficile');}},
       {l:'LuX · Recommencer la grille…',dis:S.screen!=='lux'||!LX.game,a:luxRestart},'-',
+      {l:'UfO · Nouvelle partie',a:()=>UFO.newGame()},
+      {l:UFO.state()==='pause'?'UfO · Reprendre':'UfO · Pause',k:S.screen==='ufo'?'P':null,dis:S.screen!=='ufo'||!['play','pause'].includes(UFO.state()),a:()=>UFO.pause()},
+      {l:'UfO · Meilleurs scores…',a:()=>UFO.scores()},'-',
       {l:'Revenir aux jeux',dis:S.screen==='games',a:()=>showScreen('games')},'-',
       {l:'Quitter',a:quitApp}]},
     {id:'edit',label:'Édition',items:[
@@ -4124,6 +4846,8 @@ function menuDefs(){
       {l:'Afficher le chrono',chk:P.timer,a:()=>{P.timer=!P.timer;save();showTime();showDemTime();showRexTime();showSolTime();showFilTime();showLuxTime();}},'-',
       {l:'Croix automatiques (ReX)',chk:RX.prefs.autoX,a:()=>{RX.prefs.autoX=!RX.prefs.autoX;save();if(RX.game)rexRefresh();}},
       {l:'Jeu quatre couleurs (SoL)',chk:SL.prefs.four,a:()=>{SL.prefs.four=!SL.prefs.four;save();if(SL.game)solRender(true);}},
+      {l:'Prévenir si la donne est perdue (SoL)',chk:SL.prefs.lostAlert,a:solToggleAlert},
+      {l:'Son (UfO)',chk:UF.prefs.sound,a:()=>UFO.toggleSound()},'-',
       {l:'Montrer la solution (LuX)',k:'S',chk:!!(LX.game&&LX.game.shown&&!LX.game.solved),dis:S.screen!=='lux'||!LX.game||LX.game.solved,a:luxToggleShow}]},
     {id:'win',label:'Fenêtre',items:[
       {l:'Jeux',chk:S.screen==='games',a:()=>showScreen('games')},
@@ -4132,14 +4856,16 @@ function menuDefs(){
       {l:'ReX',chk:S.screen==='rex',a:openRex},
       {l:'SoL',chk:S.screen==='sol',a:openSol},
       {l:'FiL',chk:S.screen==='fil',a:openFil},
-      {l:'LuX',chk:S.screen==='lux',a:openLux}]},
+      {l:'LuX',chk:S.screen==='lux',a:openLux},
+      {l:'UfO',chk:S.screen==='ufo',a:openUfo}]},
     {id:'help',label:'Aide',items:[
       {l:'Règles de BiN…',a:rules},
       {l:'Règles de DeM…',a:demRules},
       {l:'Règles de ReX…',a:rexRules},
       {l:'Règles de SoL…',a:solRules},
       {l:'Règles de FiL…',a:filRules},
-      {l:'Règles de LuX…',a:luxRules},'-',
+      {l:'Règles de LuX…',a:luxRules},
+      {l:'Règles de UfO…',a:()=>UFO.rules()},'-',
       {l:'À propos de SobreJoK…',a:about}]}
   ];
 }
@@ -4162,6 +4888,7 @@ function tick(){const c=$('#mb-clock');if(c){const d=new Date();c.textContent=pa
 setInterval(tick,15000);
 function openMenu(id,focusFirst){
   closeMenus(true);
+  if(S.screen==='ufo'&&UFO.state()==='play')UFO.pause();
   const def=menuDefs().find(m=>m.id===id);if(!def)return;
   const btn=$('[data-menu="'+id+'"]');btn.setAttribute('aria-expanded','true');openMenuId=id;
   menuEl=el('div',{class:'menu',role:'menu','aria-label':def.label});
@@ -4201,7 +4928,8 @@ const ACT={toGames:()=>showScreen('games'),daily:openDaily,newGrid:()=>newGrid()
   rexDaily,rexNew:()=>rexNew(),rexUndo,rexRedo,rexHint,rexClear,rexRules,
   solDaily,solNew:()=>solNew(+$('#sol-draw').value),solUndo,solRedo,solFound:solAllFound,solRules,
   filDaily,filNew:()=>filNew(),filUndo,filRedo,filHint,filClear,filRules,
-  luxDaily,luxNew:()=>luxNew(),luxUndo,luxRedo,luxHint,luxShow:luxToggleShow,luxRules};
+  luxDaily,luxNew:()=>luxNew(),luxUndo,luxRedo,luxHint,luxShow:luxToggleShow,luxRules,
+  ufoNew:()=>UFO.newGame(),ufoPause:()=>UFO.pause(),ufoScores:()=>UFO.scores(),ufoRules:()=>UFO.rules(),solBack:solBackToWinnable};
 document.addEventListener('click',e=>{
   const b=e.target.closest('[data-act]');if(!b||b.disabled)return;
   const f=ACT[b.dataset.act];if(f)f();
@@ -4212,6 +4940,7 @@ document.addEventListener('keydown',e=>{
   if(e.key==='Escape'&&menuEl){closeMenus();return;}
   if(menuEl)return;
   const mod=e.metaKey||e.ctrlKey,k=e.key.toLowerCase();
+  if(S.screen==='ufo'){UFO.keyDown(e);return;}
   if(S.screen==='fil'||S.screen==='lux'){
     const F=S.screen==='fil';
     if(mod&&k==='z'&&!e.shiftKey){e.preventDefault();F?filUndo():luxUndo();}
