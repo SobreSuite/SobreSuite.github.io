@@ -424,6 +424,41 @@ const ICONS={
      '..........kkkkwwwwkkkk..........',
      '..............kkkk..............'].forEach((row,y)=>[...row].forEach((c,x)=>{if(c!=='.')A.R(x,y,1,1,c);}));
   }),
+  // SobreVoX : un micro de studio, capsule grillagée, bandeau rouge, ondes bleues
+  vox:icon(A=>{
+    ['................................',
+     '...........kkkkkkkkkk...........',
+     '..........kwwwwwwwwwwk..........',
+     '.........kwkkkkkkkkkkwk.........',
+     '...b.....kwwwwwwwwwwwwk.....b...',
+     '..b..b...kwkkkkkkkkkkwk...b..b..',
+     '.b..b....kwwwwwwwwwwwwk....b..b.',
+     '.b..b....kwkkkkkkkkkkwk....b..b.',
+     '.b..b....krrrrrrrrrrrrk....b..b.',
+     '.b..b....krrrrrrrrrrrrk....b..b.',
+     '.b..b....kwkkkkkkkkkkwk....b..b.',
+     '.b..b....kwwwwwwwwwwwwk....b..b.',
+     '..b..b...kwkkkkkkkkkkwk...b..b..',
+     '...b.....kwwwwwwwwwwwwk.....b...',
+     '.......k.kwkkkkkkkkkkwk.k.......',
+     '.......k.kwwwwwwwwwwwwk.k.......',
+     '.......k..kwwwwwwwwwwk..k.......',
+     '.......k...kkkkkkkkkk...k.......',
+     '.......kk..............kk.......',
+     '........kk............kk........',
+     '.........kkk........kkk.........',
+     '...........kkkkkkkkkk...........',
+     '..............kllk..............',
+     '..............kllk..............',
+     '..............kllk..............',
+     '..............kllk..............',
+     '..............kllk..............',
+     '..........kkkkkkkkkkkk..........',
+     '.........kllllllllllllk.........',
+     '........kkkkkkkkkkkkkkkk........',
+     '................................',
+     '................................'].forEach((row,y)=>[...row].forEach((c,x)=>{if(c!=='.')A.R(x,y,1,1,c);}));
+  }),
   // SobreJoK : la carte du joker, bonnet à trois pointes et grelots jaunes
   jok:icon(A=>{
     A.RR(6,2,20,28,'k');A.R(7,3,18,26,'w');
@@ -491,6 +526,9 @@ const APPS=[
   {id:'zik',repo:'SobreZiK',name:'SobreZiK',ready:true,tag:'Lecteur de musique frugal',
     desc:'Un lecteur de musique à l’ancienne : une liste, la pochette tramée et une télécommande façon lecteur de CD, sans rien installer.',
     feats:['Lit MP3, FLAC, OGG, M4A et WAV, dossier par dossier','Titres, artistes et pochettes lus dans les fichiers','Pochette en noir et blanc tramé ; sans pochette, un disque qui tourne','Aléatoire, répétition, programme','Garde la liste d’une séance à l’autre si la musique est rangée à côté']},
+  {id:'vox',repo:'SobreVoX',name:'SobreVoX',ready:true,tag:'Éditeur audio frugal',
+    desc:'Enregistrer sa voix, la nettoyer, la monter et la mixer avec de la musique, sans rien installer ni rien envoyer sur Internet.',
+    feats:['Enregistrement au micro, plusieurs pistes','Couper, coller, déplacer : l’original reste intact','Préparer la voix en un clic : souffle, graves, volume, niveau en LUFS','Couper les blancs entre les phrases','Effets : égaliseur, compresseur, écho, réverbération, tempo','Lit MP3, WAV, FLAC, OGG, M4A ; exporte en MP3, WAV ou FLAC']},
   {id:'jok',repo:'SobreJoK',name:'SobreJoK',ready:true,tag:'Jeux old school pour les pauses café',
     desc:'Six petits jeux pour souffler entre deux dossiers, avec une grille du jour la même pour tout le monde.',
     feats:['BiN : ronds et lunes','DeM : le démineur','ReX : une couronne par zone','SoL : le solitaire','FiL : un fil par toutes les cases','LuX : éteindre les lumières','Grilles et donne du jour, records']}
