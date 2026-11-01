@@ -750,7 +750,7 @@ return {AUDIO_EXT,IMAGE_EXT,readTags,fromName,parseID3v2,parseID3v1,parseFLAC,di
 /* SobreZiK — interface : télécommande, pochette, liste, menus, dialogues. */
 (()=>{
 'use strict';
-const VERSION='0.2';
+const VERSION='0.3';
 const KEY='sobre-zik:v1';
 const $=(s,r=document)=>r.querySelector(s);
 const $$=(s,r=document)=>[...r.querySelectorAll(s)];
@@ -812,7 +812,7 @@ function lcd(str,h){
 }
 
 /* ---------------- État et mémoire ---------------- */
-const P0={repeat:0,shuffle:false,progOn:false,timeMode:0,trame:'atkinson',grain:2,online:false,panes:{list:true,cover:true}};
+const P0={repeat:0,shuffle:false,progOn:false,timeMode:0,trame:'atkinson',grain:1,online:false,panes:{list:true,cover:true}};
 const S={
   prefs:Object.assign({},P0),
   tracks:[],byId:new Map(),
@@ -830,6 +830,7 @@ function load(){
     Object.assign(S.prefs,o.prefs||{});
     S.prefs.panes=Object.assign({list:true,cover:true},(o.prefs&&o.prefs.panes)||{});
     delete S.prefs.vol;delete S.prefs.muted;delete S.prefs.wins;
+    if(!S.prefs.g1){S.prefs.grain=1;S.prefs.g1=1;} // 0.3 : grain fin (point d'écran) par défaut
     if(Array.isArray(o.tracks)){S.tracks=o.tracks.filter(t=>t&&t.id);S.restored=S.tracks.length>0;}
     S.prog=Array.isArray(o.prog)?o.prog:[];
     S.root=o.root||'';
@@ -1157,7 +1158,9 @@ async function coverImage(key){
     return bmp;
   }catch(e){return null;}
 }
-function coverSize(){return Math.round(320/(S.prefs.grain||2));}
+/* Grain fin : un point de trame par point d'écran (deux fois plus de points sur un écran Retina) */
+function dpr(){return Math.max(1,Math.min(2,Math.round(window.devicePixelRatio||1)));}
+function coverSize(){const g=S.prefs.grain||1;return g===1?320*dpr():Math.round(320/g);}
 let shownTrack=null;
 async function showCover(t){
   shownTrack=t||null;
@@ -1469,6 +1472,7 @@ function layout(){
     w.style.width='';
   }
   marqText='';renderMarquee();
+  if(cvs.width!==coverSize())showCover(shownTrack);
 }
 function togglePane(id){S.prefs.panes[id]=!S.prefs.panes[id];layout();save();discRun();}
 let rsT=0;window.addEventListener('resize',()=>{clearTimeout(rsT);rsT=setTimeout(layout,100);});
@@ -1592,7 +1596,7 @@ function menuDefs(){
       {h:'Trame de la pochette'},
       ...TRAMES.map(t=>({l:t.l,chk:P.trame===t.id,a:()=>setTrame(t.id)})),'-',
       {h:'Grain'},
-      {l:'Fin',chk:P.grain===1,a:()=>setGrain(1)},{l:'Moyen',chk:P.grain===2,a:()=>setGrain(2)},{l:'Gros',chk:P.grain===3,a:()=>setGrain(3)},'-',
+      {l:'Fin (point d’écran)',chk:P.grain===1,a:()=>setGrain(1)},{l:'Moyen',chk:P.grain===2,a:()=>setGrain(2)},{l:'Gros',chk:P.grain===3,a:()=>setGrain(3)},'-',
       {l:'Chercher les pochettes manquantes en ligne',chk:!!P.online,a:setOnline}]},
     {id:'win',label:'Fenêtre',items:[
       {l:'Liste',chk:!!P.panes.list,a:()=>togglePane('list')},{l:'Pochette',chk:!!P.panes.cover,a:()=>togglePane('cover')}]},
