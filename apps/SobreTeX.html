@@ -267,6 +267,40 @@ button,input,select,textarea{font:inherit;color:inherit}
 .sp-copy{margin:0;font-family:var(--ui);font-size:12px;color:var(--mute);letter-spacing:.04em}
 .about img{width:260px;height:auto}
 
+/* Assistant « Enregistrer sous » */
+.xp-q{font-size:16px!important;font-weight:600}
+.xp-tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
+.xp-tile{display:flex;flex-direction:column;align-items:flex-start;gap:5px;padding:10px 12px;border:1px solid var(--ink);border-radius:4px;background:var(--paper);text-align:left;cursor:pointer;min-height:86px;font-family:var(--ui)}
+.xp-tile svg{width:26px;height:26px;fill:none;stroke:var(--ink);stroke-width:1.5}
+.xp-tile .xp-l{font-size:14px;font-weight:600}
+.xp-tile .xp-f{font-family:var(--code);font-size:11px}
+.xp-tile:hover{background:#f0f0f0}
+.xp-tile.on{background:var(--ink);color:var(--paper);box-shadow:3px 3px 0 #9a9a9a}
+.xp-tile.on svg{stroke:var(--paper)}
+.xp-panel{margin-top:8px}
+.xp-panel-in{display:flex;gap:22px;flex-wrap:wrap;align-items:flex-start}
+.xp-radios{display:flex;flex-direction:column;gap:7px;width:300px;max-width:100%}
+.xp-opt{display:flex;align-items:baseline;gap:8px;font-size:13px;flex-wrap:wrap;cursor:pointer}
+.xp-opt input{accent-color:#000;margin:0}
+.xp-opt span{color:var(--mute);font-size:12px}
+.xp-report{flex:1;min-width:260px;display:flex;flex-direction:column;gap:4px;font-size:13px;line-height:1.4}
+.xp-line{display:grid;grid-template-columns:18px minmax(0,1fr);align-items:baseline}
+.xp-sym{font-weight:600}
+.xp-sym.ok,.xp-cmp td.ok{color:var(--env)}
+.xp-sym.ad,.xp-cmp td.ad{color:var(--maison)}
+.xp-sym.ko,.xp-cmp td.ko{color:var(--struct)}
+.xp-link{align-self:flex-start;border:0;background:transparent;padding:2px 0;font-family:var(--ui);font-size:12px;color:var(--char);text-decoration:underline;cursor:pointer;margin-top:4px}
+.dlg-btns .btn[disabled]{opacity:.4;cursor:not-allowed}
+.xp-cmp-wrap{overflow-x:auto;max-width:100%}
+.xp-cmp{border-collapse:collapse;font-size:13px;min-width:760px}
+.xp-cmp th,.xp-cmp td{border:1px solid var(--ink);padding:5px 6px}
+.xp-cmp thead th{font-size:13px;text-align:center}
+.xp-cmp thead th span{font-family:var(--code);font-size:11px;font-weight:400}
+.xp-cmp thead th:nth-child(2){background:var(--ink);color:var(--paper)}
+.xp-cmp tbody th{text-align:left;font-weight:400;white-space:nowrap}
+.xp-cmp td{text-align:center;font-weight:600;font-size:15px}
+.xp-cmp tbody tr:nth-child(even){background:#f6f6f6}
+
 /* Bulles d'aide */
 #bubble{position:fixed;z-index:90;max-width:240px;background:var(--postit);border:1px solid #c9b74a;box-shadow:2px 2px 0 rgba(0,0,0,.25);padding:4px 8px 5px;font-size:12px;line-height:1.35;pointer-events:none;transform:rotate(-.4deg)}
 #bubble .t{font-weight:600}
@@ -372,7 +406,7 @@ button,input,select,textarea{font:inherit;color:inherit}
   </main>
 
   <div id="bubble" hidden></div>
-  <input type="file" id="f-tex" accept=".tex,.txt,text/plain,application/x-tex" hidden>
+  <input type="file" id="f-tex" accept=".tex,.txt,.md,.markdown,text/plain,text/markdown,application/x-tex" hidden>
   <input type="file" id="f-json" accept=".json,application/json" hidden>
 </div>
 <style id="pv-css"></style>
@@ -811,7 +845,7 @@ function genPreamble(sh){
   const p=sh.page,P=PAPERS[p.paper]||PAPERS.a4,L=[];
   L.push('\\documentclass['+p.size+'pt,'+P[3]+']{article}');
   L.push('\\usepackage[utf8]{inputenc}','\\usepackage[T1]{fontenc}','\\usepackage['+p.lang+']{babel}',...fontTeX(p));
-  L.push('\\usepackage[margin='+p.margin+'cm]{geometry}','\\usepackage{graphicx}','\\usepackage[normalem]{ulem}','\\usepackage{ragged2e}','\\usepackage{xcolor}','\\usepackage{titlesec}','\\usepackage{etoolbox}');
+  L.push('\\usepackage[margin='+p.margin+'cm]{geometry}','\\usepackage{graphicx}','\\usepackage[normalem]{ulem}','\\usepackage{ragged2e}','\\usepackage{xcolor}','\\usepackage{titlesec}','\\usepackage{etoolbox}','\\usepackage[hidelinks]{hyperref}');
   const used=new Set(sh.styles.map(s=>s.color).filter(c=>c&&c!=='noir'));
   for(const c of COLORS) if(used.has(c[0])) L.push('\\definecolor{sobre'+c[0]+'}{HTML}{'+c[2].slice(1)+'}');
   L.push('\\setcounter{secnumdepth}{'+(p.numbered?3:0)+'}');
@@ -860,21 +894,32 @@ function readArg(s,j){
 function readOpt(s,j){if(s[j]==='['){const cl=s.indexOf(']',j);if(cl>0)return {opt:s.slice(j+1,cl),next:cl+1};}return null;}
 function mathBox(t,disp){return '<span class="pv-math'+(disp?' disp':'')+'" title="Équation : l’aperçu mathématique arrivera dans une prochaine version">'+escH(t.trim())+'</span>';}
 
-function renderDoc(body,sh){
+/* ---------------------------------------------------------
+   Lecture du LaTeX → structure neutre du document (AST).
+   Tous les formats (aperçu, Markdown, Word…) partent de là.
+   Blocs : title, heading, para, custom, list, quote, align,
+           table, group, math, break, unknown, error
+   En ligne : text, b, i, u, s, tt, sc, span, fn, math, br,
+              img, link, color, logo, unk, err
+   --------------------------------------------------------- */
+const SYMT={ldots:'…',dots:'…',og:'«\u202F',fg:'\u202F»',textbackslash:'\\',textasciitilde:'~',textasciicircum:'^',quad:'\u2003',qquad:'\u2003\u2003',
+  noindent:'',par:' ',hfill:' ',S:'§',P:'¶',copyright:'©',textregistered:'®',texttrademark:'™',euro:'€',
+  textdegree:'°',degres:'°',oe:'œ',OE:'Œ',ae:'æ',AE:'Æ',ss:'ß',smallskip:'',medskip:'',bigskip:'',centering:'',raggedright:'',protect:'',relax:'',
+  textendash:'–',textemdash:'—',guillemotleft:'«',guillemotright:'»',nobreakspace:'\u00A0'};
+const ALIGN_ENV={center:'center',Center:'center',flushleft:'left',FlushLeft:'left',flushright:'right',FlushRight:'right',justify:'justify'};
+
+function parseDoc(body,sh){
   const sc=stripComments(body);
   const starts=[0];for(let k=0;k<sc.text.length;k++)if(sc.text[k]==='\n')starts.push(k+1);
   const lineOf=off=>{let lo=0,hi=starts.length-1;while(lo<hi){const mid=(lo+hi+1)>>1;if(starts[mid]<=off)lo=mid;else hi=mid-1;}return sc.map[lo]||1;};
-  const ctx={sh,fn:[],cnt:[0,0,0],lineOf};
-  const html=blocks(sc.text,ctx,true);
-  let fns='';
-  if(ctx.fn.length) fns='<div class="pv-fns"><div class="pv-fnrule"></div>'+ctx.fn.map((t,k)=>'<p><sup>'+(k+1)+'</sup>&#8239;'+t+'</p>').join('')+'</div>';
-  return html+fns;
+  const ctx={sh,cnt:[0,0,0],lineOf};
+  return pBlocks(sc.text,ctx,true);
 }
 function blockStyle(name,sh){return sh.styles.find(s=>s.cmd===name&&BLOCK_KINDS.includes(s.kind));}
-function blocks(src,ctx,top){
+function pBlocks(src,ctx,top){
   const out=[];let para=[],paraStart=0;
-  const put=(html,off)=>{out.push(top&&ctx.lineOf?html.replace(/^<([a-zA-Z0-9]+)/,'<$1 data-l="'+ctx.lineOf(off)+'"'):html);};
-  const flush=()=>{const t=para.join('\n').trim();para=[];if(t)put('<p>'+inline(t,ctx)+'</p>',paraStart);};
+  const put=(node,off)=>{if(top&&ctx.lineOf)node.line=ctx.lineOf(off);out.push(node);};
+  const flush=()=>{const t=para.join('\n').trim();para=[];if(t)put({t:'para',c:pInline(t,ctx)},paraStart);};
   let i=0;const n=src.length;
   while(i<n){
     let le=src.indexOf('\n',i);if(le<0)le=n;
@@ -885,38 +930,138 @@ function blocks(src,ctx,top){
     if((m=/^\\begin\{([a-zA-Z*]+)\}/.exec(tr))){
       flush();
       const r=findEnvEnd(src,lead,m[1]);
-      if(!r){out.push(errBox('L’environnement « '+m[1]+' » n’est pas fermé : il manque \\end{'+m[1]+'}.'));out.push(renderEnv(m[1],src.slice(lead+m[0].length),ctx));break;}
-      put(renderEnv(m[1],src.slice(r.cs,r.ce),ctx),lead);i=r.end;continue;
+      if(!r){out.push({t:'error',msg:'L’environnement « '+m[1]+' » n’est pas fermé : il manque \\end{'+m[1]+'}.'});put(pEnv(m[1],src.slice(lead+m[0].length),ctx),lead);break;}
+      put(pEnv(m[1],src.slice(r.cs,r.ce),ctx),lead);i=r.end;continue;
     }
     if((m=/^\\([a-zA-Z]+)(\*?)\s*\{/.exec(tr))){
       const st=blockStyle(m[1],ctx.sh);
       if(st){
         flush();
         const open=lead+m[0].length-1,cl=matchBrace(src,open);
-        if(cl<0){out.push(errBox('La commande \\'+m[1]+' n’a pas d’accolade fermante.'));para.push(src.slice(open+1));i=n;continue;}
-        put(renderBlockCmd(st,m[2]==='*',src.slice(open+1,cl),ctx),lead);i=cl+1;continue;
+        if(cl<0){out.push({t:'error',msg:'La commande \\'+m[1]+' n’a pas d’accolade fermante.'});para.push(src.slice(open+1));i=n;continue;}
+        put(pBlockCmd(st,m[2]==='*',src.slice(open+1,cl),ctx),lead);i=cl+1;continue;
       }
     }
-    if(/^\\(newpage|clearpage|pagebreak)(?![a-zA-Z])/.test(tr)){flush();put('<div class="pv-break">Saut de page</div>',lead);i=le+1;continue;}
-    if(/^\\(maketitle|tableofcontents)(?![a-zA-Z])/.test(tr)){flush();out.push('<div class="pv-unk">'+escH(tr)+' · non affiché dans l’aperçu</div>');i=le+1;continue;}
+    if(/^\\(newpage|clearpage|pagebreak)(?![a-zA-Z])/.test(tr)){flush();put({t:'break'},lead);i=le+1;continue;}
+    if(/^\\(maketitle|tableofcontents)(?![a-zA-Z])/.test(tr)){flush();put({t:'unknown',cmd:tr,blocks:[]},lead);i=le+1;continue;}
     if(!para.length)paraStart=lead;
     para.push(line);i=le+1;
   }
   flush();
-  return out.join('');
+  return out;
 }
-function renderBlockCmd(st,star,content,ctx){
-  if(st.kind==='title') return '<h1 class="s-'+st.id+'">'+inline(content.trim(),ctx)+'</h1>';
+function pBlockCmd(st,star,content,ctx){
+  if(st.kind==='title') return {t:'title',st,c:pInline(content.trim(),ctx)};
   if(st.kind==='heading'){
-    const lv=HEAD[st.cmd];let numStr='';
-    if(lv!==undefined&&ctx.sh.page.numbered&&!star){
+    const lv=HEAD[st.cmd]===undefined?2:HEAD[st.cmd];let num='';
+    if(ctx.sh.page.numbered&&!star){
       ctx.cnt[lv]++;for(let k=lv+1;k<3;k++)ctx.cnt[k]=0;
-      numStr=ctx.cnt.slice(0,lv+1).join('.');
+      num=ctx.cnt.slice(0,lv+1).join('.');
     }
-    const tag=['h2','h3','h4'][lv===undefined?2:lv];
-    return '<'+tag+' class="s-'+st.id+'">'+(numStr?'<span class="num">'+numStr+'</span>':'')+inline(content.trim(),ctx)+'</'+tag+'>';
+    return {t:'heading',level:lv,st,num,star,c:pInline(content.trim(),ctx)};
   }
-  return '<div class="s-'+st.id+'">'+blocks(content,ctx)+'</div>';
+  return {t:'custom',st,blocks:pBlocks(content,ctx,false)};
+}
+function pTabular(content,ctx){
+  let spec='',body=content;
+  if(/^\s*\{/.test(content)){const open=content.indexOf('{'),cl=matchBrace(content,open);if(cl>0){spec=content.slice(open+1,cl);body=content.slice(cl+1);}}
+  const rows=[];
+  for(let r of splitTop(body,'\\\\')){
+    r=r.trim();let top=false;
+    while(/^\\hline/.test(r)){top=true;r=r.slice(6).trim();}
+    if(!r){if(top&&rows.length)rows[rows.length-1].bottom=true;continue;}
+    rows.push({top,cells:splitTop(r,'&').map(c=>pInline(c.trim(),ctx))});
+  }
+  return {t:'table',ruled:spec.indexOf('|')>=0,hlines:/\\hline/.test(body),rows};
+}
+function pEnv(env,content,ctx){
+  const st=styleByEnv(env,ctx.sh);
+  switch(env){
+    case 'itemize':case 'enumerate':case 'description':
+      return {t:'list',ordered:env==='enumerate',st,items:splitItems(content).map(it=>({label:it.label,blocks:pBlocks(it.text,ctx,false)}))};
+    case 'quote':case 'quotation':return {t:'quote',st,blocks:pBlocks(content,ctx,false)};
+    case 'tabular':return pTabular(content,ctx);
+    case 'table':case 'figure':return {t:'group',blocks:pBlocks(content,ctx,false)};
+    case 'equation':case 'equation*':case 'align':case 'align*':case 'displaymath':return {t:'math',v:content.trim()};
+  }
+  if(ALIGN_ENV[env]) return {t:'align',align:ALIGN_ENV[env],blocks:pBlocks(content,ctx,false)};
+  return {t:'unknown',env,blocks:pBlocks(content,ctx,false)};
+}
+function pInline(s,ctx){
+  const o=[];let txt='';
+  const T=x=>{txt+=x;};
+  const N=node=>{if(txt){o.push({t:'text',v:txt});txt='';}if(Array.isArray(node))node.forEach(N2);else if(node)o.push(node);};
+  const N2=node=>{if(node.t==='text'){const last=o[o.length-1];if(last&&last.t==='text')last.v+=node.v;else o.push({t:'text',v:node.v});}else o.push(node);};
+  let i=0;const n=s.length;
+  while(i<n){
+    const c=s[i];
+    if(c==='\\'){
+      const nx=s[i+1];
+      if(nx===undefined){i++;continue;}
+      if(/[a-zA-Z]/.test(nx)){
+        let j=i+1;while(j<n&&/[a-zA-Z]/.test(s[j]))j++;
+        const name=s.slice(i+1,j);
+        if(s[j]==='*')j++;
+        const r=pCmd(name,s,j,ctx);N(r.nodes);i=r.next;continue;
+      }
+      if(nx==='\\'){N({t:'br'});i+=2;const op=readOpt(s,i);if(op)i=op.next;continue;}
+      if(nx==='['){const e=s.indexOf('\\]',i+2);if(e>0){N({t:'math',v:s.slice(i+2,e).trim(),disp:true});i=e+2;continue;}}
+      if(nx==='('){const e=s.indexOf('\\)',i+2);if(e>0){N({t:'math',v:s.slice(i+2,e).trim()});i=e+2;continue;}}
+      const map={'&':'&','%':'%','$':'$','#':'#','_':'_','{':'{','}':'}',' ':' ',',':'\u2009',';':' ','!':'',"'":"'",'-':'\u00AD','\n':' '};
+      T((nx in map)?map[nx]:nx);i+=2;continue;
+    }
+    if(c==='{'){const cl=matchBrace(s,i);if(cl<0){N({t:'err',v:'{',title:'Accolade ouvrante sans accolade fermante'});i++;continue;}N(pInline(s.slice(i+1,cl),ctx));i=cl+1;continue;}
+    if(c==='}'){N({t:'err',v:'}',title:'Accolade fermante en trop'});i++;continue;}
+    if(c==='~'){T('\u00A0');i++;continue;}
+    if(c==='$'){
+      const dbl=s[i+1]==='$',st=i+(dbl?2:1);
+      let e=st;while(e<n&&!(s[e]==='$'&&!isEsc(s,e)))e++;
+      if(e>=n){N({t:'err',v:'$',title:'Dollar seul : écrivez \\$ pour le symbole'});i++;continue;}
+      N({t:'math',v:s.slice(st,e).trim(),disp:dbl});i=e+(dbl&&s[e+1]==='$'?2:1);continue;
+    }
+    if(c==='-'&&s.startsWith('---',i)){T('—');i+=3;continue;}
+    if(c==='-'&&s.startsWith('--',i)){T('–');i+=2;continue;}
+    if(c==='`'&&s[i+1]==='`'){T('“');i+=2;continue;}
+    if(c==="'"&&s[i+1]==="'"){T('”');i+=2;continue;}
+    if(c==='\n'){T(' ');i++;continue;}
+    if(c==='&'||c==='#'||c==='_'||c==='^'){N({t:'err',v:c,title:'Caractère spécial non protégé : écrivez \\'+c});i++;continue;}
+    let j=i+1;while(j<n&&'\\{}~$-`\'\n&#_^'.indexOf(s[j])<0)j++;
+    T(s.slice(i,j));i=j;
+  }
+  N(null);
+  return o;
+}
+function pCmd(name,s,j,ctx){
+  const wrap=t=>{const a=readArg(s,j);if(!a)return {nodes:[],next:j};return {nodes:[{t,c:pInline(a.arg,ctx)}],next:a.next};};
+  const noArg=()=>{let nx=j;if(s.startsWith('{}',nx))nx+=2;else nx=skipSp(s,nx);return nx;};
+  switch(name){
+    case 'textbf':return wrap('b');
+    case 'emph':case 'textit':return wrap('i');
+    case 'underline':case 'uline':return wrap('u');
+    case 'sout':case 'xout':return wrap('s');
+    case 'texttt':return wrap('tt');
+    case 'textsc':return wrap('sc');
+    case 'textrm':case 'textsf':case 'mbox':case 'text':{const a=readArg(s,j);if(!a)return {nodes:[],next:j};return {nodes:pInline(a.arg,ctx),next:a.next};}
+    case 'footnote':return wrap('fn');
+    case 'LaTeX':case 'TeX':return {nodes:[{t:'logo',v:name}],next:noArg()};
+    case 'today':return {nodes:[{t:'text',v:new Date().toLocaleDateString(ctx.sh.page.lang==='english'?'en-GB':'fr-FR',{day:'numeric',month:'long',year:'numeric'})}],next:noArg()};
+    case 'newline':case 'linebreak':return {nodes:[{t:'br'}],next:noArg()};
+    case 'textcolor':{const a=readArg(s,j),b=a&&readArg(s,a.next);if(!b)return {nodes:[],next:j};const col=COLOR[a.arg.replace(/^sobre/,'')];return {nodes:[{t:'color',color:col?col[2]:null,c:pInline(b.arg,ctx)}],next:b.next};}
+    case 'url':{const a=readArg(s,j);if(!a)return {nodes:[],next:j};return {nodes:[{t:'link',url:a.arg,c:[{t:'text',v:a.arg}]}],next:a.next};}
+    case 'href':{const a=readArg(s,j),b=a&&readArg(s,a.next);if(!b)return {nodes:[],next:j};return {nodes:[{t:'link',url:a.arg,c:pInline(b.arg,ctx)}],next:b.next};}
+    case 'includegraphics':{let nx=j;const o=readOpt(s,nx);if(o)nx=o.next;const a=readArg(s,nx);return {nodes:[{t:'img',file:a?a.arg:'?'}],next:a?a.next:nx};}
+    case 'item':return {nodes:[],next:j};
+  }
+  if(EATARGS[name]){let nx=j;for(let k=0;k<EATARGS[name];k++){const o=readOpt(s,nx);if(o)nx=o.next;const a=readArg(s,nx);if(a)nx=a.next;}return {nodes:[],next:nx};}
+  if(Object.prototype.hasOwnProperty.call(SYMT,name)) return {nodes:SYMT[name]?[{t:'text',v:SYMT[name]}]:[],next:noArg()};
+  const st=styleByCmd(name,ctx.sh);
+  if(st&&st.kind!=='char'&&st.kind!=='note'){
+    const a=readArg(s,j);if(!a)return {nodes:[],next:j};
+    if(st.kind==='charc'||st.kind==='para') return {nodes:[{t:'span',st,para:st.kind==='para',c:pInline(a.arg,ctx)}],next:a.next};
+    return {nodes:[{t:'b',c:pInline(a.arg,ctx)}],next:a.next};
+  }
+  const a=readArg(s,j);
+  return {nodes:[{t:'unk',name,c:a?pInline(a.arg,ctx):[]}],next:a?a.next:skipSp(s,j)};
 }
 function splitTop(s,sep){
   const parts=[];let d=0,last=0;
@@ -950,112 +1095,83 @@ function splitItems(s){
     return {text:t.trim(),label};
   });
 }
-function renderTabular(content,ctx){
-  let spec='',body=content;
-  if(/^\s*\{/.test(content)){const open=content.indexOf('{'),cl=matchBrace(content,open);if(cl>0){spec=content.slice(open+1,cl);body=content.slice(cl+1);}}
-  const ruled=spec.indexOf('|')>=0;
-  const rows=[];
-  for(let r of splitTop(body,'\\\\')){
-    r=r.trim();let top=false;
-    while(/^\\hline/.test(r)){top=true;r=r.slice(6).trim();}
-    if(!r){if(top&&rows.length)rows[rows.length-1].bottom=true;continue;}
-    rows.push({top,cells:splitTop(r,'&').map(c=>c.trim())});
-  }
-  return '<table class="pv-tab'+(ruled?' ruled':'')+'">'+rows.map(r=>'<tr class="'+(r.top?'rl ':'')+(r.bottom?'rb':'')+'">'+r.cells.map(c=>'<td>'+inline(c,ctx)+'</td>').join('')+'</tr>').join('')+'</table>';
-}
-function renderEnv(env,content,ctx){
-  const st=styleByEnv(env,ctx.sh);
-  const cls=st?' class="s-'+st.id+'"':'';
-  switch(env){
-    case 'itemize':case 'enumerate':case 'description':{
-      const tag=env==='enumerate'?'ol':'ul';
-      return '<'+tag+cls+'>'+splitItems(content).map(it=>'<li'+(it.label!=null?' class="lbl" data-l="'+escH(it.label)+'"':'')+'>'+unP(blocks(it.text,ctx))+'</li>').join('')+'</'+tag+'>';
-    }
-    case 'quote':case 'quotation':return '<blockquote'+cls+'>'+blocks(content,ctx)+'</blockquote>';
-    case 'center':case 'Center':return '<div class="pv-center">'+blocks(content,ctx)+'</div>';
-    case 'flushleft':case 'FlushLeft':return '<div class="pv-left">'+blocks(content,ctx)+'</div>';
-    case 'flushright':case 'FlushRight':return '<div class="pv-right">'+blocks(content,ctx)+'</div>';
-    case 'justify':return '<div class="pv-justify">'+blocks(content,ctx)+'</div>';
-    case 'tabular':return renderTabular(content,ctx);
-    case 'table':case 'figure':return '<div>'+blocks(content,ctx)+'</div>';
-    case 'equation':case 'equation*':case 'align':case 'align*':case 'displaymath':return mathBox(content,true);
-    default:return '<div class="pv-unk"><span class="pv-tag">\\begin{'+escH(env)+'}</span>'+blocks(content,ctx)+'</div>';
-  }
-}
-function inline(s,ctx){
-  let o='',i=0;const n=s.length;
-  while(i<n){
-    const c=s[i];
-    if(c==='\\'){
-      const nx=s[i+1];
-      if(nx===undefined){i++;continue;}
-      if(/[a-zA-Z]/.test(nx)){
-        let j=i+1;while(j<n&&/[a-zA-Z]/.test(s[j]))j++;
-        const name=s.slice(i+1,j);let star=false;
-        if(s[j]==='*'){star=true;j++;}
-        const r=inlineCmd(name,star,s,j,ctx);o+=r.html;i=r.next;continue;
-      }
-      if(nx==='\\'){o+='<br>';i+=2;const op=readOpt(s,i);if(op)i=op.next;continue;}
-      if(nx==='['){const e=s.indexOf('\\]',i+2);if(e>0){o+=mathBox(s.slice(i+2,e),true);i=e+2;continue;}}
-      if(nx==='('){const e=s.indexOf('\\)',i+2);if(e>0){o+=mathBox(s.slice(i+2,e),false);i=e+2;continue;}}
-      const map={'&':'&amp;','%':'%','$':'$','#':'#','_':'_','{':'{','}':'}',' ':' ',',':'&thinsp;',';':' ','!':'',"'":"'",'-':'&shy;','\n':' '};
-      o+=(nx in map)?map[nx]:escH(nx);i+=2;continue;
-    }
-    if(c==='{'){const cl=matchBrace(s,i);if(cl<0){o+='<span class="pv-err" title="Accolade ouvrante sans accolade fermante">{</span>';i++;continue;}o+=inline(s.slice(i+1,cl),ctx);i=cl+1;continue;}
-    if(c==='}'){o+='<span class="pv-err" title="Accolade fermante en trop">}</span>';i++;continue;}
-    if(c==='~'){o+='&nbsp;';i++;continue;}
-    if(c==='$'){
-      const dbl=s[i+1]==='$';const st=i+(dbl?2:1);
-      let e=st;while(e<n&&!(s[e]==='$'&&!isEsc(s,e)))e++;
-      if(e>=n){o+='<span class="pv-err" title="Dollar seul : écrivez \\$ pour le symbole">$</span>';i++;continue;}
-      o+=mathBox(s.slice(st,e),dbl);i=e+(dbl&&s[e+1]==='$'?2:1);continue;
-    }
-    if(c==='-'&&s.startsWith('---',i)){o+='—';i+=3;continue;}
-    if(c==='-'&&s.startsWith('--',i)){o+='–';i+=2;continue;}
-    if(c==='`'&&s[i+1]==='`'){o+='“';i+=2;continue;}
-    if(c==="'"&&s[i+1]==="'"){o+='”';i+=2;continue;}
-    if(c==='\n'){o+=' ';i++;continue;}
-    if(c==='&'||c==='#'||c==='_'||c==='^'){o+='<span class="pv-err" title="Caractère spécial non protégé : écrivez \\'+escH(c)+'">'+escH(c)+'</span>';i++;continue;}
-    let j=i+1;while(j<n&&'\\{}~$-`\'\n&#_^'.indexOf(s[j])<0)j++;
-    o+=escH(s.slice(i,j));i=j;
+/* Texte brut d'une suite de nœuds en ligne */
+function plainOf(nodes){
+  let o='';
+  for(const n of nodes||[]){
+    if(n.t==='text')o+=n.v;
+    else if(n.t==='br')o+='\n';
+    else if(n.t==='fn')continue;
+    else if(n.t==='logo')o+=n.v;
+    else if(n.t==='math')o+=n.v;
+    else if(n.t==='img')o+='[Image : '+n.file+']';
+    else if(n.t==='err')o+=n.v;
+    else if(n.c)o+=plainOf(n.c);
   }
   return o;
 }
-function inlineCmd(name,star,s,j,ctx){
-  const wrap=(tag,cls)=>{const a=readArg(s,j);if(!a)return {html:'',next:j};return {html:'<'+tag+(cls?' class="'+cls+'"':'')+'>'+inline(a.arg,ctx)+'</'+tag+'>',next:a.next};};
-  switch(name){
-    case 'textbf':return wrap('strong');
-    case 'emph':case 'textit':return wrap('em');
-    case 'underline':case 'uline':return wrap('u');
-    case 'sout':case 'xout':return wrap('s');
-    case 'texttt':return wrap('code','tt');
-    case 'textsc':return wrap('span','sc');
-    case 'textrm':case 'textsf':case 'mbox':case 'text':return wrap('span');
-    case 'footnote':{const a=readArg(s,j);if(!a)return {html:'',next:j};ctx.fn.push(inline(a.arg,ctx));return {html:'<sup class="fnref">'+ctx.fn.length+'</sup>',next:a.next};}
-    case 'LaTeX':case 'TeX':{let nx=j;if(s.startsWith('{}',nx))nx+=2;else nx=skipSp(s,nx);return {html:name==='LaTeX'?LATEX_HTML:TEX_HTML,next:nx};}
-    case 'today':{let nx=j;if(s.startsWith('{}',nx))nx+=2;else nx=skipSp(s,nx);return {html:escH(new Date().toLocaleDateString(ctx.sh.page.lang==='english'?'en-GB':'fr-FR',{day:'numeric',month:'long',year:'numeric'})),next:nx};}
-    case 'textcolor':{const a=readArg(s,j),b=a&&readArg(s,a.next);if(!b)return {html:'',next:j};const col=COLOR[a.arg.replace(/^sobre/,'')];return {html:'<span style="color:'+(col?col[2]:'inherit')+'">'+inline(b.arg,ctx)+'</span>',next:b.next};}
-    case 'url':{const a=readArg(s,j);if(!a)return {html:'',next:j};return {html:'<span class="pv-url">'+escH(a.arg)+'</span>',next:a.next};}
-    case 'href':{const a=readArg(s,j),b=a&&readArg(s,a.next);if(!b)return {html:'',next:j};return {html:'<span class="pv-url">'+inline(b.arg,ctx)+'</span>',next:b.next};}
-    case 'includegraphics':{let nx=j;const o=readOpt(s,nx);if(o)nx=o.next;const a=readArg(s,nx);return {html:'<span class="pv-img">Image : '+escH(a?a.arg:'?')+'</span>',next:a?a.next:nx};}
-    case 'item':return {html:'',next:j};
+
+/* ---------------------------------------------------------
+   Écriture HTML : aperçu, EPUB et PDF
+   w = {fn:[], lines:bool, xhtml:bool, epub:bool, fnBase:int}
+   --------------------------------------------------------- */
+function renderDoc(body,sh){
+  const w={fn:[],lines:true};
+  const html=hBlocks(parseDoc(body,sh),w);
+  let fns='';
+  if(w.fn.length) fns='<div class="pv-fns"><div class="pv-fnrule"></div>'+w.fn.map((t,k)=>'<p><sup>'+(k+1)+'</sup>&#8239;'+t+'</p>').join('')+'</div>';
+  return html+fns;
+}
+function hBlocks(nodes,w){return nodes.map(n=>hBlock(n,w)).join('');}
+function hBlock(n,w){
+  const L=w.lines&&n.line?' data-l="'+n.line+'"':'';
+  switch(n.t){
+    case 'para':return '<p'+L+'>'+hInl(n.c,w)+'</p>';
+    case 'title':return '<h1 class="s-'+n.st.id+'"'+L+'>'+hInl(n.c,w)+'</h1>';
+    case 'heading':{const tag=['h2','h3','h4'][n.level];return '<'+tag+' class="s-'+n.st.id+'"'+L+'>'+(n.num?'<span class="num">'+n.num+'</span>':'')+hInl(n.c,w)+'</'+tag+'>';}
+    case 'custom':return '<div class="s-'+n.st.id+'"'+L+'>'+hBlocks(n.blocks,w)+'</div>';
+    case 'list':{const tag=n.ordered?'ol':'ul';return '<'+tag+(n.st?' class="s-'+n.st.id+'"':'')+L+'>'+n.items.map(it=>'<li'+(it.label!=null?' class="lbl" data-l="'+escH(it.label)+'"':'')+'>'+unP(hBlocks(it.blocks,w))+'</li>').join('')+'</'+tag+'>';}
+    case 'quote':return '<blockquote'+(n.st?' class="s-'+n.st.id+'"':'')+L+'>'+hBlocks(n.blocks,w)+'</blockquote>';
+    case 'align':return '<div class="pv-'+n.align+'"'+L+'>'+hBlocks(n.blocks,w)+'</div>';
+    case 'group':return '<div'+L+'>'+hBlocks(n.blocks,w)+'</div>';
+    case 'table':return '<table class="pv-tab'+(n.ruled?' ruled':'')+'"'+L+'>'+n.rows.map(r=>'<tr class="'+(r.top?'rl ':'')+(r.bottom?'rb':'')+'">'+r.cells.map(c=>'<td>'+hInl(c,w)+'</td>').join('')+'</tr>').join('')+'</table>';
+    case 'math':return mathBox(n.v,true).replace('<span','<span'+L);
+    case 'break':return '<div class="pv-break"'+L+'>Saut de page</div>';
+    case 'unknown':return n.cmd?'<div class="pv-unk"'+L+'>'+escH(n.cmd)+' · non affiché dans l’aperçu</div>':'<div class="pv-unk"'+L+'><span class="pv-tag">\\begin{'+escH(n.env)+'}</span>'+hBlocks(n.blocks,w)+'</div>';
+    case 'error':return errBox(n.msg);
   }
-  if(EATARGS[name]){let nx=j;for(let k=0;k<EATARGS[name];k++){const o=readOpt(s,nx);if(o)nx=o.next;const a=readArg(s,nx);if(a)nx=a.next;}return {html:'',next:nx};}
-  if(Object.prototype.hasOwnProperty.call(SYM,name)){let nx=j;if(s.startsWith('{}',nx))nx+=2;else nx=skipSp(s,nx);return {html:SYM[name],next:nx};}
-  const st=styleByCmd(name,ctx.sh);
-  if(st&&st.kind!=='char'&&st.kind!=='note'){
-    const a=readArg(s,j);if(!a)return {html:'',next:j};
-    if(st.kind==='charc')return {html:'<span class="s-'+st.id+'">'+inline(a.arg,ctx)+'</span>',next:a.next};
-    if(st.kind==='para')return {html:'<span class="s-'+st.id+' pv-inl">'+inline(a.arg,ctx)+'</span>',next:a.next};
-    return {html:'<strong>'+inline(a.arg,ctx)+'</strong>',next:a.next};
+  return '';
+}
+function hInl(nodes,w){
+  let o='';
+  for(const n of nodes||[]){
+    switch(n.t){
+      case 'text':o+=escH(n.v);break;
+      case 'b':o+='<strong>'+hInl(n.c,w)+'</strong>';break;
+      case 'i':o+='<em>'+hInl(n.c,w)+'</em>';break;
+      case 'u':o+='<u>'+hInl(n.c,w)+'</u>';break;
+      case 's':o+='<s>'+hInl(n.c,w)+'</s>';break;
+      case 'tt':o+='<code class="tt">'+hInl(n.c,w)+'</code>';break;
+      case 'sc':o+='<span class="sc">'+hInl(n.c,w)+'</span>';break;
+      case 'span':o+='<span class="s-'+n.st.id+(n.para?' pv-inl':'')+'">'+hInl(n.c,w)+'</span>';break;
+      case 'fn':{w.fn.push(hInl(n.c,w));const k=(w.fnBase||0)+w.fn.length;
+        o+=w.epub?'<sup><a epub:type="noteref" href="#fn'+k+'" id="fnref'+k+'">'+k+'</a></sup>':'<sup class="fnref">'+k+'</sup>';break;}
+      case 'math':o+=mathBox(n.v,n.disp);break;
+      case 'br':o+=w.xhtml?'<br/>':'<br>';break;
+      case 'img':o+='<span class="pv-img">Image : '+escH(n.file)+'</span>';break;
+      case 'link':o+=w.epub?'<a href="'+escH(n.url)+'">'+hInl(n.c,w)+'</a>':'<span class="pv-url">'+hInl(n.c,w)+'</span>';break;
+      case 'color':o+='<span style="color:'+(n.color||'inherit')+'">'+hInl(n.c,w)+'</span>';break;
+      case 'logo':o+=n.v==='LaTeX'?LATEX_HTML:TEX_HTML;break;
+      case 'unk':o+='<span class="pv-unk-i" title="Commande inconnue de l’aperçu : LaTeX la traitera à la compilation">\\'+escH(n.name)+'</span>'+hInl(n.c,w);break;
+      case 'err':o+='<span class="pv-err" title="'+escH(n.title)+'">'+escH(n.v)+'</span>';break;
+    }
   }
-  const a=readArg(s,j);
-  return {html:'<span class="pv-unk-i" title="Commande inconnue de l’aperçu : LaTeX la traitera à la compilation">\\'+escH(name)+'</span>'+(a?inline(a.arg,ctx):''),next:a?a.next:skipSp(s,j)};
+  return o;
 }
 
-function previewCSS(sh,scope){
+function previewCSS(sh,scope,FSo){
   const p=sh.page,P=PAPERS[p.paper]||PAPERS.a4,base=p.size;
-  const FS=fontStacks(p);
+  const FS=FSo||fontStacks(p);
   const fam=f=>f==='serif'?FS.rm:f==='sans'?FS.sf:f==='mono'?FS.tt:'inherit';
   const col=c=>(COLOR[c]||COLOR.noir)[2];
   const body=sh.styles.find(s=>s.kind==='body')||{};
@@ -1614,16 +1730,17 @@ function confirmDlg(title,msg,ok,cancel){
 /* =========================================================
    Fichiers : nouveau, ouvrir, enregistrer
    ========================================================= */
-async function offerFile(filename,text,mime){
+async function offerFile(filename,data,mime){
   if(IS_ARTIFACT){
     try{
       const dl=await window.claude.use('downloads');
-      if(dl){await dl.save({filename,data:text});return 'saved';}
+      if(dl){await dl.save({filename,data});return 'saved';}
     }catch(e){if(e&&e.code==='declined')return 'declined';return 'failed';}
     return 'failed';
   }
   try{
-    const url=URL.createObjectURL(new Blob([text],{type:mime||'text/plain;charset=utf-8'}));
+    const blob=data instanceof Blob?data:new Blob([data],{type:mime||'text/plain;charset=utf-8'});
+    const url=URL.createObjectURL(blob);
     const a=el('a',{href:url,download:filename});document.body.appendChild(a);a.click();a.remove();
     setTimeout(()=>URL.revokeObjectURL(url),4000);
     return 'saved';
@@ -1646,6 +1763,14 @@ $('#f-tex').addEventListener('change',async e=>{
   const f=e.target.files&&e.target.files[0];if(!f)return;
   if(S.dirty&&ta.value.trim()){const ok=await confirmDlg('Ouvrir « '+f.name+' » à la place du document actuel ?','Le document actuel n’a pas été enregistré en .tex depuis sa dernière modification.','Ouvrir');if(!ok)return;}
   const text=await f.text();
+  const ext=(/\.([a-z]+)$/i.exec(f.name)||[,''])[1].toLowerCase();
+  if(ext==='md'||ext==='markdown'||(ext==='txt'&&text.indexOf('\\begin{document}')<0&&!/\\(section|textbf|begin)\{/.test(text))){
+    ta.value=ext==='txt'?escapeTeX(normalizePaste(text)).text:mdToTex(text);
+    S.name=f.name.replace(/\.(md|markdown|txt)$/i,'')||'document';
+    ta.setSelectionRange(0,0);ta.scrollTop=0;refreshAll();S.dirty=true;persist();
+    flash(ext==='txt'?'« '+f.name+' » ouvert : texte protégé, prêt à baliser':'« '+f.name+' » converti du Markdown en LaTeX : pensez à l’enregistrer en .tex');
+    return;
+  }
   let sheetMsg='';
   const m=/^% SOBRE-STYLE: (.+)$/m.exec(text);
   if(m){try{S.sheet=normalizeSheet(JSON.parse(m[1]));sheetMsg='feuille de style « '+S.sheet.name+' » restaurée';}catch(err){sheetMsg='feuille de style illisible, charte actuelle conservée';}}
@@ -1950,6 +2075,800 @@ $('#f-json').addEventListener('change',async e=>{
 });
 
 /* =========================================================
+   Export multi-formats
+   ========================================================= */
+const UTF8=new TextEncoder();
+const CRC_T=(()=>{const t=new Uint32Array(256);for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;t[n]=c>>>0;}return t;})();
+function crc32(b){let c=0xFFFFFFFF;for(let i=0;i<b.length;i++)c=CRC_T[(c^b[i])&0xFF]^(c>>>8);return (c^0xFFFFFFFF)>>>0;}
+/* Archive zip sans compression (suffisant pour .docx, .odt, .epub) */
+function makeZip(entries,mime){
+  const parts=[],central=[];let off=0;
+  const d=new Date();
+  const dt=((d.getHours()<<11)|(d.getMinutes()<<5)|(d.getSeconds()>>1))&0xFFFF;
+  const dd=(((d.getFullYear()-1980)<<9)|((d.getMonth()+1)<<5)|d.getDate())&0xFFFF;
+  for(const e of entries){
+    const nm=UTF8.encode(e.name),data=typeof e.data==='string'?UTF8.encode(e.data):e.data,crc=crc32(data);
+    const fl=/[^\x00-\x7f]/.test(e.name)?0x0800:0;
+    const lh=new DataView(new ArrayBuffer(30));
+    lh.setUint32(0,0x04034b50,true);lh.setUint16(4,20,true);lh.setUint16(6,fl,true);lh.setUint16(8,0,true);lh.setUint16(10,dt,true);lh.setUint16(12,dd,true);
+    lh.setUint32(14,crc,true);lh.setUint32(18,data.length,true);lh.setUint32(22,data.length,true);lh.setUint16(26,nm.length,true);lh.setUint16(28,0,true);
+    parts.push(new Uint8Array(lh.buffer),nm,data);
+    const ch=new DataView(new ArrayBuffer(46));
+    ch.setUint32(0,0x02014b50,true);ch.setUint16(4,20,true);ch.setUint16(6,20,true);ch.setUint16(8,fl,true);ch.setUint16(10,0,true);ch.setUint16(12,dt,true);ch.setUint16(14,dd,true);
+    ch.setUint32(16,crc,true);ch.setUint32(20,data.length,true);ch.setUint32(24,data.length,true);ch.setUint16(28,nm.length,true);ch.setUint32(42,off,true);
+    central.push(new Uint8Array(ch.buffer),nm);
+    off+=30+nm.length+data.length;
+  }
+  const cs=central.reduce((a,b)=>a+b.length,0);
+  const end=new DataView(new ArrayBuffer(22));
+  end.setUint32(0,0x06054b50,true);end.setUint16(8,entries.length,true);end.setUint16(10,entries.length,true);end.setUint32(12,cs,true);end.setUint32(16,off,true);
+  return new Blob([...parts,...central,new Uint8Array(end.buffer)],{type:mime||'application/zip'});
+}
+function xe(s){return String(s).replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\uFFFE\uFFFF]/g,'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+const XML_HEAD='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n';
+/* Polices pour les traitements de texte (Latin Modern n'y est pas installée) */
+function officeFonts(page){
+  const rm=page.font==='times'?'Times New Roman':page.font==='palatino'?'Palatino Linotype':'Cambria';
+  const sf='Arial',tt='Courier New';
+  const doc={serif:rm,times:rm,palatino:rm,sans:sf,helvetica:sf,mono:tt}[page.font]||rm;
+  return {rm,sf,tt,doc};
+}
+function styleFontOf(st,F){return st.font==='serif'?F.rm:st.font==='sans'?F.sf:st.font==='mono'?F.tt:null;}
+function stylePt(st,sh){return sh.page.size*(SIZE[st.size]?SIZE[st.size][3]:1);}
+function hexOf(c){return (COLOR[c]||COLOR.noir)[2].slice(1);}
+function bodyStyle(sh){return sh.styles.find(s=>s.kind==='body')||{color:'noir',after:6,indent:false,align:'justify'};}
+function docTitle(nodes,fallback){const t=nodes.find(n=>n.t==='title')||nodes.find(n=>n.t==='heading');return t?plainOf(t.c).trim()||fallback:fallback;}
+
+/* ---------- Markdown ---------- */
+function mdEsc(s){return s.replace(/([\\`*_\[\]<>~|])/g,'\\$1');}
+function toMarkdown(nodes,sh){
+  const notes=[];
+  const inl=(ns)=>{let o='';for(const n of ns||[]){switch(n.t){
+    case 'text':o+=mdEsc(n.v);break;
+    case 'b':o+='**'+inl(n.c)+'**';break;
+    case 'i':o+='*'+inl(n.c)+'*';break;
+    case 's':o+='~~'+inl(n.c)+'~~';break;
+    case 'tt':o+='`'+plainOf(n.c).replace(/`/g,"'")+'`';break;
+    case 'fn':notes.push(inl(n.c));o+='[^'+notes.length+']';break;
+    case 'math':o+=n.disp?'\n\n$$'+n.v+'$$\n\n':'$'+n.v+'$';break;
+    case 'br':o+='  \n';break;
+    case 'img':o+='![]('+n.file+')';break;
+    case 'link':o+='['+inl(n.c)+']('+n.url+')';break;
+    case 'logo':o+=n.v;break;
+    case 'err':o+=mdEsc(n.v);break;
+    default:if(n.c)o+=inl(n.c);
+  }}return o;};
+  const lineStart=s=>s.replace(/^(\s*)([#>+\-]|\d+\.)(\s)/,'$1\\$2$3');
+  const blocks=(ns,pre)=>{const out=[];for(const n of ns){
+    switch(n.t){
+      case 'para':out.push(pre+lineStart(inl(n.c)).replace(/\n/g,'\n'+pre));break;
+      case 'title':out.push(pre+'# '+inl(n.c));break;
+      case 'heading':out.push(pre+'#'.repeat(n.level+2)+' '+inl(n.c));break;
+      case 'custom':case 'quote':out.push(blocks(n.blocks,pre+'> ').join('\n'+pre+'>\n'));break;
+      case 'align':case 'group':case 'unknown':out.push(...blocks(n.blocks,pre));break;
+      case 'list':{const items=n.items.map((it,k)=>{const mk=n.ordered?(k+1)+'. ':'- ';const ind=' '.repeat(mk.length);
+        const b=blocks(it.blocks,pre+ind);let first=b.shift()||pre+ind;first=pre+mk+first.slice((pre+ind).length);
+        return [first,...b].join('\n');});out.push(items.join('\n'));break;}
+      case 'table':{if(!n.rows.length)break;const cols=Math.max(...n.rows.map(r=>r.cells.length));
+        const row=r=>pre+'| '+Array.from({length:cols},(_,k)=>inl(r.cells[k]||[]).replace(/\n/g,' ')).join(' | ')+' |';
+        out.push([row(n.rows[0]),pre+'|'+' --- |'.repeat(cols),...n.rows.slice(1).map(row)].join('\n'));break;}
+      case 'math':out.push(pre+'$$\n'+pre+n.v+'\n'+pre+'$$');break;
+      case 'break':out.push(pre+'<!-- saut de page -->');break;
+    }}return out;};
+  let md=blocks(nodes,'').join('\n\n').replace(/\n{3,}/g,'\n\n')+'\n';
+  if(notes.length) md+='\n'+notes.map((t,k)=>'[^'+(k+1)+']: '+t).join('\n')+'\n';
+  return md;
+}
+
+/* ---------- Texte brut ---------- */
+function toText(nodes,sh){
+  const notes=[];
+  const inl=ns=>{let o='';for(const n of ns||[]){switch(n.t){
+    case 'text':o+=n.v;break;
+    case 'fn':notes.push(inl(n.c));o+='['+notes.length+']';break;
+    case 'br':o+='\n';break;
+    case 'img':o+='[Image : '+n.file+']';break;
+    case 'link':{const t=inl(n.c);o+=t===n.url?t:t+' ('+n.url+')';break;}
+    case 'math':o+=n.v;break;
+    case 'logo':o+=n.v;break;
+    case 'err':o+=n.v;break;
+    default:if(n.c)o+=inl(n.c);
+  }}return o;};
+  const rule='-'.repeat(48);
+  const blocks=(ns,ind)=>{const out=[];for(const n of ns){
+    switch(n.t){
+      case 'para':out.push(ind+inl(n.c).replace(/\n/g,'\n'+ind));break;
+      case 'title':{const t=inl(n.c).toUpperCase();out.push(t+'\n'+'='.repeat(Math.min(72,t.length)));break;}
+      case 'heading':{const t=(n.num?n.num+'  ':'')+inl(n.c);out.push(n.level<2?t+'\n'+(n.level===0?'=':'-').repeat(Math.min(72,t.length)):t);break;}
+      case 'custom':out.push(rule+'\n'+blocks(n.blocks,ind).join('\n\n')+'\n'+rule);break;
+      case 'quote':out.push(blocks(n.blocks,ind+'    ').join('\n\n'));break;
+      case 'align':case 'group':case 'unknown':out.push(...blocks(n.blocks,ind));break;
+      case 'list':out.push(n.items.map((it,k)=>{const mk=it.label!=null?it.label+' ':n.ordered?(k+1)+'. ':'- ';
+        const b=blocks(it.blocks,ind+' '.repeat(mk.length));const first=(b.shift()||'').replace(/^\s*/,'');return [ind+mk+first,...b].join('\n');}).join('\n'));break;
+      case 'table':{const R=n.rows.map(r=>r.cells.map(c=>inl(c).replace(/\n/g,' ')));const cols=Math.max(0,...R.map(r=>r.length));
+        const W=Array.from({length:cols},(_,k)=>Math.max(...R.map(r=>(r[k]||'').length)));
+        out.push(R.map(r=>ind+W.map((w,k)=>(r[k]||'').padEnd(w)).join(' | ').replace(/\s+$/,'')).join('\n'));break;}
+      case 'math':out.push(ind+'    '+n.v);break;
+      case 'break':out.push('');break;
+    }}return out;};
+  let t=blocks(nodes,'').join('\n\n').replace(/\n{3,}/g,'\n\n')+'\n';
+  if(notes.length) t+='\n'+rule+'\nNotes\n'+notes.map((x,k)=>'['+(k+1)+'] '+x).join('\n')+'\n';
+  return t;
+}
+
+/* ---------- Typst ---------- */
+function tyEsc(s){return s.replace(/([\\*_`$#\[\]<>@~])/g,'\\$1').replace(/\/\//g,'/\\/');}
+function tyStr(s){return '"'+String(s).replace(/\\/g,'\\\\').replace(/"/g,'\\"').replace(/\n/g,' ')+'"';}
+function toTypst(nodes,sh){
+  const p=sh.page,body=bodyStyle(sh);
+  const rm=p.font==='times'?'("TeX Gyre Termes", "Times New Roman")':p.font==='palatino'?'("TeX Gyre Pagella", "Palatino Linotype")':'"New Computer Modern"';
+  const sf=p.font==='helvetica'?'("TeX Gyre Heros", "Arial")':'("New Computer Modern Sans", "Arial")',tt='("DejaVu Sans Mono", "Courier New")';
+  const doc={serif:rm,times:rm,palatino:rm,sans:sf,helvetica:sf,mono:tt}[p.font]||rm;
+  const fontOf=st=>st.font==='serif'?rm:st.font==='sans'?sf:st.font==='mono'?tt:null;
+  const textArgs=(st,withSize)=>{const a=[];if(withSize)a.push('size: '+(+stylePt(st,sh).toFixed(2))+'pt');if(st.bold)a.push('weight: "bold"');if(st.italic)a.push('style: "italic"');
+    const f=fontOf(st);if(f)a.push('font: '+f);if(st.color&&st.color!=='noir')a.push('fill: rgb("#'+hexOf(st.color)+'")');return a.join(', ');};
+  const AL={left:'left',center:'center',right:'right',justify:'left'};
+  const L=['// Exporté depuis Sobre TeX. À compiler avec Typst (typst.app ou l’application Typst).',
+    '#set page(paper: "'+({a4:'a4',a5:'a5',letter:'us-letter'}[p.paper]||'a4')+'", margin: '+p.margin+'cm)',
+    '#set text(lang: "'+(p.lang==='english'?'en':'fr')+'", size: '+p.size+'pt, font: '+doc+(body.color&&body.color!=='noir'?', fill: rgb("#'+hexOf(body.color)+'")':'')+')',
+    '#set par(justify: '+((body.align||'justify')==='justify')+', first-line-indent: '+(body.indent?'1.5em':'0pt')+', spacing: '+num(body.after,6)+'pt)'];
+  if(body.align==='center'||body.align==='right') L.push('#set align('+body.align+')');
+  if(p.numbered) L.push('#set heading(numbering: "1.1")');
+  for(const st of sh.styles){
+    if(st.kind==='heading'){const lv=(HEAD[st.cmd]||0)+1,w='#show heading.where(level: '+lv+'): ';
+      L.push(w+'set text('+textArgs(Object.assign({},st,{bold:st.bold}),true)+(st.bold?'':', weight: "regular"')+')');
+      L.push(w+'set block(above: '+num(st.before,0)+'pt, below: '+num(st.after,0)+'pt)');
+      if((st.align||'left')!=='left')L.push(w+'set align('+AL[st.align]+')');}
+    else if(st.kind==='title') L.push('#let '+st.cmd+'(body) = block(width: 100%, above: '+num(st.before,0)+'pt, below: '+num(st.after,0)+'pt)[#set align('+AL[st.align||'center']+')\n  #text('+textArgs(st,true)+')[#body]]');
+    else if(st.kind==='para') L.push('#let '+st.cmd+'(body) = block(width: 100%, above: '+num(st.before,0)+'pt, below: '+num(st.after,0)+'pt'+(st.frame?', stroke: 0.6pt, inset: 6pt':'')+')[#set align('+AL[st.align||'justify']+')\n  #set par(justify: '+((st.align||'justify')==='justify')+')\n  #set text('+textArgs(st,st.size&&st.size!=='normal')+')\n  #body]');
+    else if(st.kind==='charc'){const a=textArgs(st,false);L.push('#let '+st.cmd+'(body) = '+(a?'text('+a+')[#body]':'[#body]'));}
+    else if(st.kind==='env'){const a=textArgs(st,st.size&&st.size!=='normal');const el=st.env==='itemize'?'list':st.env==='enumerate'?'enum':'quote';
+      if(a)L.push('#show '+el+': set text('+a+')');
+      if(st.env==='quote')L.push('#show quote: set block(inset: (left: 2em, right: 2em))');}
+  }
+  const inl=ns=>{let o='';for(const n of ns||[]){switch(n.t){
+    case 'text':o+=tyEsc(n.v);break;
+    case 'b':o+='#strong['+inl(n.c)+']';break;
+    case 'i':o+='#emph['+inl(n.c)+']';break;
+    case 'u':o+='#underline['+inl(n.c)+']';break;
+    case 's':o+='#strike['+inl(n.c)+']';break;
+    case 'tt':o+='#raw('+tyStr(plainOf(n.c))+')';break;
+    case 'sc':o+='#smallcaps['+inl(n.c)+']';break;
+    case 'span':o+=n.st&&n.st.kind==='charc'?'#'+n.st.cmd+'['+inl(n.c)+']':inl(n.c);break;
+    case 'color':o+=n.color?'#text(fill: rgb("'+n.color+'"))['+inl(n.c)+']':inl(n.c);break;
+    case 'fn':o+='#footnote['+inl(n.c)+']';break;
+    case 'math':o+='#box(stroke: 0.4pt, inset: 2pt)[#raw('+tyStr(n.v)+')]';break;
+    case 'br':o+=' #linebreak() ';break;
+    case 'img':o+='#image('+tyStr(n.file)+', width: 80%)';break;
+    case 'link':o+='#link('+tyStr(n.url)+')['+inl(n.c)+']';break;
+    case 'logo':o+=n.v;break;
+    case 'err':o+=tyEsc(n.v);break;
+    default:if(n.c)o+=inl(n.c);
+  }}return o;};
+  const lineStart=s=>s.replace(/^(\s*)([=+\-]|\d+\.)/,'$1\\$2');
+  const blocks=(ns,ind)=>{const out=[];for(const n of ns){
+    switch(n.t){
+      case 'para':out.push(ind+lineStart(inl(n.c)));break;
+      case 'title':out.push(ind+'#'+n.st.cmd+'['+inl(n.c)+']');break;
+      case 'heading':out.push(ind+(n.star&&p.numbered?'#heading(level: '+(n.level+1)+', numbering: none)['+inl(n.c)+']':'='.repeat(n.level+1)+' '+inl(n.c)));break;
+      case 'custom':out.push(ind+'#'+n.st.cmd+'[\n'+blocks(n.blocks,ind+'  ').join('\n\n')+'\n'+ind+']');break;
+      case 'quote':out.push(ind+'#quote(block: true)[\n'+blocks(n.blocks,ind+'  ').join('\n\n')+'\n'+ind+']');break;
+      case 'align':out.push(ind+(n.align==='justify'?'#[#set par(justify: true)\n':'#align('+n.align+')[#set par(justify: false)\n')+blocks(n.blocks,ind+'  ').join('\n\n')+'\n'+ind+']');break;
+      case 'group':case 'unknown':out.push(...blocks(n.blocks,ind));break;
+      case 'list':out.push(n.items.map(it=>{const b=blocks(it.blocks,ind+'  ');const first=(b.shift()||'').replace(/^\s*/,'');return [ind+(n.ordered?'+ ':'- ')+first,...b].join('\n');}).join('\n'));break;
+      case 'table':{const cols=Math.max(1,...n.rows.map(r=>r.cells.length));
+        out.push(ind+'#table(columns: '+cols+(n.ruled||n.hlines?'':', stroke: none')+',\n'+n.rows.map(r=>ind+'  '+Array.from({length:cols},(_,k)=>'['+inl(r.cells[k]||[])+']').join(', ')+',').join('\n')+'\n'+ind+')');break;}
+      case 'math':out.push(ind+'// Équation LaTeX à réécrire en syntaxe Typst :\n'+ind+'#align(center)[#box(stroke: 0.4pt, inset: 4pt)[#raw('+tyStr(n.v)+')]]');break;
+      case 'break':out.push(ind+'#pagebreak()');break;
+    }}return out;};
+  return L.join('\n')+'\n\n'+blocks(nodes,'').join('\n\n')+'\n';
+}
+
+/* ---------- RTF ---------- */
+function rtfEsc(s){
+  let o='';
+  for(const ch of s){
+    const c=ch.codePointAt(0);
+    if(ch==='\\'||ch==='{'||ch==='}')o+='\\'+ch;
+    else if(ch==='\n')o+='\\line ';
+    else if(ch==='\t')o+='\\tab ';
+    else if(c===0xA0)o+='\\~';
+    else if(c<128)o+=ch;
+    else if(c<0x10000)o+='\\u'+(c>32767?c-65536:c)+'?';
+    else{const h=0xD800+((c-0x10000)>>10),l=0xDC00+((c-0x10000)&0x3FF);o+='\\u'+(h-65536)+'?\\u'+(l-65536)+'?';}
+  }
+  return o;
+}
+function toRtf(nodes,sh){
+  const p=sh.page,F=officeFonts(p),P=PAPERS[p.paper]||PAPERS.a4,body=bodyStyle(sh);
+  const fonts=[F.doc,F.rm,F.sf,F.tt,'Cambria Math'].filter((f,i,a)=>a.indexOf(f)===i);
+  const fi=f=>fonts.indexOf(f);
+  const ci=c=>COLORS.findIndex(x=>x[0]===c)+1;
+  const tw=v=>Math.round(v*20);
+  const Q={left:'\\ql',center:'\\qc',right:'\\qr',justify:'\\qj'};
+  const pageW=Math.round(P[1]/25.4*1440),pageH=Math.round(P[2]/25.4*1440),mg=Math.round(p.margin/2.54*1440);
+  const textW=pageW-2*mg;
+  const chr=st=>{let o='';const f=styleFontOf(st,F);if(f)o+='\\f'+fi(f);if(st.kind!=='charc')o+='\\fs'+Math.round(stylePt(st,sh)*2);if(st.bold)o+='\\b';if(st.italic)o+='\\i';if(st.color&&st.color!=='noir')o+='\\cf'+ci(st.color);return o+' ';};
+  const base='\\f'+fi(F.doc)+'\\fs'+(p.size*2)+(body.color&&body.color!=='noir'?'\\cf'+ci(body.color):'');
+  const out=[];
+  const inl=(ns,inFn)=>{let o='';for(const n of ns||[]){switch(n.t){
+    case 'text':o+=rtfEsc(n.v);break;
+    case 'b':o+='{\\b '+inl(n.c,inFn)+'}';break;
+    case 'i':o+='{\\i '+inl(n.c,inFn)+'}';break;
+    case 'u':o+='{\\ul '+inl(n.c,inFn)+'}';break;
+    case 's':o+='{\\strike '+inl(n.c,inFn)+'}';break;
+    case 'tt':o+='{\\f'+fi(F.tt)+' '+inl(n.c,inFn)+'}';break;
+    case 'sc':o+='{\\scaps '+inl(n.c,inFn)+'}';break;
+    case 'span':o+=n.st&&n.st.kind==='charc'?'{'+chr(n.st)+inl(n.c,inFn)+'}':inl(n.c,inFn);break;
+    case 'color':{const k=COLORS.findIndex(x=>x[2]===n.color)+1;o+=k?'{\\cf'+k+' '+inl(n.c,inFn)+'}':inl(n.c,inFn);break;}
+    case 'fn':o+='{\\super\\chftn}{\\footnote\\pard\\plain '+base+'\\fs'+Math.round(p.size*1.6)+' {\\super\\chftn} '+inl(n.c,true)+'}';break;
+    case 'math':o+='{\\i\\f'+fi('Cambria Math')+' '+rtfEsc(n.v)+'}';break;
+    case 'br':o+='\\line ';break;
+    case 'img':o+='{\\i\\cf8 '+rtfEsc('[Image : '+n.file+']')+'}';break;
+    case 'link':o+=inFn?inl(n.c,inFn)+rtfEsc(' ('+n.url+')'):'{\\field{\\*\\fldinst{HYPERLINK "'+n.url.replace(/[\\"{}]/g,'')+'"}}{\\fldrslt{\\ul\\cf3 '+inl(n.c,inFn)+'}}}';break;
+    case 'logo':o+=n.v;break;
+    case 'err':o+=rtfEsc(n.v);break;
+    default:if(n.c)o+=inl(n.c,inFn);
+  }}return o;};
+  const par=(pf,cf,text)=>out.push('{\\pard\\plain '+base+pf+' '+cf+text+'\\par}');
+  const bodyPf=()=>Q[body.align||'justify']+'\\sa'+tw(num(body.after,6))+(body.indent?'\\fi425':'');
+  const blocks=(ns,ctx)=>{for(const n of ns){
+    switch(n.t){
+      case 'para':par(ctx.pf||bodyPf(),ctx.cf||'',(ctx.prefix?ctx.prefix():'')+inl(n.c));break;
+      case 'title':case 'heading':{const st=n.st;par(Q[st.align||defaultAlign(st.kind)]+'\\sb'+tw(num(st.before,0))+'\\sa'+tw(num(st.after,0))+'\\keepn',chr(st),(n.num?n.num+'\\tab ':'')+inl(n.c));break;}
+      case 'custom':{const st=n.st;const brd=st.frame?'\\brdrt\\brdrs\\brdrw10\\brsp80\\brdrl\\brdrs\\brdrw10\\brsp80\\brdrb\\brdrs\\brdrw10\\brsp80\\brdrr\\brdrs\\brdrw10\\brsp80':'';
+        blocks(n.blocks,Object.assign({},ctx,{pf:Q[st.align||'justify']+'\\sb'+tw(num(st.before,0))+'\\sa'+tw(num(st.after,0))+brd,cf:chr(st)}));break;}
+      case 'quote':{const st=n.st||{};blocks(n.blocks,Object.assign({},ctx,{pf:Q[st.align||'justify']+'\\li720\\ri720\\sa'+tw(num(body.after,6)),cf:n.st?chr(n.st):''}));break;}
+      case 'align':blocks(n.blocks,Object.assign({},ctx,{pf:(ctx.pf||bodyPf()).replace(/\\q[lcrj]/,'')+Q[n.align]}));break;
+      case 'group':case 'unknown':blocks(n.blocks,ctx);break;
+      case 'list':{const d=ctx.depth||0;n.items.forEach((it,k)=>{let first=true;const mk=it.label!=null?it.label:n.ordered?(k+1)+'.':(p.lang==='english'?'\\u8226?':'\\u8211?');
+        blocks(it.blocks.length?it.blocks:[{t:'para',c:[]}],{depth:d+1,cf:n.st?chr(n.st):'',pf:'\\ql\\li'+(360*(d+1))+'\\fi-360\\sa'+tw(2),prefix:()=>{if(first){first=false;return (it.label!=null?rtfEsc(mk):mk)+'\\tab ';}return '';}});});break;}
+      case 'table':{const cols=Math.max(1,...n.rows.map(r=>r.cells.length)),cw=Math.floor(textW/cols),brd=n.ruled||n.hlines?'\\clbrdrt\\brdrs\\brdrw10\\clbrdrl\\brdrs\\brdrw10\\clbrdrb\\brdrs\\brdrw10\\clbrdrr\\brdrs\\brdrw10':'';
+        for(const r of n.rows){let row='\\trowd\\trgaph108\\trqc';for(let k=1;k<=cols;k++)row+=brd+'\\cellx'+(cw*k);
+          row+=Array.from({length:cols},(_,k)=>'\\pard\\intbl\\ql '+base+' '+inl(r.cells[k]||[])+'\\cell').join('')+'\\row';out.push('{'+row+'}');}
+        out.push('{\\pard\\plain '+base+'\\sa'+tw(6)+'\\par}');break;}
+      case 'math':par('\\qc\\sa'+tw(6),'\\i\\f'+fi('Cambria Math')+' ',rtfEsc(n.v));break;
+      case 'break':out.push('\\page');break;
+    }}};
+  blocks(nodes,{});
+  const head='{\\rtf1\\ansi\\ansicpg1252\\deff0\\deflang'+(p.lang==='english'?2057:1036)+'\n{\\fonttbl'+fonts.map((f,i)=>'{\\f'+i+'\\fnil '+f+';}').join('')+'}\n'+
+    '{\\colortbl;'+COLORS.map(c=>{const h=c[2];return '\\red'+parseInt(h.slice(1,3),16)+'\\green'+parseInt(h.slice(3,5),16)+'\\blue'+parseInt(h.slice(5,7),16)+';';}).join('')+'\\red118\\green118\\blue118;}\n'+
+    '{\\*\\generator Sobre TeX;}\n\\paperw'+pageW+'\\paperh'+pageH+'\\margl'+mg+'\\margr'+mg+'\\margt'+mg+'\\margb'+mg+'\\widowctrl\\ftnbj\\fet0\n';
+  return head+out.join('\n')+'\n}';
+}
+
+/* ---------- Word (.docx) ---------- */
+const W_NS='xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"';
+function wRpr(o){ // ordre imposé par le schéma OOXML
+  let r='';
+  if(o.rStyle)r+='<w:rStyle w:val="'+o.rStyle+'"/>';
+  if(o.font)r+='<w:rFonts w:ascii="'+xe(o.font)+'" w:hAnsi="'+xe(o.font)+'" w:cs="'+xe(o.font)+'"/>';
+  if(o.b)r+='<w:b/><w:bCs/>';
+  if(o.i)r+='<w:i/><w:iCs/>';
+  if(o.sc)r+='<w:smallCaps/>';
+  if(o.s)r+='<w:strike/>';
+  if(o.color)r+='<w:color w:val="'+o.color+'"/>';
+  if(o.sz)r+='<w:sz w:val="'+o.sz+'"/><w:szCs w:val="'+o.sz+'"/>';
+  if(o.u)r+='<w:u w:val="single"/>';
+  if(o.sup)r+='<w:vertAlign w:val="superscript"/>';
+  if(o.lang)r+='<w:lang w:val="'+o.lang+'"/>';
+  return r?'<w:rPr>'+r+'</w:rPr>':'';
+}
+function wPpr(o){
+  let r='';
+  if(o.pStyle)r+='<w:pStyle w:val="'+o.pStyle+'"/>';
+  if(o.keepNext)r+='<w:keepNext/>';
+  if(o.numPr)r+='<w:numPr><w:ilvl w:val="'+o.numPr.ilvl+'"/><w:numId w:val="'+o.numPr.numId+'"/></w:numPr>';
+  if(o.border)r+='<w:pBdr>'+['top','left','bottom','right'].map(s=>'<w:'+s+' w:val="single" w:sz="6" w:space="4" w:color="auto"/>').join('')+'</w:pBdr>';
+  if(o.spacing)r+='<w:spacing'+(o.spacing.before!=null?' w:before="'+o.spacing.before+'"':'')+(o.spacing.after!=null?' w:after="'+o.spacing.after+'"':'')+'/>';
+  if(o.ind)r+='<w:ind'+(o.ind.left!=null?' w:left="'+o.ind.left+'"':'')+(o.ind.right!=null?' w:right="'+o.ind.right+'"':'')+(o.ind.firstLine!=null?' w:firstLine="'+o.ind.firstLine+'"':'')+(o.ind.hanging!=null?' w:hanging="'+o.ind.hanging+'"':'')+'/>';
+  if(o.jc)r+='<w:jc w:val="'+o.jc+'"/>';
+  if(o.outline!=null)r+='<w:outlineLvl w:val="'+o.outline+'"/>';
+  return r;
+}
+const W_JC={left:'left',center:'center',right:'right',justify:'both'};
+function toDocx(nodes,sh,title){
+  const p=sh.page,F=officeFonts(p),P=PAPERS[p.paper]||PAPERS.a4,body=bodyStyle(sh);
+  const lang=p.lang==='english'?'en-GB':'fr-FR';
+  const tw=v=>Math.round(v*20);
+  const pageW=Math.round(P[1]/25.4*1440),pageH=Math.round(P[2]/25.4*1440),mg=Math.round(p.margin/2.54*1440),textW=pageW-2*mg;
+  const stRun=st=>({font:styleFontOf(st,F),b:st.bold,i:st.italic,color:st.color&&st.color!=='noir'?hexOf(st.color):null,sz:st.kind==='charc'?null:Math.round(stylePt(st,sh)*2)});
+  const sid=st=>st.kind==='title'?'Title':st.kind==='heading'?'Heading'+((HEAD[st.cmd]||0)+1):st.kind==='env'&&(st.env==='quote'||st.env==='quotation')?'Quote':st.kind==='env'?'SobreL'+st.id:st.kind==='charc'?'SobreC'+st.id:'Sobre'+st.id;
+  /* --- styles.xml --- */
+  const S=[];
+  S.push('<w:docDefaults><w:rPrDefault>'+wRpr({font:F.doc,sz:p.size*2,lang})+'</w:rPrDefault><w:pPrDefault><w:pPr><w:spacing w:after="'+tw(num(body.after,6))+'" w:line="264" w:lineRule="auto"/></w:pPr></w:pPrDefault></w:docDefaults>');
+  S.push('<w:style w:type="paragraph" w:default="1" w:styleId="Normal"><w:name w:val="Normal"/><w:qFormat/><w:pPr>'+wPpr({ind:body.indent?{firstLine:425}:null,jc:W_JC[body.align||'justify']})+'</w:pPr>'+wRpr({color:body.color&&body.color!=='noir'?hexOf(body.color):null})+'</w:style>');
+  for(const st of sh.styles){
+    if(st.kind==='title'||st.kind==='heading'){
+      const lv=st.kind==='heading'?(HEAD[st.cmd]||0):null;
+      S.push('<w:style w:type="paragraph" w:styleId="'+sid(st)+'"><w:name w:val="'+(st.kind==='title'?'Title':'heading '+(lv+1))+'"/><w:basedOn w:val="Normal"/><w:next w:val="Normal"/><w:qFormat/><w:pPr>'+
+        wPpr({keepNext:true,numPr:st.kind==='heading'&&p.numbered?{ilvl:lv,numId:1}:null,spacing:{before:tw(num(st.before,0)),after:tw(num(st.after,0))},ind:{firstLine:0},jc:W_JC[st.align||defaultAlign(st.kind)],outline:lv})+'</w:pPr>'+wRpr(stRun(st))+'</w:style>');
+    }else if(st.kind==='para'){
+      S.push('<w:style w:type="paragraph" w:customStyle="1" w:styleId="'+sid(st)+'"><w:name w:val="'+xe(st.label)+'"/><w:basedOn w:val="Normal"/><w:qFormat/><w:pPr>'+
+        wPpr({border:st.frame,spacing:{before:tw(num(st.before,0)),after:tw(num(st.after,0))},ind:{firstLine:0,left:st.frame?113:null,right:st.frame?113:null},jc:W_JC[st.align||'justify']})+'</w:pPr>'+wRpr(stRun(st))+'</w:style>');
+    }else if(st.kind==='env'){
+      const q=st.env==='quote'||st.env==='quotation';
+      S.push('<w:style w:type="paragraph"'+(q?'':' w:customStyle="1"')+' w:styleId="'+sid(st)+'"><w:name w:val="'+(q?'Quote':xe(st.label))+'"/><w:basedOn w:val="Normal"/><w:qFormat/><w:pPr>'+
+        wPpr({spacing:q?null:{after:tw(2)},ind:q?{left:720,right:720,firstLine:0}:{firstLine:0},jc:W_JC[st.align||'justify']})+'</w:pPr>'+wRpr(Object.assign(stRun(st),{sz:st.size&&st.size!=='normal'?Math.round(stylePt(st,sh)*2):null}))+'</w:style>');
+    }else if(st.kind==='charc'){
+      S.push('<w:style w:type="character" w:customStyle="1" w:styleId="'+sid(st)+'"><w:name w:val="'+xe(st.label)+'"/>'+wRpr(stRun(st))+'</w:style>');
+    }
+  }
+  if(!sh.styles.some(s=>s.env==='quote'))S.push('<w:style w:type="paragraph" w:styleId="Quote"><w:name w:val="Quote"/><w:basedOn w:val="Normal"/><w:pPr><w:ind w:left="720" w:right="720" w:firstLine="0"/></w:pPr><w:rPr><w:i/></w:rPr></w:style>');
+  S.push('<w:style w:type="paragraph" w:styleId="ListParagraph"><w:name w:val="List Paragraph"/><w:basedOn w:val="Normal"/><w:pPr><w:spacing w:after="40"/><w:ind w:firstLine="0"/></w:pPr></w:style>');
+  S.push('<w:style w:type="paragraph" w:styleId="FootnoteText"><w:name w:val="footnote text"/><w:basedOn w:val="Normal"/><w:pPr><w:spacing w:after="0" w:line="240" w:lineRule="auto"/><w:ind w:firstLine="0"/><w:jc w:val="left"/></w:pPr><w:rPr><w:sz w:val="'+Math.round(p.size*1.6)+'"/></w:rPr></w:style>');
+  S.push('<w:style w:type="character" w:styleId="FootnoteReference"><w:name w:val="footnote reference"/><w:rPr><w:vertAlign w:val="superscript"/></w:rPr></w:style>');
+  S.push('<w:style w:type="character" w:styleId="Hyperlink"><w:name w:val="Hyperlink"/><w:rPr><w:color w:val="1F3FD1"/><w:u w:val="single"/></w:rPr></w:style>');
+  S.push('<w:style w:type="table" w:styleId="TableGrid"><w:name w:val="Table Grid"/><w:tblPr><w:tblBorders>'+['top','left','bottom','right','insideH','insideV'].map(s=>'<w:'+s+' w:val="single" w:sz="4" w:space="0" w:color="auto"/>').join('')+'</w:tblBorders></w:tblPr></w:style>');
+  const stylesXml=XML_HEAD+'<w:styles '+W_NS+'>'+S.join('')+'</w:styles>';
+  /* --- corps --- */
+  const fns=[],rels=[],orderedNums=[];
+  const run=(t,o)=>'<w:r>'+wRpr(o||{})+'<w:t xml:space="preserve">'+xe(t)+'</w:t></w:r>';
+  const inl=(ns,f,inFn)=>{let o='';for(const n of ns||[]){switch(n.t){
+    case 'text':o+=run(n.v,f);break;
+    case 'b':o+=inl(n.c,Object.assign({},f,{b:true}),inFn);break;
+    case 'i':o+=inl(n.c,Object.assign({},f,{i:true}),inFn);break;
+    case 'u':o+=inl(n.c,Object.assign({},f,{u:true}),inFn);break;
+    case 's':o+=inl(n.c,Object.assign({},f,{s:true}),inFn);break;
+    case 'tt':o+=inl(n.c,Object.assign({},f,{font:F.tt}),inFn);break;
+    case 'sc':o+=inl(n.c,Object.assign({},f,{sc:true}),inFn);break;
+    case 'span':o+=inl(n.c,n.st&&n.st.kind==='charc'?Object.assign({},f,{rStyle:sid(n.st)}):f,inFn);break;
+    case 'color':o+=inl(n.c,Object.assign({},f,n.color?{color:n.color.slice(1)}:{}),inFn);break;
+    case 'fn':{if(inFn){o+=inl(n.c,f,inFn);break;}fns.push(inl(n.c,{},true));o+='<w:r>'+wRpr({rStyle:'FootnoteReference'})+'<w:footnoteReference w:id="'+fns.length+'"/></w:r>';break;}
+    case 'math':o+=run(n.v,Object.assign({},f,{i:true,font:'Cambria Math'}));break;
+    case 'br':o+='<w:r><w:br/></w:r>';break;
+    case 'img':o+=run('[Image : '+n.file+']',Object.assign({},f,{i:true,color:'767676'}));break;
+    case 'link':{if(inFn){o+=inl(n.c,f,inFn)+run(' ('+n.url+')',f);break;}const id='rIdL'+(rels.length+1);rels.push({id,url:n.url});o+='<w:hyperlink r:id="'+id+'">'+inl(n.c,Object.assign({},f,{rStyle:'Hyperlink'}),inFn)+'</w:hyperlink>';break;}
+    case 'logo':o+=run(n.v,f);break;
+    case 'err':o+=run(n.v,f);break;
+    default:if(n.c)o+=inl(n.c,f,inFn);
+  }}return o;};
+  const out=[];
+  const para=(pp,runs)=>out.push('<w:p>'+(pp?'<w:pPr>'+pp+'</w:pPr>':'')+runs+'</w:p>');
+  const blocks=(ns,ctx)=>{for(const n of ns){
+    const takeNum=()=>{if(ctx.item&&!ctx.item.used){ctx.item.used=true;return {ilvl:ctx.item.ilvl,numId:ctx.item.numId};}return null;};
+    const ind=()=>ctx.item?{left:360*(ctx.item.ilvl+1)+360,hanging:ctx.item.used?null:360,firstLine:ctx.item.used?0:null}:null;
+    switch(n.t){
+      case 'para':{const np=takeNum();const id=ctx.item?{left:360*(ctx.item.ilvl+1)+360,hanging:np?360:null,firstLine:np?null:0}:null;para(wPpr({pStyle:ctx.pStyle,numPr:np,ind:id,jc:ctx.jc}),inl(n.c,{}));break;}
+      case 'title':para(wPpr({pStyle:'Title',jc:ctx.jc}),inl(n.c,{}));break;
+      case 'heading':para(wPpr({pStyle:sid(n.st),numPr:n.star&&p.numbered?{ilvl:0,numId:0}:null}),inl(n.c,{}));break;
+      case 'custom':blocks(n.blocks,Object.assign({},ctx,{pStyle:sid(n.st)}));break;
+      case 'quote':blocks(n.blocks,Object.assign({},ctx,{pStyle:n.st?sid(n.st):'Quote'}));break;
+      case 'align':blocks(n.blocks,Object.assign({},ctx,{jc:W_JC[n.align]}));break;
+      case 'group':case 'unknown':blocks(n.blocks,ctx);break;
+      case 'list':{const lvl=ctx.item?Math.min(2,ctx.item.ilvl+1):0;let numId=2;
+        if(n.ordered){orderedNums.push(1);numId=2+orderedNums.length;}
+        for(const it of n.items){const item={numId,ilvl:lvl,used:false};
+          blocks(it.blocks.length?it.blocks:[{t:'para',c:[]}],Object.assign({},ctx,{item,pStyle:n.st?sid(n.st):'ListParagraph'}));}
+        break;}
+      case 'table':{const cols=Math.max(1,...n.rows.map(r=>r.cells.length)),cw=Math.floor(textW/cols);
+        let t='<w:tbl><w:tblPr>'+(n.ruled||n.hlines?'<w:tblStyle w:val="TableGrid"/>':'')+'<w:tblW w:w="0" w:type="auto"/><w:jc w:val="center"/></w:tblPr><w:tblGrid>'+('<w:gridCol w:w="'+cw+'"/>').repeat(cols)+'</w:tblGrid>';
+        for(const r of n.rows)t+='<w:tr>'+Array.from({length:cols},(_,k)=>'<w:tc><w:tcPr><w:tcW w:w="'+cw+'" w:type="dxa"/></w:tcPr><w:p><w:pPr><w:spacing w:after="0"/><w:ind w:firstLine="0"/><w:jc w:val="left"/></w:pPr>'+inl(r.cells[k]||[],{})+'</w:p></w:tc>').join('')+'</w:tr>';
+        out.push(t+'</w:tbl>');para(wPpr({spacing:{after:0}}),'');break;}
+      case 'math':para(wPpr({pStyle:ctx.pStyle,jc:'center'}),run(n.v,{i:true,font:'Cambria Math'}));break;
+      case 'break':out.push('<w:p><w:r><w:br w:type="page"/></w:r></w:p>');break;
+    }}};
+  blocks(nodes,{});
+  const docXml=XML_HEAD+'<w:document '+W_NS+'><w:body>'+out.join('')+'<w:sectPr><w:pgSz w:w="'+pageW+'" w:h="'+pageH+'"/><w:pgMar w:top="'+mg+'" w:right="'+mg+'" w:bottom="'+mg+'" w:left="'+mg+'" w:header="709" w:footer="709" w:gutter="0"/></w:sectPr></w:body></w:document>';
+  /* --- numérotation --- */
+  const dash=p.lang==='english'?'•':'–';
+  const lvlList=(fmt,txt)=>[0,1,2].map(l=>'<w:lvl w:ilvl="'+l+'"><w:start w:val="1"/><w:numFmt w:val="'+fmt+'"/><w:lvlText w:val="'+txt(l)+'"/><w:lvlJc w:val="left"/><w:pPr><w:ind w:left="'+(360*(l+1)+360)+'" w:hanging="360"/></w:pPr></w:lvl>').join('');
+  const numXml=XML_HEAD+'<w:numbering '+W_NS+'>'+
+    '<w:abstractNum w:abstractNumId="0"><w:multiLevelType w:val="multilevel"/>'+[0,1,2].map(l=>'<w:lvl w:ilvl="'+l+'"><w:start w:val="1"/><w:numFmt w:val="decimal"/><w:pStyle w:val="Heading'+(l+1)+'"/><w:suff w:val="space"/><w:lvlText w:val="'+['%1','%1.%2','%1.%2.%3'][l]+'"/><w:lvlJc w:val="left"/><w:pPr><w:ind w:left="0" w:firstLine="0"/></w:pPr></w:lvl>').join('')+'</w:abstractNum>'+
+    '<w:abstractNum w:abstractNumId="1"><w:multiLevelType w:val="hybridMultilevel"/>'+lvlList('bullet',()=>dash)+'</w:abstractNum>'+
+    '<w:abstractNum w:abstractNumId="2"><w:multiLevelType w:val="hybridMultilevel"/>'+lvlList('decimal',l=>'%'+(l+1)+'.')+'</w:abstractNum>'+
+    '<w:num w:numId="1"><w:abstractNumId w:val="0"/></w:num><w:num w:numId="2"><w:abstractNumId w:val="1"/></w:num>'+
+    orderedNums.map((_,k)=>'<w:num w:numId="'+(3+k)+'"><w:abstractNumId w:val="2"/><w:lvlOverride w:ilvl="0"><w:startOverride w:val="1"/></w:lvlOverride></w:num>').join('')+
+    '</w:numbering>';
+  const fnXml=XML_HEAD+'<w:footnotes '+W_NS+'><w:footnote w:type="separator" w:id="-1"><w:p><w:pPr><w:spacing w:after="0" w:line="240" w:lineRule="auto"/></w:pPr><w:r><w:separator/></w:r></w:p></w:footnote><w:footnote w:type="continuationSeparator" w:id="0"><w:p><w:pPr><w:spacing w:after="0" w:line="240" w:lineRule="auto"/></w:pPr><w:r><w:continuationSeparator/></w:r></w:p></w:footnote>'+
+    fns.map((r,k)=>'<w:footnote w:id="'+(k+1)+'"><w:p><w:pPr><w:pStyle w:val="FootnoteText"/></w:pPr><w:r>'+wRpr({rStyle:'FootnoteReference'})+'<w:footnoteRef/></w:r>'+run(' ',{})+r+'</w:p></w:footnote>').join('')+'</w:footnotes>';
+  const settingsXml=XML_HEAD+'<w:settings '+W_NS+'><w:defaultTabStop w:val="709"/><w:characterSpacingControl w:val="doNotCompress"/><w:footnotePr><w:footnote w:id="-1"/><w:footnote w:id="0"/></w:footnotePr><w:compat><w:compatSetting w:name="compatibilityMode" w:uri="http://schemas.microsoft.com/office/word" w:val="15"/></w:compat></w:settings>';
+  const ct=XML_HEAD+'<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/>'+
+    '<Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/><Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/>'+
+    '<Override PartName="/word/numbering.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.numbering+xml"/><Override PartName="/word/footnotes.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.footnotes+xml"/>'+
+    '<Override PartName="/word/settings.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.settings+xml"/><Override PartName="/docProps/core.xml" ContentType="application/vnd.openxmlformats-package.core-properties+xml"/></Types>';
+  const R='http://schemas.openxmlformats.org/officeDocument/2006/relationships';
+  const rootRels=XML_HEAD+'<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="'+R+'/officeDocument" Target="word/document.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties" Target="docProps/core.xml"/></Relationships>';
+  const docRels=XML_HEAD+'<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="'+R+'/styles" Target="styles.xml"/><Relationship Id="rId2" Type="'+R+'/numbering" Target="numbering.xml"/><Relationship Id="rId3" Type="'+R+'/footnotes" Target="footnotes.xml"/><Relationship Id="rId4" Type="'+R+'/settings" Target="settings.xml"/>'+
+    rels.map(l=>'<Relationship Id="'+l.id+'" Type="'+R+'/hyperlink" Target="'+xe(l.url)+'" TargetMode="External"/>').join('')+'</Relationships>';
+  const core=XML_HEAD+'<cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><dc:title>'+xe(title)+'</dc:title><dc:creator>Sobre TeX</dc:creator><dc:language>'+lang+'</dc:language><dcterms:created xsi:type="dcterms:W3CDTF">'+new Date().toISOString().replace(/\.\d+Z$/,'Z')+'</dcterms:created></cp:coreProperties>';
+  return makeZip([{name:'[Content_Types].xml',data:ct},{name:'_rels/.rels',data:rootRels},{name:'docProps/core.xml',data:core},{name:'word/document.xml',data:docXml},{name:'word/styles.xml',data:stylesXml},
+    {name:'word/numbering.xml',data:numXml},{name:'word/footnotes.xml',data:fnXml},{name:'word/settings.xml',data:settingsXml},{name:'word/_rels/document.xml.rels',data:docRels}],
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
+}
+
+/* ---------- OpenDocument (.odt) ---------- */
+const O_NS='xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0" xmlns:style="urn:oasis:names:tc:opendocument:xmlns:style:1.0" xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0" xmlns:table="urn:oasis:names:tc:opendocument:xmlns:table:1.0" xmlns:fo="urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:svg="urn:oasis:names:tc:opendocument:xmlns:svg-compatible:1.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:meta="urn:oasis:names:tc:opendocument:xmlns:meta:1.0" office:version="1.3"';
+function oText(s){
+  return xe(s).replace(/\t/g,'<text:tab/>').replace(/\n/g,'<text:line-break/>').replace(/ {2,}/g,m=>' <text:s text:c="'+(m.length-1)+'"/>');
+}
+function toOdt(nodes,sh,title){
+  const p=sh.page,F=officeFonts(p),P=PAPERS[p.paper]||PAPERS.a4,body=bodyStyle(sh);
+  const lng=p.lang==='english'?['en','GB']:['fr','FR'];
+  const AL={left:'start',center:'center',right:'end',justify:'justify'};
+  const fonts=[F.doc,F.rm,F.sf,F.tt,'Cambria Math'].filter((f,i,a)=>a.indexOf(f)===i);
+  const fontDecls='<office:font-face-decls>'+fonts.map(f=>'<style:font-face style:name="'+xe(f)+'" svg:font-family="&apos;'+xe(f)+'&apos;"/>').join('')+'</office:font-face-decls>';
+  const txtProps=st=>{let a='';const f=styleFontOf(st,F);if(f)a+=' style:font-name="'+xe(f)+'"';if(st.kind!=='charc'&&(st.kind!=='env'||(st.size&&st.size!=='normal')))a+=' fo:font-size="'+(+stylePt(st,sh).toFixed(2))+'pt"';
+    a+=' fo:font-weight="'+(st.bold?'bold':'normal')+'" fo:font-style="'+(st.italic?'italic':'normal')+'"';if(st.color&&st.color!=='noir')a+=' fo:color="#'+hexOf(st.color)+'"';return '<style:text-properties'+a+'/>';};
+  const oid=st=>st.kind==='title'?'Title':st.kind==='heading'?'Heading_20_'+((HEAD[st.cmd]||0)+1):st.kind==='env'&&(st.env==='quote'||st.env==='quotation')?'Quotations':st.kind==='env'?'Sobre_L_'+st.id:st.kind==='charc'?'Sobre_C_'+st.id:'Sobre_'+st.id;
+  const disp=st=>st.kind==='title'?'Title':st.kind==='heading'?'Heading '+((HEAD[st.cmd]||0)+1):st.kind==='env'&&(st.env==='quote'||st.env==='quotation')?'Quotations':st.label;
+  const St=[];
+  St.push('<style:default-style style:family="paragraph"><style:paragraph-properties fo:hyphenation-ladder-count="no-limit"/><style:text-properties style:font-name="'+xe(F.doc)+'" fo:font-size="'+p.size+'pt" fo:language="'+lng[0]+'" fo:country="'+lng[1]+'" fo:hyphenate="true"/></style:default-style>');
+  St.push('<style:style style:name="Standard" style:family="paragraph" style:class="text"/>');
+  St.push('<style:style style:name="Text_20_body" style:display-name="Text body" style:family="paragraph" style:parent-style-name="Standard" style:class="text"><style:paragraph-properties fo:margin-top="0pt" fo:margin-bottom="'+num(body.after,6)+'pt" fo:text-align="'+AL[body.align||'justify']+'" fo:text-indent="'+(body.indent?'0.75cm':'0cm')+'"/>'+(body.color&&body.color!=='noir'?'<style:text-properties fo:color="#'+hexOf(body.color)+'"/>':'')+'</style:style>');
+  for(const st of sh.styles){
+    if(st.kind==='title'||st.kind==='heading'){
+      const lv=(HEAD[st.cmd]||0)+1;
+      St.push('<style:style style:name="'+oid(st)+'" style:display-name="'+disp(st)+'" style:family="paragraph" style:parent-style-name="Standard" style:next-style-name="Text_20_body"'+(st.kind==='heading'?' style:default-outline-level="'+lv+'"':'')+' style:class="text"><style:paragraph-properties fo:margin-top="'+num(st.before,0)+'pt" fo:margin-bottom="'+num(st.after,0)+'pt" fo:text-align="'+AL[st.align||defaultAlign(st.kind)]+'" fo:keep-with-next="always"/>'+txtProps(st)+'</style:style>');
+    }else if(st.kind==='para'){
+      St.push('<style:style style:name="'+oid(st)+'" style:display-name="'+xe(st.label)+'" style:family="paragraph" style:parent-style-name="Text_20_body" style:class="text"><style:paragraph-properties fo:margin-top="'+num(st.before,0)+'pt" fo:margin-bottom="'+num(st.after,0)+'pt" fo:text-align="'+AL[st.align||'justify']+'" fo:text-indent="0cm"'+(st.frame?' fo:border="0.5pt solid #000000" fo:padding="0.15cm"':'')+'/>'+txtProps(st)+'</style:style>');
+    }else if(st.kind==='env'){
+      const q=st.env==='quote'||st.env==='quotation';
+      St.push('<style:style style:name="'+oid(st)+'" style:display-name="'+xe(disp(st))+'" style:family="paragraph" style:parent-style-name="Text_20_body" style:class="'+(q?'html':'list')+'"><style:paragraph-properties fo:text-align="'+AL[st.align||'justify']+'" fo:text-indent="0cm"'+(q?' fo:margin-left="1cm" fo:margin-right="1cm"':' fo:margin-bottom="2pt"')+'/>'+txtProps(st)+'</style:style>');
+    }else if(st.kind==='charc'){
+      St.push('<style:style style:name="'+oid(st)+'" style:display-name="'+xe(st.label)+'" style:family="text">'+txtProps(st)+'</style:style>');
+    }
+  }
+  if(!sh.styles.some(s=>s.env==='quote'))St.push('<style:style style:name="Quotations" style:family="paragraph" style:parent-style-name="Text_20_body"><style:paragraph-properties fo:margin-left="1cm" fo:margin-right="1cm"/><style:text-properties fo:font-style="italic"/></style:style>');
+  St.push('<style:style style:name="Footnote" style:family="paragraph" style:parent-style-name="Standard" style:class="extra"><style:paragraph-properties fo:margin-left="0.5cm" fo:text-indent="-0.5cm"/><style:text-properties fo:font-size="'+(p.size-2)+'pt"/></style:style>');
+  St.push('<style:style style:name="Internet_20_link" style:display-name="Internet link" style:family="text"><style:text-properties fo:color="#1f3fd1" style:text-underline-style="solid" style:text-underline-width="auto" style:text-underline-color="font-color"/></style:style>');
+  const outline='<text:outline-style style:name="Outline">'+[1,2,3].map(l=>'<text:outline-level-style text:level="'+l+'" style:num-format="'+(p.numbered?'1':'')+'"'+(p.numbered?' text:display-levels="'+l+'"':'')+'><style:list-level-properties text:list-level-position-and-space-mode="label-alignment"><style:list-level-label-alignment text:label-followed-by="space"/></style:list-level-properties></text:outline-level-style>').join('')+'</text:outline-style>';
+  const stylesXml=XML_HEAD+'<office:document-styles '+O_NS+'>'+fontDecls+'<office:styles>'+St.join('')+outline+'</office:styles>'+
+    '<office:automatic-styles><style:page-layout style:name="pm1"><style:page-layout-properties fo:page-width="'+(P[1]/10)+'cm" fo:page-height="'+(P[2]/10)+'cm" style:print-orientation="portrait" fo:margin-top="'+p.margin+'cm" fo:margin-bottom="'+p.margin+'cm" fo:margin-left="'+p.margin+'cm" fo:margin-right="'+p.margin+'cm"/></style:page-layout></office:automatic-styles>'+
+    '<office:master-styles><style:master-page style:name="Standard" style:page-layout-name="pm1"/></office:master-styles></office:document-styles>';
+  /* styles automatiques du contenu */
+  const A=[];
+  const TS={T_b:'fo:font-weight="bold"',T_i:'fo:font-style="italic"',T_u:'style:text-underline-style="solid" style:text-underline-width="auto" style:text-underline-color="font-color"',T_s:'style:text-line-through-style="solid"',
+    T_tt:'style:font-name="'+xe(F.tt)+'"',T_sc:'fo:font-variant="small-caps"',T_img:'fo:font-style="italic" fo:color="#767676"',T_math:'fo:font-style="italic" style:font-name="Cambria Math"'};
+  for(const k in TS)A.push('<style:style style:name="'+k+'" style:family="text"><style:text-properties '+TS[k]+'/></style:style>');
+  for(const c of COLORS)A.push('<style:style style:name="T_c_'+c[0]+'" style:family="text"><style:text-properties fo:color="'+c[2]+'"/></style:style>');
+  for(const a of ['left','center','right','justify'])A.push('<style:style style:name="P_'+a+'" style:family="paragraph" style:parent-style-name="Text_20_body"><style:paragraph-properties fo:text-align="'+AL[a]+'"/></style:style>');
+  A.push('<style:style style:name="P_break" style:family="paragraph" style:parent-style-name="Text_20_body"><style:paragraph-properties fo:break-before="page"/></style:style>');
+  A.push('<style:style style:name="Tbl" style:family="table"><style:table-properties table:align="center"/></style:style><style:style style:name="Cell" style:family="table-cell"><style:table-cell-properties fo:padding="0.1cm"/></style:style><style:style style:name="Cell_b" style:family="table-cell"><style:table-cell-properties fo:padding="0.1cm" fo:border="0.5pt solid #000000"/></style:style>');
+  A.push('<style:style style:name="P_cell" style:family="paragraph" style:parent-style-name="Standard"><style:paragraph-properties fo:text-align="start"/></style:style>');
+  const dash=p.lang==='english'?'•':'–';
+  const lvlProps=l=>'<style:list-level-properties text:list-level-position-and-space-mode="label-alignment"><style:list-level-label-alignment text:label-followed-by="listtab" text:list-tab-stop-position="'+(0.635*l)+'cm" fo:text-indent="-0.635cm" fo:margin-left="'+(0.635*l)+'cm"/></style:list-level-properties>';
+  A.push('<text:list-style style:name="Lb">'+[1,2,3].map(l=>'<text:list-level-style-bullet text:level="'+l+'" text:bullet-char="'+dash+'">'+lvlProps(l)+'</text:list-level-style-bullet>').join('')+'</text:list-style>');
+  A.push('<text:list-style style:name="Ln">'+[1,2,3].map(l=>'<text:list-level-style-number text:level="'+l+'" style:num-suffix="." style:num-format="1">'+lvlProps(l)+'</text:list-level-style-number>').join('')+'</text:list-style>');
+  let fnN=0,tblN=0;
+  const sp=(st,inner)=>'<text:span text:style-name="'+st+'">'+inner+'</text:span>';
+  const inl=(ns,inFn)=>{let o='';for(const n of ns||[]){switch(n.t){
+    case 'text':o+=oText(n.v);break;
+    case 'b':o+=sp('T_b',inl(n.c,inFn));break;
+    case 'i':o+=sp('T_i',inl(n.c,inFn));break;
+    case 'u':o+=sp('T_u',inl(n.c,inFn));break;
+    case 's':o+=sp('T_s',inl(n.c,inFn));break;
+    case 'tt':o+=sp('T_tt',inl(n.c,inFn));break;
+    case 'sc':o+=sp('T_sc',inl(n.c,inFn));break;
+    case 'span':o+=n.st&&n.st.kind==='charc'?sp(oid(n.st),inl(n.c,inFn)):inl(n.c,inFn);break;
+    case 'color':{const c=COLORS.find(x=>x[2]===n.color);o+=c?sp('T_c_'+c[0],inl(n.c,inFn)):inl(n.c,inFn);break;}
+    case 'fn':{if(inFn){o+=inl(n.c,inFn);break;}fnN++;o+='<text:note text:id="ftn'+fnN+'" text:note-class="footnote"><text:note-citation>'+fnN+'</text:note-citation><text:note-body><text:p text:style-name="Footnote">'+inl(n.c,true)+'</text:p></text:note-body></text:note>';break;}
+    case 'math':o+=sp('T_math',oText(n.v));break;
+    case 'br':o+='<text:line-break/>';break;
+    case 'img':o+=sp('T_img',oText('[Image : '+n.file+']'));break;
+    case 'link':o+='<text:a xlink:type="simple" xlink:href="'+xe(n.url)+'" text:style-name="Internet_20_link">'+inl(n.c,inFn)+'</text:a>';break;
+    case 'logo':o+=oText(n.v);break;
+    case 'err':o+=oText(n.v);break;
+    default:if(n.c)o+=inl(n.c,inFn);
+  }}return o;};
+  const blocks=(ns,ctx)=>{let o='';for(const n of ns){
+    switch(n.t){
+      case 'para':o+='<text:p text:style-name="'+(ctx.pStyle||'Text_20_body')+'">'+inl(n.c)+'</text:p>';break;
+      case 'title':o+='<text:p text:style-name="Title">'+inl(n.c)+'</text:p>';break;
+      case 'heading':o+='<text:h text:style-name="'+oid(n.st)+'" text:outline-level="'+(n.level+1)+'"'+(n.star?' text:is-list-header="true"':'')+'>'+inl(n.c)+'</text:h>';break;
+      case 'custom':o+=blocks(n.blocks,Object.assign({},ctx,{pStyle:oid(n.st)}));break;
+      case 'quote':o+=blocks(n.blocks,Object.assign({},ctx,{pStyle:n.st?oid(n.st):'Quotations'}));break;
+      case 'align':o+=blocks(n.blocks,Object.assign({},ctx,{pStyle:'P_'+n.align}));break;
+      case 'group':case 'unknown':o+=blocks(n.blocks,ctx);break;
+      case 'list':o+='<text:list text:style-name="'+(n.ordered?'Ln':'Lb')+'">'+n.items.map(it=>'<text:list-item>'+blocks(it.blocks.length?it.blocks:[{t:'para',c:[]}],Object.assign({},ctx,{pStyle:n.st?oid(n.st):'Text_20_body'}))+'</text:list-item>').join('')+'</text:list>';break;
+      case 'table':{const cols=Math.max(1,...n.rows.map(r=>r.cells.length));tblN++;const cs=n.ruled||n.hlines?'Cell_b':'Cell';
+        o+='<table:table table:name="Tableau'+tblN+'" table:style-name="Tbl"><table:table-column table:number-columns-repeated="'+cols+'"/>'+n.rows.map(r=>'<table:table-row>'+Array.from({length:cols},(_,k)=>'<table:table-cell table:style-name="'+cs+'" office:value-type="string"><text:p text:style-name="P_cell">'+inl(r.cells[k]||[])+'</text:p></table:table-cell>').join('')+'</table:table-row>').join('')+'</table:table>';break;}
+      case 'math':o+='<text:p text:style-name="P_center">'+sp('T_math',oText(n.v))+'</text:p>';break;
+      case 'break':o+='<text:p text:style-name="P_break"/>';break;
+    }}return o;};
+  const bodyXml=blocks(nodes,{});
+  const contentXml=XML_HEAD+'<office:document-content '+O_NS+'>'+fontDecls+'<office:automatic-styles>'+A.join('')+'</office:automatic-styles><office:body><office:text>'+bodyXml+'</office:text></office:body></office:document-content>';
+  const metaXml=XML_HEAD+'<office:document-meta '+O_NS+'><office:meta><dc:title>'+xe(title)+'</dc:title><meta:generator>Sobre TeX</meta:generator><dc:language>'+lng[0]+'-'+lng[1]+'</dc:language></office:meta></office:document-meta>';
+  const manifest=XML_HEAD+'<manifest:manifest xmlns:manifest="urn:oasis:names:tc:opendocument:xmlns:manifest:1.0" manifest:version="1.3"><manifest:file-entry manifest:full-path="/" manifest:version="1.3" manifest:media-type="application/vnd.oasis.opendocument.text"/><manifest:file-entry manifest:full-path="content.xml" manifest:media-type="text/xml"/><manifest:file-entry manifest:full-path="styles.xml" manifest:media-type="text/xml"/><manifest:file-entry manifest:full-path="meta.xml" manifest:media-type="text/xml"/></manifest:manifest>';
+  return makeZip([{name:'mimetype',data:'application/vnd.oasis.opendocument.text'},{name:'META-INF/manifest.xml',data:manifest},{name:'content.xml',data:contentXml},{name:'styles.xml',data:stylesXml},{name:'meta.xml',data:metaXml}],'application/vnd.oasis.opendocument.text');
+}
+
+/* ---------- EPUB 3 ---------- */
+const EXPORT_CSS='body{margin:0 5%;line-height:1.4}\nh1,h2,h3,h4{text-wrap:balance;page-break-after:avoid}\nh1{text-align:center}\n.num{margin-right:.8em}\nul,ol{margin:.3em 0 .6em;padding-left:1.6em}\n.lang-fr ul{list-style:none}\n.lang-fr ul>li{position:relative}\n.lang-fr ul>li::before{content:"–";position:absolute;left:-1.1em}\nli{margin-bottom:.15em}\nblockquote{margin:.4em 2em .6em}\ncode.tt{font-family:monospace;font-size:.92em}\n.sc{font-variant:small-caps}\n.pv-center{text-align:center}\n.pv-left{text-align:left}\n.pv-right{text-align:right}\n.pv-justify{text-align:justify}\n.pv-tab{border-collapse:collapse;margin:.5em auto}\n.pv-tab td{padding:.15em .5em;vertical-align:top}\n.pv-tab.ruled td{border:1px solid #000}\n.pv-break{page-break-before:always;break-before:page;height:0;overflow:hidden;font-size:0;border:0}\n.pv-unk,.pv-err-box{border:1px dashed #888;padding:.3em .5em;margin:.3em 0}\n.pv-tag,.pv-unk-i{font-family:monospace;font-size:.85em;color:#555}\n.pv-math{font-family:monospace;font-size:.9em}\n.pv-math.disp{display:block;text-align:center;margin:.5em 10%}\n.pv-img{display:inline-block;border:1px dashed #888;padding:1em 1.4em;color:#555;font-style:italic}\n.pv-err{color:#d7141a;font-weight:bold}\n.ltx .a{text-transform:uppercase;font-size:.75em;vertical-align:.28em;margin-left:-.33em;margin-right:-.12em}\n.ltx .e{text-transform:uppercase;position:relative;top:.22em;margin-left:-.1667em;margin-right:-.125em}\n.notes{margin-top:2em;border-top:1px solid #000;font-size:.88em}\n.notes p{margin:.3em 0;text-indent:0}\n';
+function toEpub(nodes,sh,title){
+  const p=sh.page,F=officeFonts(p),lang=p.lang==='english'?'en':'fr';
+  const FS={rm:"'"+F.rm+"', Georgia, serif",sf:"'"+F.sf+"', Helvetica, sans-serif",tt:"'"+F.tt+"', monospace"};
+  FS.doc={serif:FS.rm,times:FS.rm,palatino:FS.rm,sans:FS.sf,helvetica:FS.sf,mono:FS.tt}[p.font]||FS.rm;
+  const css=EXPORT_CSS+previewCSS(sh,'',FS)+'.pv-page{width:auto!important;min-height:0!important;padding:0!important;background:none!important}\n';
+  /* découpage : un chapitre par Titre 1 */
+  const chs=[];let cur={title:null,nodes:[]};
+  for(const n of nodes){
+    if(n.t==='heading'&&n.level===0){if(cur.nodes.length)chs.push(cur);cur={title:(n.num?n.num+' ':'')+plainOf(n.c),nodes:[]};}
+    cur.nodes.push(n);
+  }
+  if(cur.nodes.length||!chs.length)chs.push(cur);
+  chs.forEach((c,k)=>{if(!c.title)c.title=k===0?title:'Chapitre '+(k+1);});
+  const w={fn:[],xhtml:true,epub:true,fnBase:0};
+  const page=(t,inner)=>'<?xml version="1.0" encoding="UTF-8"?>\n<!DOCTYPE html>\n<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="'+lang+'" lang="'+lang+'"><head><meta charset="UTF-8"/><title>'+escH(t)+'</title><link rel="stylesheet" type="text/css" href="style.css"/></head><body>'+inner+'</body></html>';
+  const files=chs.map((c,k)=>{
+    w.fn=[];const html=hBlocks(c.nodes,w);
+    const notes=w.fn.length?'<section class="notes" epub:type="footnotes">'+w.fn.map((t,i)=>{const n=w.fnBase+i+1;return '<aside epub:type="footnote" id="fn'+n+'"><p><a href="#fnref'+n+'">'+n+'</a>\u00A0'+t+'</p></aside>';}).join('')+'</section>':'';
+    w.fnBase+=w.fn.length;
+    return {name:'OEBPS/chap'+(k+1)+'.xhtml',data:page(c.title,'<div class="pv-page lang-'+lang+'">'+html+notes+'</div>')};
+  });
+  const uid=(window.crypto&&crypto.randomUUID)?crypto.randomUUID():'sobre-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,10);
+  const nav=page(lang==='fr'?'Sommaire':'Contents','<nav epub:type="toc" id="toc"><h1>'+(lang==='fr'?'Sommaire':'Contents')+'</h1><ol>'+chs.map((c,k)=>'<li><a href="chap'+(k+1)+'.xhtml">'+escH(c.title)+'</a></li>').join('')+'</ol></nav>');
+  const opf='<?xml version="1.0" encoding="UTF-8"?>\n<package xmlns="http://www.idpf.org/2007/opf" version="3.0" unique-identifier="uid" xml:lang="'+lang+'"><metadata xmlns:dc="http://purl.org/dc/elements/1.1/"><dc:identifier id="uid">urn:uuid:'+uid+'</dc:identifier><dc:title>'+xe(title)+'</dc:title><dc:language>'+lang+'</dc:language><meta property="dcterms:modified">'+new Date().toISOString().replace(/\.\d+Z$/,'Z')+'</meta></metadata>'+
+    '<manifest><item id="nav" href="nav.xhtml" media-type="application/xhtml+xml" properties="nav"/><item id="css" href="style.css" media-type="text/css"/>'+chs.map((c,k)=>'<item id="c'+(k+1)+'" href="chap'+(k+1)+'.xhtml" media-type="application/xhtml+xml"/>').join('')+'</manifest>'+
+    '<spine>'+chs.map((c,k)=>'<itemref idref="c'+(k+1)+'"/>').join('')+'</spine></package>';
+  const container='<?xml version="1.0" encoding="UTF-8"?>\n<container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container"><rootfiles><rootfile full-path="OEBPS/content.opf" media-type="application/oebps-package+xml"/></rootfiles></container>';
+  return makeZip([{name:'mimetype',data:'application/epub+zip'},{name:'META-INF/container.xml',data:container},{name:'OEBPS/content.opf',data:opf},{name:'OEBPS/nav.xhtml',data:nav},{name:'OEBPS/style.css',data:css},...files],'application/epub+zip');
+}
+
+/* ---------- Ouvrir un Markdown : conversion en LaTeX balisé ---------- */
+function mdToTex(md){
+  const lines=md.replace(/\r\n?/g,'\n').split('\n');
+  const notes={};
+  const kept=[];
+  for(const l of lines){const m=/^\[\^([^\]]+)\]:\s?(.*)$/.exec(l);if(m)notes[m[1]]=m[2];else kept.push(l);}
+  const P=[],ph=x=>{P.push(x);return '\uE000'+(P.length-1)+'\uE001';};
+  const inl=s=>{
+    s=s.replace(/`([^`]+)`/g,(_,c)=>ph('\\texttt{'+escapeTeX(c).text+'}'));
+    s=s.replace(/\$\$([^$]+)\$\$/g,(_,c)=>ph('\\['+c+'\\]')).replace(/\$([^$\n]+)\$/g,(_,c)=>ph('$'+c+'$'));
+    s=s.replace(/!\[([^\]]*)\]\(([^)\s]+)[^)]*\)/g,(_,a,f)=>ph('\\includegraphics[width=0.8\\linewidth]{'+f+'}'));
+    s=s.replace(/\[([^\]]+)\]\(([^)\s]+)[^)]*\)/g,(_,t,u)=>ph('\\href{'+u.replace(/[%#]/g,'\\$&')+'}{'+inl(t)+'}'));
+    s=s.replace(/\[\^([^\]]+)\]/g,(_,id)=>ph('\\footnote{'+(notes[id]!=null?inl(notes[id]):'')+'}'));
+    s=s.replace(/~~(.+?)~~/g,'\uE010$1\uE011');
+    s=s.replace(/(\*\*|__)(?=\S)(.+?)(?<=\S)\1/g,'\uE012$2\uE013');
+    s=s.replace(/(^|[^\w*])\*(?=\S)(.+?)(?<=\S)\*(?!\*)/g,'$1\uE014$2\uE015').replace(/(^|[^\w])_(?=\S)(.+?)(?<=\S)_(?!\w)/g,'$1\uE014$2\uE015');
+    s=s.replace(/\\([\\`*_{}\[\]()#+\-.!|~<>])/g,(_,c)=>ph(escapeTeX(c).text));
+    s=escapeTeX(s.replace(/<br\s*\/?>/gi,'\uE016')).text;
+    s=s.replace(/\uE010/g,'\\sout{').replace(/\uE012/g,'\\textbf{').replace(/\uE014/g,'\\textit{').replace(/[\uE011\uE013\uE015]/g,'}').replace(/\uE016/g,'\\\\');
+    let prev;do{prev=s;s=s.replace(/\uE000(\d+)\uE001/g,(_,k)=>P[+k]);}while(s!==prev);
+    return s;
+  };
+  const h1=kept.filter(l=>/^#\s/.test(l)).length;
+  const firstH=kept.find(l=>/^#{1,6}\s/.test(l));
+  const titleMode=h1===1&&firstH&&/^#\s/.test(firstH);
+  const HC=titleMode?['titre','section','subsection','subsubsection']:['section','subsection','subsubsection','subsubsection'];
+  const out=[];let i=0;const stack=[];
+  const closeLists=to=>{while(stack.length>to){const s=stack.pop();out.push(' '.repeat(stack.length*2)+'\\end{'+s.env+'}');}};
+  while(i<kept.length){
+    const l=kept[i];
+    let m;
+    if(/^\s*<!--\s*saut de page\s*-->\s*$/i.test(l)){closeLists(0);out.push('\\newpage','');i++;continue;}
+    if(/^\s*<!--.*-->\s*$/.test(l)){i++;continue;}
+    if(/^```/.test(l)){closeLists(0);const b=[];i++;while(i<kept.length&&!/^```/.test(kept[i])){b.push(kept[i]);i++;}i++;out.push('\\begin{verbatim}',...b,'\\end{verbatim}','');continue;}
+    if((m=/^(#{1,6})\s+(.*?)\s*#*\s*$/.exec(l))){closeLists(0);out.push('\\'+HC[Math.min(m[1].length,4)-1]+'{'+inl(m[2])+'}','');i++;continue;}
+    if((m=/^(\s*)([-*+]|\d+[.)])\s+(.*)$/.exec(l))){
+      const depth=Math.floor(m[1].replace(/\t/g,'  ').length/2),env=/\d/.test(m[2])?'enumerate':'itemize';
+      while(stack.length>depth+1)closeLists(stack.length-1);
+      if(stack.length===depth+1&&stack[depth].env!==env)closeLists(depth);
+      while(stack.length<depth+1){out.push(' '.repeat(stack.length*2)+'\\begin{'+env+'}');stack.push({env});}
+      out.push(' '.repeat(stack.length*2)+'\\item '+inl(m[3]));i++;continue;
+    }
+    if(/^\s*>/.test(l)){closeLists(0);const b=[];while(i<kept.length&&/^\s*>/.test(kept[i])){b.push(kept[i].replace(/^\s*>\s?/,''));i++;}out.push('\\begin{quote}',b.map(x=>x.trim()?inl(x):'').join('\n').replace(/\n{3,}/g,'\n\n'),'\\end{quote}','');continue;}
+    if(/^\s*\|.*\|\s*$/.test(l)&&i+1<kept.length&&/^\s*\|?\s*:?-{3,}/.test(kept[i+1])){
+      closeLists(0);const rows=[];rows.push(l);i+=2;while(i<kept.length&&/^\s*\|.*\|\s*$/.test(kept[i])){rows.push(kept[i]);i++;}
+      const cells=r=>r.trim().replace(/^\||\|$/g,'').split('|').map(c=>inl(c.trim()));const cols=cells(rows[0]).length;
+      out.push('\\begin{tabular}{|'+'l|'.repeat(cols)+'}','\\hline',...rows.map(r=>cells(r).join(' & ')+' \\\\'+'\n\\hline'),'\\end{tabular}','');continue;
+    }
+    if(/^\s*([-*_])\s*(\1\s*){2,}$/.test(l)){closeLists(0);out.push('');i++;continue;}
+    if(!l.trim()){
+      // liste « aérée » : une ligne vide entre deux éléments ne coupe pas la liste
+      let j=i+1;while(j<kept.length&&!kept[j].trim())j++;
+      if(stack.length&&j<kept.length&&/^(\s*)([-*+]|\d+[.)])\s+/.test(kept[j])){i=j;continue;}
+      closeLists(0);out.push('');i++;continue;
+    }
+    if(stack.length&&/^\s+\S/.test(l)){out[out.length-1]+=' '+inl(l.trim());i++;continue;}
+    closeLists(0);out.push(inl(l.replace(/\s+$/,'')));i++;
+  }
+  closeLists(0);
+  return out.join('\n').replace(/\n{3,}/g,'\n\n').trim();
+}
+
+/* ---------- Ce que chaque format garde ---------- */
+const FMT_ORDER=['tex','typ','docx','odt','rtf','md','epub','pdf','txt'];
+const EXPORTS={
+  tex:{label:'LaTeX',ext:'tex',desc:'votre fichier de travail',mime:'application/x-tex'},
+  typ:{label:'Typst',ext:'typ',desc:'le « nouveau LaTeX »',mime:'text/plain'},
+  docx:{label:'Word',ext:'docx',desc:'le plus courant, recommandé'},
+  odt:{label:'OpenDocument',ext:'odt',desc:'format ouvert de l’État'},
+  rtf:{label:'RTF',ext:'rtf',desc:'s’ouvre partout',mime:'application/rtf'},
+  pdf:{label:'PDF',ext:'pdf',desc:'rendu de l’aperçu'},
+  epub:{label:'EPUB',ext:'epub',desc:'livre numérique'},
+  md:{label:'Markdown',ext:'md',desc:'structure seule, se rouvre ici',mime:'text/markdown'},
+  txt:{label:'Texte brut',ext:'txt',desc:'sans mise en forme',mime:'text/plain'}
+};
+const DL_ALLOWED=['txt','md','docx','epub','pdf','html','json'];
+const FEATS=[
+  ['titles','titres','ooooooooa'],['numbering','numérotation des titres','ooooaxooa'],['lists','listes','ooooooooa'],['notes','notes de bas de page','ooooooaaa'],
+  ['bi','gras et italique','oooooooox'],['us','souligné et barré','oooooaoox'],['charte','polices, tailles et couleurs','ooaaaxaox'],['align','alignements','oooooxoox'],
+  ['boxes','encadrés et citations','oooooaooa'],['tables','tableaux','ooooooooa'],['images','images','ooaaaoaax'],['math','équations','oaaaaoaaa'],['breaks','sauts de page','oooooxaox']
+];
+function docStats(nodes,sh){
+  const s={title:0,heading:0,h1:0,list:0,fn:0,bi:0,u:0,st:0,align:0,custom:0,quote:0,table:0,img:0,math:0,brk:0,unk:0};
+  const inl=ns=>{for(const n of ns||[]){
+    if(n.t==='b'||n.t==='i')s.bi++;else if(n.t==='u')s.u++;else if(n.t==='s')s.st++;else if(n.t==='fn')s.fn++;else if(n.t==='img')s.img++;else if(n.t==='math')s.math++;else if(n.t==='unk')s.unk++;
+    if(n.c)inl(n.c);}};
+  const blk=ns=>{for(const n of ns||[]){
+    switch(n.t){
+      case 'title':s.title++;inl(n.c);break;
+      case 'heading':s.heading++;if(n.level===0)s.h1++;inl(n.c);break;
+      case 'para':inl(n.c);break;
+      case 'list':s.list++;n.items.forEach(it=>blk(it.blocks));break;
+      case 'custom':s.custom++;blk(n.blocks);break;
+      case 'quote':s.quote++;blk(n.blocks);break;
+      case 'align':s.align++;blk(n.blocks);break;
+      case 'table':s.table++;n.rows.forEach(r=>r.cells.forEach(inl));break;
+      case 'math':s.math++;break;
+      case 'break':s.brk++;break;
+      case 'unknown':if(n.env)s.unk++;blk(n.blocks);break;
+      case 'group':blk(n.blocks);break;
+    }}};
+  blk(nodes);
+  s.numbered=sh.page.numbered&&s.heading;
+  return s;
+}
+function exportReport(fmt,s,sh){
+  const k=FMT_ORDER.indexOf(fmt),ok=[],warn=[];
+  const lm=['serif','sans','mono'].includes(sh.page.font);
+  const lmTo={serif:'Cambria',sans:'Arial',mono:'Courier New'}[sh.page.font];
+  const n=(x,one,many)=>x+' '+(x>1?many:one);
+  const present={titles:s.title+s.heading,numbering:s.numbered,lists:s.list,notes:s.fn,bi:s.bi,us:s.u+s.st,charte:1,align:s.align+s.title,boxes:s.custom+s.quote,tables:s.table,images:s.img,math:s.math,breaks:s.brk};
+  const MSG={
+    numbering:{rtf:'Numéros des titres écrits en texte',md:'Numérotation des titres perdue',txt:'Numéros des titres écrits en texte'},
+    titles:{txt:'Titres soulignés de = et de -'},
+    lists:{txt:'Listes écrites avec des tirets'},
+    notes:{epub:n(s.fn,'note placée','notes placées')+' en fin de chapitre',pdf:n(s.fn,'note regroupée','notes regroupées')+' en fin de document',txt:n(s.fn,'note renvoyée','notes renvoyées')+' en fin de texte'},
+    bi:{txt:'Gras et italique perdus'},
+    us:{md:'Souligné perdu (le barré est conservé)',txt:'Souligné et barré perdus'},
+    charte:{docx:lm?'Police Latin Modern remplacée par '+lmTo:'',odt:lm?'Police Latin Modern remplacée par '+lmTo:'',rtf:lm?'Police Latin Modern remplacée par '+lmTo:'',
+      md:'Polices, tailles et couleurs perdues : le Markdown ne garde que la structure',epub:'La liseuse peut imposer sa propre police',txt:'Aucune mise en forme : ni police, ni taille, ni couleur'},
+    align:{md:'Alignements perdus (titre centré, drapeaux…)',txt:'Alignements perdus'},
+    boxes:{md:n(s.custom,'encadré transformé','encadrés transformés')+' en citation',txt:'Encadrés tracés entre deux filets, citations en retrait'},
+    tables:{txt:n(s.table,'tableau écrit','tableaux écrits')+' en colonnes alignées'},
+    images:{docx:n(s.img,'image remplacée','images remplacées')+' par un cadre : insérez-la ensuite',odt:n(s.img,'image remplacée','images remplacées')+' par un cadre : insérez-la ensuite',rtf:n(s.img,'image remplacée','images remplacées')+' par un cadre',
+      epub:n(s.img,'image remplacée','images remplacées')+' par un cadre',pdf:n(s.img,'image remplacée','images remplacées')+' par un cadre',txt:n(s.img,'image remplacée','images remplacées')+' par [Image : nom du fichier]'},
+    math:{typ:n(s.math,'équation','équations')+' : la syntaxe Typst diffère, à réécrire',docx:n(s.math,'équation','équations')+' en texte brut',odt:n(s.math,'équation','équations')+' en texte brut',rtf:n(s.math,'équation','équations')+' en texte brut',
+      epub:n(s.math,'équation affichée','équations affichées')+' en code',pdf:n(s.math,'équation affichée','équations affichées')+' en code',txt:'Équations écrites en code LaTeX'},
+    breaks:{md:'Sauts de page perdus',epub:'Sauts de page : la liseuse découpe le texte elle-même',txt:'Sauts de page perdus'}
+  };
+  for(const [id,label,mx] of FEATS){
+    if(!present[id])continue;
+    let v=mx[k];
+    if(id==='us'&&fmt==='md'&&!s.u)v='o';
+    if(id==='charte'&&['docx','odt','rtf'].includes(fmt)&&!lm)v='o';
+    if(v==='o')ok.push(label);
+    else warn.push([v==='x'?'✗':'~',(MSG[id]&&MSG[id][fmt])||label+(v==='x'?' perdus':' adaptés')]);
+  }
+  if(fmt==='typ'&&s.img)warn.push(['~','Joignez les fichiers image, sinon Typst refusera de compiler']);
+  if(fmt==='md'&&s.img)warn.push(['~','Images : simple lien vers le fichier, à joindre']);
+  if(s.unk&&fmt!=='tex')warn.push(['~',n(s.unk,'commande LaTeX inconnue','commandes LaTeX inconnues')+' : le texte est gardé, la commande perdue']);
+  if(fmt==='rtf'&&s.fn)warn.push(['~','TextEdit n’affiche pas les notes de bas de page (Word et LibreOffice, si)']);
+  if(fmt==='epub'&&!s.h1)warn.push(['~','Aucun Titre 1 : le livre n’aura qu’un seul chapitre']);
+  if(fmt==='pdf')warn.push(['~','Rendu de l’aperçu, pas de LaTeX : pour un PDF exact, compilez le .tex']);
+  if(['typ','docx','odt','rtf','epub','pdf'].includes(fmt))warn.push(['~','Ne se rouvre pas dans Sobre TeX : gardez aussi le .tex']);
+  if(fmt==='md')warn.push(['~','Se rouvre dans Sobre TeX, mais sans la feuille de style']);
+  if(fmt==='txt')warn.push(['~','Se rouvre dans Sobre TeX comme texte à baliser']);
+  let blocked=null;
+  if(IS_ARTIFACT){
+    if(fmt==='pdf')blocked='Indisponible dans le lien de test : l’impression y est bloquée. Utilisez la version fichier de Sobre TeX.';
+    else if(fmt==='odt')blocked='Le lien de test ne peut pas télécharger de .odt. Utilisez la version fichier de Sobre TeX.';
+    else if(!DL_ALLOWED.includes(EXPORTS[fmt].ext))warn.push(['~','Lien de test : le .'+EXPORTS[fmt].ext+' ne se télécharge pas ici. Sobre TeX proposera de copier le code ou de l’enregistrer en .txt']);
+  }else if(fmt==='pdf')warn.push(['~','La fenêtre d’impression s’ouvrira : choisissez « Enregistrer au format PDF »']);
+  if(blocked)warn.unshift(['✗',blocked]);
+  return {ok,warn,blocked};
+}
+
+/* ---------- Production du fichier ---------- */
+function textFallback(fname,text){
+  openDialog({title:'Enregistrer '+fname,width:600,build:b=>{
+    b.appendChild(el('p',{text:'Dans ce lien de test, le navigateur ne peut pas enregistrer de fichier .'+fname.split('.').pop()+' directement. Copiez le code, ou enregistrez-le en .txt puis renommez-le. La version fichier de Sobre TeX enregistre directement dans ce format.'}));
+    const x=el('textarea',{class:'codearea',readonly:true,'aria-label':'Contenu du fichier'});x.value=text;b.appendChild(x);
+  },buttons:[
+    {label:'Enregistrer en .txt',left:true,keep:true,onClick:async()=>{const r=await offerFile(fname+'.txt',text);if(r==='saved')flash('Fichier proposé au téléchargement');else if(r==='failed')flash('Enregistrement impossible ici : utilisez « Copier »');}},
+    {label:'Fermer',value:null,cancel:true},
+    {label:'Copier',default:true,keep:true,onClick:async(api)=>{const ok=await copyText(text);if(ok){flash('Copié');api.close();}else{const x=api.el.querySelector('textarea');x.focus();x.select();flash('Copie bloquée : le texte est sélectionné, utilisez '+MOD+'C');}}}
+  ]});
+}
+async function exportAs(fmt,name){
+  const E=EXPORTS[fmt],fname=name+'.'+E.ext;
+  if(fmt==='tex'){S.name=name;updateTitle();persist();return saveDoc();}
+  if(fmt==='pdf'){printPreview();return;}
+  const nodes=parseDoc(ta.value,S.sheet),title=docTitle(nodes,name);
+  let data;
+  try{
+    switch(fmt){
+      case 'md':data=toMarkdown(nodes,S.sheet);break;
+      case 'txt':data=toText(nodes,S.sheet);break;
+      case 'typ':data=toTypst(nodes,S.sheet);break;
+      case 'rtf':data=toRtf(nodes,S.sheet);break;
+      case 'docx':data=toDocx(nodes,S.sheet,title);break;
+      case 'odt':data=toOdt(nodes,S.sheet,title);break;
+      case 'epub':data=toEpub(nodes,S.sheet,title);break;
+    }
+  }catch(err){problem('L’export a échoué.','Une partie du document n’a pas pu être convertie ('+(err&&err.message||err)+'). Enregistrez le .tex et signalez le problème.');return;}
+  if(IS_ARTIFACT&&!DL_ALLOWED.includes(E.ext)){if(typeof data==='string')textFallback(fname,data);return;}
+  const r=await offerFile(fname,data,E.mime);
+  if(r==='saved')flash('« '+fname+' » enregistré dans vos téléchargements');
+  else if(r==='failed')problem('Enregistrement impossible.','Le navigateur a bloqué le téléchargement de « '+fname+' ».');
+}
+
+/* ---------- Assistant « Que voulez-vous faire ? » ---------- */
+const INTENTS=[
+  {id:'modify',label:'Continuer à le modifier',fmts:['tex'],geek:['typ'],icon:'<path d="M5 23l2-6L19 5l4 4-12 12z M17 7l4 4"/>'},
+  {id:'send',label:'L’envoyer à un collègue',fmts:['docx','odt','rtf'],icon:'<path d="M3 7h22v14H3z M3 7l11 8 11-8"/>'},
+  {id:'diffuse',label:'Le diffuser tel quel',fmts:['pdf'],icon:'<path d="M7 3h10l5 5v17H7z M17 3v5h5 M10 14h9 M10 18h9 M10 22h6"/>'},
+  {id:'read',label:'Le lire sur une liseuse',fmts:['epub'],icon:'<path d="M4 6c4-2 7-2 10 1 3-3 6-3 10-1v16c-4-2-7-2-10 1-3-3-6-3-10-1z M14 7v16"/>'},
+  {id:'publish',label:'Le publier en ligne',fmts:['md'],icon:'<circle cx="14" cy="14" r="10"/><path d="M4 14h20 M14 4c-4 4-4 16 0 20 M14 4c4 4 4 16 0 20"/>'},
+  {id:'paste',label:'Le coller ailleurs',fmts:['txt'],icon:'<path d="M8 5h12v20H8z M11 3h6v4h-6z M11 12h6 M11 16h6 M11 20h4"/>'}
+];
+function saveAsDialog(){
+  const pref=Object.assign({intent:'send',fmt:'docx',geek:false},S.prefs.lastExport||{});
+  const st={intent:INTENTS.find(i=>i.id===pref.intent)?pref.intent:'send',fmt:pref.fmt,geek:!!pref.geek};
+  const nodes=parseDoc(ta.value,S.sheet),stats=docStats(nodes,S.sheet);
+  let tilesBox,panel,nameInp,extLbl,okBtn;
+  const fmtsOf=it=>it.fmts.concat(st.geek&&it.geek?it.geek:[]);
+  function render(){
+    const it=INTENTS.find(i=>i.id===st.intent);const fl=fmtsOf(it);
+    if(!fl.includes(st.fmt))st.fmt=fl[0];
+    $$('.xp-tile',tilesBox).forEach(b=>{const on=b.dataset.id===st.intent;b.classList.toggle('on',on);b.setAttribute('aria-pressed',on?'true':'false');
+      const t=INTENTS.find(i=>i.id===b.dataset.id);b.querySelector('.xp-f').textContent=fmtsOf(t).map(f=>EXPORTS[f].label+(EXPORTS[f].ext?' .'+EXPORTS[f].ext:'')).join(' · ');});
+    panel.innerHTML='';
+    panel.appendChild(el('span',{class:'grp-t',text:it.label}));
+    const radios=el('div',{class:'xp-radios',role:'radiogroup','aria-label':'Format'});
+    fl.forEach(f=>{const E=EXPORTS[f];const r=el('input',{type:'radio',name:'xp-fmt',id:'xp-'+f,checked:f===st.fmt});
+      r.addEventListener('change',()=>{st.fmt=f;render();});
+      radios.appendChild(el('label',{class:'xp-opt',for:'xp-'+f},r,el('strong',{text:E.label+' .'+E.ext}),el('span',{text:E.desc})));});
+    const rep=exportReport(st.fmt,stats,S.sheet);
+    const right=el('div',{class:'xp-report'},el('div',{class:'cap',text:'POUR CE DOCUMENT'}));
+    if(rep.ok.length)right.appendChild(el('div',{class:'xp-line'},el('span',{class:'xp-sym ok',text:'✓'}),el('span',{text:rep.ok.join(', ')})));
+    for(const [sym,t] of rep.warn)right.appendChild(el('div',{class:'xp-line'},el('span',{class:'xp-sym '+(sym==='✗'?'ko':'ad'),text:sym}),el('span',{text:t})));
+    const cmp=el('button',{type:'button',class:'xp-link',text:'Voir le tableau comparatif des formats'});cmp.addEventListener('click',compareFormats);
+    right.appendChild(cmp);
+    panel.appendChild(el('div',{class:'xp-panel-in'},radios,right));
+    extLbl.textContent='.'+EXPORTS[st.fmt].ext;
+    okBtn.textContent=st.fmt==='pdf'?'Exporter en PDF…':'Enregistrer en '+EXPORTS[st.fmt].label;
+    okBtn.disabled=!!rep.blocked;
+  }
+  openDialog({title:'Enregistrer sous',width:880,build:(b,api)=>{
+    b.appendChild(el('p',{class:'xp-q',text:'Que voulez-vous faire de ce document ?'}));
+    tilesBox=el('div',{class:'xp-tiles'});
+    for(const it of INTENTS){
+      const t=el('button',{type:'button',class:'xp-tile','data-id':it.id,'aria-pressed':'false',html:'<svg viewBox="0 0 28 28" aria-hidden="true">'+it.icon+'</svg>'},el('span',{class:'xp-l',text:it.label}),el('span',{class:'xp-f'}));
+      t.addEventListener('click',()=>{st.intent=it.id;render();});
+      tilesBox.appendChild(t);
+    }
+    b.appendChild(tilesBox);
+    panel=el('div',{class:'grp xp-panel'});b.appendChild(panel);
+    nameInp=el('input',{class:'field',id:'xp-name',type:'text','aria-label':'Nom du fichier',style:'width:220px'});nameInp.value=S.name;
+    extLbl=el('span',{style:'font-family:var(--code);font-size:13px'});
+    const gk=el('input',{type:'checkbox',id:'xp-geek',checked:st.geek});gk.addEventListener('change',()=>{st.geek=gk.checked;render();});
+    b.appendChild(el('div',{class:'frow'},el('label',{for:'xp-name',style:'font-size:13px',text:'Nom'}),nameInp,extLbl,el('label',{class:'chk',style:'margin-left:auto'},gk,'Mode Geek : formats avancés, dont Typst')));
+    okBtn=api.el.querySelector('.dlg-btns .btn.default');
+    setTimeout(()=>{okBtn=api.el.querySelector('.dlg-btns .btn.default');render();},0);
+  },buttons:[
+    {label:'Annuler',value:null,cancel:true},
+    {label:'Enregistrer',default:true,onClick:()=>{
+      const name=(nameInp.value.trim().replace(/\.[a-z0-9]{1,5}$/i,'').replace(/[\\/:*?"<>|]+/g,'-')||S.name).slice(0,80);
+      S.prefs.lastExport={intent:st.intent,fmt:st.fmt,geek:st.geek};persist();
+      setTimeout(()=>exportAs(st.fmt,name),0);
+    }}
+  ]});
+}
+function compareFormats(){
+  openDialog({title:'Comparer les formats',width:980,build:b=>{
+    let h='<div class="xp-cmp-wrap"><table class="xp-cmp"><thead><tr><th scope="col">Ce qui passe</th>'+FMT_ORDER.map(f=>'<th scope="col">'+escH(EXPORTS[f].label)+'<br><span>.'+EXPORTS[f].ext+'</span></th>').join('')+'</tr></thead><tbody>';
+    const S2={o:['✓','ok','conservé'],a:['~','ad','adapté'],x:['✗','ko','perdu']};
+    for(const [,label,mx] of FEATS)h+='<tr><th scope="row">'+escH(label[0].toUpperCase()+label.slice(1))+'</th>'+mx.split('').map(v=>'<td class="'+S2[v][1]+'" title="'+S2[v][2]+'">'+S2[v][0]+'</td>').join('')+'</tr>';
+    h+='<tr><th scope="row">Se rouvre dans Sobre TeX</th>'+'oxxxxoxxo'.split('').map(v=>'<td class="'+S2[v][1]+'">'+S2[v][0]+'</td>').join('')+'</tr></tbody></table></div>';
+    h+='<p style="font-size:12px;color:var(--mute)">✓ conservé · ~ adapté (encadré en citation, police remplacée, notes regroupées…) · ✗ perdu. Le PDF reprend le rendu de l’aperçu.</p>';
+    b.appendChild(el('div',{html:h}));
+  },buttons:[{label:'OK',value:true,default:true,cancel:true}]});
+}
+
+/* =========================================================
    Menus
    ========================================================= */
 function cmdEdit(c){ta.focus();try{document.execCommand(c);}catch(e){}onEdit();}
@@ -1974,7 +2893,7 @@ function menuDefs(){
     {id:'logo',logo:true,label:'Sobre TeX',items:[{l:'À propos de Sobre TeX…',a:about}]},
     {id:'file',label:'Fichier',items:[
       {l:'Nouveau',a:newDoc},{l:'Ouvrir…',k:MOD+'O',a:openDoc},{l:'Fermer',a:closeDoc},'-',
-      {l:IS_ARTIFACT?'Enregistrer…':'Enregistrer (.tex)',k:MOD+'S',a:saveDoc},{l:'Renommer…',a:renameDoc},'-',
+      {l:IS_ARTIFACT?'Enregistrer…':'Enregistrer (.tex)',k:MOD+'S',a:saveDoc},{l:'Enregistrer sous…',a:saveAsDialog},{l:'Renommer…',a:renameDoc},'-',
       {l:'Voir le préambule…',a:showPreamble},
       ...(IS_ARTIFACT?[]:['-',{l:'Imprimer l’aperçu…',k:MOD+'P',a:printPreview}]),'-',
       {l:'Quitter',a:quitApp}]},
@@ -1994,7 +2913,7 @@ function menuDefs(){
       {l:'Réinitialiser la disposition',a:resetLayout},'-',
       {l:S.name+'.tex',a:()=>{activate('edit');ta.focus();}},{l:'Aperçu',a:()=>{if(!S.prefs.showPrev)togglePrev();else activate('prev');}}]},
     {id:'help',label:'Aide',items:[
-      {l:'Document d’exemple',a:openSample},{l:'Bulles d’aide détaillées',chk:P.bubbles,a:toggleBubbles},'-',
+      {l:'Document d’exemple',a:openSample},{l:'Comparer les formats…',a:compareFormats},{l:'Bulles d’aide détaillées',chk:P.bubbles,a:toggleBubbles},'-',
       {l:'À propos de Sobre TeX…',a:about}]}
   ];
 }
@@ -2200,6 +3119,7 @@ document.addEventListener('keydown',splashKey,true);
 $('.sp-fill',splash).addEventListener('animationend',closeSplash);
 })();
 </script>
+
 
 </body>
 </html>
