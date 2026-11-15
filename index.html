@@ -434,13 +434,13 @@ const READY=APPS.filter(a=>a.ready).length;
 
 /* =========================================================
    Les modes d'emploi (dossier Document)
-   Un mode d'emploi par application, rangé dans docs/<Nom>.html.
+   Un mode d'emploi PDF par application, rangé dans Documents/<Nom>-mode-emploi.pdf.
    Quand l'un d'eux est écrit, ajouter l'id de l'application ici,
    par exemple : const MANUALS_READY=['tex','pix'];
    ========================================================= */
-const MANUALS_READY=[];
+const MANUALS_READY=['tex'];
 const MANUALS=APPS.filter(a=>a.ready).map(a=>({id:a.id,app:a,name:a.name,
-  file:'docs/'+a.repo+'.html',ready:MANUALS_READY.includes(a.id),icon:manualIcon(a.id)}));
+  file:'Documents/'+a.repo+'-mode-emploi.pdf',ready:MANUALS_READY.includes(a.id),icon:manualIcon(a.id)}));
 MANUALS.forEach(m=>{m.url=m.file;m.code=REPO+'/blob/'+BRANCH+'/'+m.file;});
 
 /* =========================================================
@@ -698,7 +698,7 @@ function buildDoc(){
     '<p>Double-cliquez sur « Télécharger » : vous recevez <strong>SobreSuite.zip</strong>, toute la suite dans un seul dossier. Décompressez-le, puis ouvrez <strong>SobreSuite.html</strong> dans Firefox ou Chrome : vous retrouvez ce bureau, et les applications s’ouvrent depuis votre ordinateur, sans connexion.</p>'+
     '<p>Pour une seule application, enregistrez simplement sa page (' + MOD + 'S) : c’est un seul fichier, à garder sur votre ordinateur ou sur une clé USB.</p>'+
     '<h2>Le code</h2>'+
-    '<p>Toute la suite tient dans un seul dépôt GitHub : <a href="'+REPO+'" target="_blank" rel="noopener">'+REPO.replace('https://','')+'</a>. Les applications sont rangées dans le dossier <strong>apps</strong>, les modes d’emploi dans le dossier <strong>docs</strong>.</p>'+
+    '<p>Toute la suite tient dans un seul dépôt GitHub : <a href="'+REPO+'" target="_blank" rel="noopener">'+REPO.replace('https://','')+'</a>. Les applications sont rangées dans le dossier <strong>apps</strong>, les modes d’emploi dans le dossier <strong>Documents</strong>.</p>'+
     '<p class="small">© 2026 Auraponymous. Police Pixelify Sans (SIL Open Font License), retouchée pour la suite.</p>';
 }
 
