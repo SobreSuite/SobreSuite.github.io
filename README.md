@@ -22,7 +22,7 @@ Chaque application de la SobreSuite tient dans **un seul fichier HTML**. On l'ou
 | <img src="logos/sobrebit-icone.svg" width="32" alt=""> | [SobreBiT](https://sobresuite.github.io/apps/SobreBiT.html) | Boîte à rythmes frugale | Disponible |
 | <img src="logos/sobrejok-icone.svg" width="32" alt=""> | [SobreJoK](https://sobresuite.github.io/apps/SobreJoK.html) | Jeux old school pour les pauses café | Disponible |
 
-- **SobreTeX** — un traitement de texte à l'ancienne, façon Word 5.1, qui écrit le LaTeX à votre place. Pensé pour celles et ceux qui n'en ont jamais écrit une ligne. « Enregistrer sous… » demande ce que vous voulez faire du document (le modifier, l'envoyer, le diffuser, le lire sur une liseuse, le publier, le coller ailleurs) et propose le bon format : LaTeX, Word, OpenDocument, RTF, PDF, EPUB, Markdown ou texte brut, et Typst en mode Geek. Avant d'enregistrer, il signale ce qui ne passera pas (police remplacée, image à remettre, équation en texte brut). Il ouvre aussi les fichiers Markdown et texte.
+- **SobreTeX** — un traitement de texte à l'ancienne, façon Word 5.1, qui écrit le LaTeX à votre place. Pensé pour celles et ceux qui n'en ont jamais écrit une ligne. « Enregistrer sous… » demande ce que vous voulez faire du document (le modifier, l'envoyer, le diffuser, le lire sur une liseuse, le publier, le coller ailleurs) et propose le bon format : LaTeX, Word, OpenDocument, RTF, PDF, EPUB, Markdown ou texte brut, et Typst en mode Geek. Avant d'enregistrer, il signale ce qui ne passera pas (police remplacée, image à remettre, équation en texte brut). Il ouvre aussi les fichiers Markdown et texte. Son mode d'emploi illustré se trouve dans le dossier Document.
 - **SobrePiX** — recadrer, faire pivoter, écrire, dessiner, changer la taille (pixels ou centimètres) et tramer façon Mac 1984. Enregistre une copie en JPEG, PNG ou WebP.
 - **SobrePdF** — assembler plusieurs PDF, réorganiser les pages, pivoter, extraire, écrire sur la page, remplir les formulaires, placer une signature.
 - **SobreDtA** — un tableur et des statistiques dans le même fichier. Mode Feuille : formules en français, tri, filtre, copier-coller avec Excel, ouverture des fichiers CSV et XLSX. Mode Stat : descriptives, tests t, ANOVA (groupes indépendants, mesures répétées, mixte), ANCOVA, corrélations, régressions linéaire et logistique, khi², alpha de Cronbach. Un assistant « Quel test choisir ? » pose les bonnes questions en français clair. Les résultats sortent en tableaux au format APA, avec la phrase à copier et une interprétation en clair ; export vers Word, LaTeX, PDF ou HTML. Pensé pour l'ordinateur.
@@ -56,8 +56,8 @@ Chaque application de la SobreSuite tient dans **un seul fichier HTML**. On l'ou
 📦 **[SobreSuite.zip](https://sobresuite.github.io/SobreSuite.zip)** : toute la suite dans un seul dossier, pour travailler hors ligne.
 
 1. Décompressez le fichier.
-2. Ouvrez `SobreSuite.html` dans Firefox ou Chrome : vous retrouvez le bureau de la suite. Le dossier **Applications** rassemble les applications, qui s'ouvrent depuis votre ordinateur, sans connexion. Le dossier **Document** rassemblera leurs modes d'emploi (en cours d'écriture).
-3. Gardez le dossier entier : les applications sont rangées dans `apps`.
+2. Ouvrez `SobreSuite.html` dans Firefox ou Chrome : vous retrouvez le bureau de la suite. Le dossier **Applications** rassemble les applications, qui s'ouvrent depuis votre ordinateur, sans connexion. Le dossier **Document** rassemble leurs modes d'emploi en PDF (celui de SobreTeX est prêt, les autres suivent).
+3. Gardez le dossier entier : les applications sont rangées dans `apps`, les modes d'emploi dans `Documents`.
 
 Pour une seule application, enregistrez simplement sa page (Ctrl+S, ou ⌘S sur Mac) : c'est un seul fichier, à garder sur votre ordinateur ou sur une clé USB.
 
@@ -81,7 +81,8 @@ SobreSuite.github.io/
 │   ├── SobreVoX.html
 │   ├── SobreBiT.html
 │   └── SobreJoK.html
-├── docs/                les modes d'emploi, un par application : docs/<Nom>.html (à venir)
+├── Documents/          les modes d'emploi en PDF, un par application
+│   └── SobreTeX-mode-emploi.pdf
 └── logos/
     ├── <app>-logo.svg / .png   logo complet, 960 × 512 (icône, nom, devise)
     ├── <app>-icone.svg         icône seule, 32 × 32
@@ -90,9 +91,9 @@ SobreSuite.github.io/
 ```
 
 - Les liens de la page d'accueil vers les applications sont relatifs (`apps/<Nom>.html`) : ils marchent en ligne comme depuis le dossier décompressé.
-- `SobreSuite.zip` reprend la même organisation : `SobreSuite/SobreSuite.html` (la page d'accueil) et `SobreSuite/apps/`.
+- `SobreSuite.zip` reprend la même organisation : `SobreSuite/SobreSuite.html` (la page d'accueil), `SobreSuite/apps/` et `SobreSuite/Documents/`.
 - Pour ajouter une application : déposer `apps/<Nom>.html`, ajouter son entrée dans la table `APPS` de `index.html` et son icône dans `APP_PX` (le groupe `translate(352 20) scale(8)` de son logo), puis refaire `SobreSuite.zip`.
-- Pour ajouter un mode d'emploi : déposer `docs/<Nom>.html`, puis ajouter l'identifiant de l'application dans `MANUALS_READY` en tête du script de `index.html` (par exemple `['tex']`). Il s'ouvre alors depuis le dossier Document.
+- Pour ajouter un mode d'emploi : déposer le PDF dans `Documents/` sous le nom `<Nom>-mode-emploi.pdf` (casse exacte, par exemple `SobrePiX-mode-emploi.pdf`), puis ajouter l'identifiant de l'application dans `MANUALS_READY` en tête du script de `index.html` (par exemple `['tex','pix']`), et refaire `SobreSuite.zip`. Il s'ouvre alors depuis le dossier Document.
 
 ---
 
