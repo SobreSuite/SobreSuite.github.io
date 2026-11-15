@@ -72,7 +72,6 @@ svg.px,.px svg{shape-rendering:crispEdges}
 .dicon:focus,.app:focus{outline:none}
 .dicon svg,.app svg{width:64px;height:64px;display:block}
 .lab{margin-top:5px;padding:1px 5px;background:var(--paper);font-size:13px;line-height:15px;white-space:nowrap}
-.dicon.trash{margin-top:auto}
 .dicon[aria-selected="true"] svg,.app[aria-selected="true"] svg{filter:invert(1)}
 .dicon[aria-selected="true"] .lab,.app[aria-selected="true"] .lab{background:var(--ink);color:var(--paper)}
 .dicon:focus-visible .lab,.app:focus-visible .lab{outline:1px dotted var(--ink);outline-offset:1px}
@@ -90,8 +89,8 @@ svg.px,.px svg{shape-rendering:crispEdges}
 .ghost{position:absolute;z-index:4000;border:1px dotted var(--ink);outline:1px dotted var(--paper);pointer-events:none}
 .zoom{position:fixed;z-index:4000;border:1px dotted var(--ink);pointer-events:none}
 
-/* Fenêtre SobreSuite, façon Finder */
-#w-suite{width:600px}
+/* Dossiers Applications et Document, façon Finder */
+#w-apps,#w-docs{width:600px}
 .finfo{display:flex;font-size:12px;border-bottom:3px double var(--ink);flex:none}
 .finfo>span{flex:1;padding:3px 10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center}
 .finfo>span:first-child{text-align:left}
@@ -138,12 +137,6 @@ svg.px,.px svg{shape-rendering:crispEdges}
 .doc::-webkit-scrollbar-thumb,.apps::-webkit-scrollbar-thumb{background:var(--paper);border:1px solid var(--ink)}
 .doc,.apps{scrollbar-color:#000 #d4d4d4}
 
-/* Corbeille */
-#w-trash{width:300px}
-.trash-body{padding:26px 18px 22px;text-align:center;display:flex;flex-direction:column;gap:8px;align-items:center}
-.trash-body p{margin:0}
-.trash-body .small{font-size:12px;color:var(--mute);line-height:1.4}
-
 /* ---------- Dialogues ---------- */
 .ov{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(255,255,255,.35)}
 .dlg{background:var(--paper);border:2px solid var(--ink);box-shadow:3px 3px 0 var(--ink);outline:1px solid var(--ink);outline-offset:-6px;padding:16px 18px;max-width:100%;max-height:100%;overflow:auto;display:flex;flex-direction:column;gap:12px}
@@ -175,7 +168,7 @@ svg.px,.px svg{shape-rendering:crispEdges}
 .sp-name{margin:0;font-size:clamp(38px,9vw,60px);font-weight:600;line-height:1;color:var(--logo);letter-spacing:.01em}
 .sp-tag{margin:0;font-size:20px;color:var(--logo)}
 .sp-bar{width:min(340px,70vw);height:14px;border:1px solid var(--logo);padding:2px;background:var(--paper)}
-.sp-fill{height:100%;width:0;background:var(--logo);animation:spfill 5s steps(24,end) forwards}
+.sp-fill{height:100%;width:0;background:var(--logo);animation:spfill 3s steps(24,end) forwards}
 @keyframes spfill{to{width:100%}}
 .sp-go{border:0;background:transparent;font-family:var(--ui);font-size:13px;color:var(--mute);cursor:pointer;padding:4px 8px}
 .sp-go:hover,.sp-go:focus-visible{color:var(--ink);text-decoration:underline}
@@ -186,7 +179,6 @@ svg.px,.px svg{shape-rendering:crispEdges}
 @media (max-width:720px){
   #desk{overflow:auto;display:flex;flex-direction:column;gap:16px;padding:14px max(12px,env(safe-area-inset-right,0px)) 24px max(12px,env(safe-area-inset-left,0px))}
   .dicons{position:static;width:auto;flex-direction:row;justify-content:center;gap:10px;flex:none}
-  .dicon.trash{margin-top:0}
   .dicon svg{width:48px;height:48px}
   .win{position:relative;left:auto!important;top:auto!important;width:auto!important;max-width:none;flex:none;z-index:auto!important}
   .win:not(.active) .tb{background:repeating-linear-gradient(var(--ink) 0 1px,var(--paper) 1px 2px);background-clip:content-box;background-origin:content-box}
@@ -226,34 +218,30 @@ svg.px,.px svg{shape-rendering:crispEdges}
   <main id="desk">
 
     <div class="dicons" role="listbox" aria-label="Bureau">
-      <button class="dicon" type="button" role="option" aria-selected="false" data-open="w-suite" id="d-suite"><span class="ic" data-icon="disk"></span><span class="lab">SobreSuite</span></button>
+      <button class="dicon" type="button" role="option" aria-selected="false" data-open="w-apps" id="d-apps"><span class="ic" data-icon="folder"></span><span class="lab">Applications</span></button>
+      <button class="dicon" type="button" role="option" aria-selected="false" data-open="w-docs" id="d-docs"><span class="ic" data-icon="docs"></span><span class="lab">Document</span></button>
       <button class="dicon" type="button" role="option" aria-selected="false" data-act="download" id="d-dl"><span class="ic" data-icon="dl"></span><span class="lab">Télécharger</span></button>
       <button class="dicon" type="button" role="option" aria-selected="false" data-open="w-read" id="d-read"><span class="ic" data-icon="doc"></span><span class="lab">Lisez-moi</span></button>
-      <button class="dicon trash" type="button" role="option" aria-selected="false" data-open="w-trash" id="d-trash"><span class="ic" data-icon="trash"></span><span class="lab">Corbeille</span></button>
     </div>
 
-    <!-- Fenêtre SobreSuite -->
-    <section class="win" id="w-suite" aria-label="SobreSuite" hidden>
-      <div class="tb"><button class="wbox" type="button" data-close aria-label="Fermer la fenêtre SobreSuite"></button><span class="tb-title">SobreSuite</span></div>
+    <!-- Dossier Applications -->
+    <section class="win" id="w-apps" aria-label="Applications" hidden>
+      <div class="tb"><button class="wbox" type="button" data-close aria-label="Fermer le dossier Applications"></button><span class="tb-title">Applications</span></div>
       <div class="finfo" aria-hidden="true"><span id="fi-1"></span><span id="fi-2"></span><span id="fi-3">100 % hors ligne</span></div>
       <div class="apps" id="apps" role="listbox" aria-label="Applications de la SobreSuite"></div>
-      <div class="detail" id="detail" aria-live="polite"></div>
+    </section>
+
+    <!-- Dossier Document : les modes d'emploi -->
+    <section class="win" id="w-docs" aria-label="Document" hidden>
+      <div class="tb"><button class="wbox" type="button" data-close aria-label="Fermer le dossier Document"></button><span class="tb-title">Document</span></div>
+      <div class="finfo" aria-hidden="true"><span id="fd-1"></span><span id="fd-2"></span><span>Modes d’emploi</span></div>
+      <div class="apps" id="docs" role="listbox" aria-label="Modes d’emploi des applications"></div>
     </section>
 
     <!-- Lisez-moi -->
     <section class="win" id="w-read" aria-label="Lisez-moi" hidden>
       <div class="tb"><button class="wbox" type="button" data-close aria-label="Fermer Lisez-moi"></button><span class="tb-title">Lisez-moi</span></div>
       <article class="doc" id="doc" tabindex="0"></article>
-    </section>
-
-    <!-- Corbeille -->
-    <section class="win" id="w-trash" aria-label="Corbeille" hidden>
-      <div class="tb"><button class="wbox" type="button" data-close aria-label="Fermer la corbeille"></button><span class="tb-title">Corbeille</span></div>
-      <div class="finfo" aria-hidden="true"><span>0 élément</span><span></span><span>0 octet</span></div>
-      <div class="trash-body">
-        <p><strong>La corbeille est vide.</strong></p>
-        <p class="small">Ici, rien ne se perd : les applications de la SobreSuite ne modifient jamais vos fichiers d’origine. Elles enregistrent une copie.</p>
-      </div>
     </section>
 
   </main>
@@ -264,7 +252,7 @@ svg.px,.px svg{shape-rendering:crispEdges}
 'use strict';
 const $=(s,r=document)=>r.querySelector(s);
 const $$=(s,r=document)=>Array.from(r.querySelectorAll(s));
-const VERSION='0.3';
+const VERSION='0.5';
 const STORE='sobre-suite:v1';
 const IS_MAC=/Mac|iPhone|iPad/.test(navigator.platform||navigator.userAgent||'');
 const MOD=IS_MAC?'⌘':'Ctrl+';
@@ -349,126 +337,21 @@ function tri(ax,ay,bx,by,cx,cy){
     return !((d1<0||d2<0||d3<0)&&(d1>0||d2>0||d3>0));};
 }
 
+/* Icônes des applications : reprises telles quelles de l’icône de chaque logo
+   (le groupe translate(352 20) scale(8) de l’écran d’accueil de l’app). */
+const PX=inner=>'<svg class="px" viewBox="0 0 32 32" aria-hidden="true">'+inner+'</svg>';
+const APP_PX={
+  tex:'<path fill="#000000" d="M5 1h17v1h-17zM5 2h1v1h-1zM21 2h2v1h-2zM5 3h1v1h-1zM21 3h1v1h-1zM23 3h1v1h-1zM5 4h1v1h-1zM8 4h9v1h-9zM21 4h1v1h-1zM24 4h1v1h-1zM5 5h1v1h-1zM21 5h1v1h-1zM25 5h1v1h-1zM5 6h1v1h-1zM8 6h11v1h-11zM21 6h6v1h-6zM5 7h1v1h-1zM26 7h1v1h-1zM5 8h1v1h-1zM26 8h1v1h-1zM5 9h1v1h-1zM8 9h16v1h-16zM26 9h1v1h-1zM5 10h1v1h-1zM26 10h1v1h-1zM5 11h1v1h-1zM8 11h11v1h-11zM26 11h1v1h-1zM5 12h1v1h-1zM26 12h1v1h-1zM5 13h1v1h-1zM26 13h1v1h-1zM5 14h1v1h-1zM26 14h1v1h-1zM5 15h1v1h-1zM26 15h1v1h-1zM5 16h1v1h-1zM26 16h1v1h-1zM5 17h1v1h-1zM26 17h1v1h-1zM5 18h1v1h-1zM26 18h1v1h-1zM5 19h1v1h-1zM26 19h1v1h-1zM5 20h1v1h-1zM26 20h1v1h-1zM5 21h1v1h-1zM26 21h1v1h-1zM5 22h1v1h-1zM26 22h1v1h-1zM5 23h1v1h-1zM26 23h1v1h-1zM5 24h1v1h-1zM26 24h1v1h-1zM5 25h1v1h-1zM26 25h1v1h-1zM5 26h1v1h-1zM26 26h1v1h-1zM5 27h1v1h-1zM26 27h1v1h-1zM5 28h1v1h-1zM8 28h13v1h-13zM26 28h1v1h-1zM5 29h1v1h-1zM26 29h1v1h-1zM5 30h22v1h-22z"></path><path fill="#ffffff" d="M6 2h15v1h-15zM6 3h15v1h-15zM22 3h1v1h-1zM6 4h2v1h-2zM17 4h4v1h-4zM22 4h2v1h-2zM6 5h15v1h-15zM22 5h3v1h-3zM6 6h2v1h-2zM19 6h2v1h-2zM6 7h20v1h-20zM6 8h20v1h-20zM6 9h2v1h-2zM24 9h2v1h-2zM6 10h20v1h-20zM6 11h2v1h-2zM19 11h7v1h-7zM6 12h20v1h-20zM6 13h20v1h-20zM6 14h5v1h-5zM21 14h5v1h-5zM6 15h5v1h-5zM21 15h5v1h-5zM6 16h6v1h-6zM14 16h5v1h-5zM21 16h5v1h-5zM6 17h7v1h-7zM15 17h11v1h-11zM6 18h8v1h-8zM16 18h10v1h-10zM6 19h9v1h-9zM17 19h9v1h-9zM6 20h9v1h-9zM17 20h9v1h-9zM6 21h8v1h-8zM16 21h10v1h-10zM6 22h7v1h-7zM15 22h11v1h-11zM6 23h6v1h-6zM14 23h5v1h-5zM21 23h5v1h-5zM6 24h5v1h-5zM21 24h5v1h-5zM6 25h5v1h-5zM21 25h5v1h-5zM6 26h20v1h-20zM6 27h20v1h-20zM6 28h2v1h-2zM21 28h5v1h-5zM6 29h20v1h-20z"></path><path fill="#D7141A" d="M11 14h10v1h-10zM11 15h10v1h-10zM12 16h2v1h-2zM19 16h2v1h-2zM13 17h2v1h-2zM14 18h2v1h-2zM15 19h2v1h-2zM15 20h2v1h-2zM14 21h2v1h-2zM13 22h2v1h-2zM12 23h2v1h-2zM19 23h2v1h-2zM11 24h10v1h-10zM11 25h10v1h-10z"></path>',
+  pix:'<path fill="#000000" d="M2 5h28v1h-28zM2 6h1v1h-1zM29 6h1v1h-1zM2 7h1v1h-1zM4 7h24v1h-24zM29 7h1v1h-1zM2 8h1v1h-1zM4 8h1v1h-1zM27 8h1v1h-1zM29 8h1v1h-1zM2 9h1v1h-1zM4 9h1v1h-1zM19 9h6v1h-6zM27 9h1v1h-1zM29 9h1v1h-1zM2 10h1v1h-1zM4 10h1v1h-1zM11 10h3v1h-3zM19 10h1v1h-1zM24 10h1v1h-1zM27 10h1v1h-1zM29 10h1v1h-1zM2 11h1v1h-1zM4 11h1v1h-1zM10 11h2v1h-2zM13 11h2v1h-2zM18 11h2v1h-2zM24 11h2v1h-2zM27 11h1v1h-1zM29 11h1v1h-1zM2 12h1v1h-1zM4 12h1v1h-1zM10 12h1v1h-1zM14 12h1v1h-1zM18 12h1v1h-1zM25 12h1v1h-1zM27 12h1v1h-1zM29 12h1v1h-1zM2 13h1v1h-1zM4 13h1v1h-1zM9 13h2v1h-2zM14 13h2v1h-2zM18 13h2v1h-2zM24 13h2v1h-2zM27 13h1v1h-1zM29 13h1v1h-1zM2 14h1v1h-1zM4 14h1v1h-1zM8 14h2v1h-2zM15 14h2v1h-2zM19 14h3v1h-3zM24 14h1v1h-1zM27 14h1v1h-1zM29 14h1v1h-1zM2 15h1v1h-1zM4 15h1v1h-1zM7 15h2v1h-2zM16 15h4v1h-4zM21 15h4v1h-4zM27 15h1v1h-1zM29 15h1v1h-1zM2 16h1v1h-1zM4 16h1v1h-1zM6 16h2v1h-2zM17 16h2v1h-2zM22 16h3v1h-3zM27 16h1v1h-1zM29 16h1v1h-1zM2 17h1v1h-1zM4 17h1v1h-1zM6 17h1v1h-1zM18 17h1v1h-1zM24 17h2v1h-2zM27 17h1v1h-1zM29 17h1v1h-1zM2 18h1v1h-1zM4 18h3v1h-3zM18 18h2v1h-2zM25 18h3v1h-3zM29 18h1v1h-1zM2 19h1v1h-1zM4 19h2v1h-2zM19 19h2v1h-2zM26 19h2v1h-2zM29 19h1v1h-1zM2 20h1v1h-1zM4 20h1v1h-1zM20 20h2v1h-2zM27 20h1v1h-1zM29 20h1v1h-1zM2 21h1v1h-1zM4 21h1v1h-1zM21 21h1v1h-1zM27 21h1v1h-1zM29 21h1v1h-1zM2 22h1v1h-1zM4 22h1v1h-1zM21 22h2v1h-2zM27 22h1v1h-1zM29 22h1v1h-1zM2 23h1v1h-1zM4 23h1v1h-1zM22 23h1v1h-1zM27 23h1v1h-1zM29 23h1v1h-1zM2 24h1v1h-1zM4 24h24v1h-24zM29 24h1v1h-1zM2 25h1v1h-1zM29 25h1v1h-1zM2 26h28v1h-28z"></path><path fill="#ffffff" d="M3 6h26v1h-26zM3 7h1v1h-1zM28 7h1v1h-1zM3 8h1v1h-1zM5 8h1v1h-1zM7 8h1v1h-1zM9 8h1v1h-1zM11 8h1v1h-1zM13 8h1v1h-1zM15 8h1v1h-1zM17 8h1v1h-1zM19 8h1v1h-1zM21 8h1v1h-1zM23 8h1v1h-1zM25 8h1v1h-1zM28 8h1v1h-1zM3 9h1v1h-1zM6 9h1v1h-1zM8 9h1v1h-1zM10 9h1v1h-1zM12 9h1v1h-1zM14 9h1v1h-1zM16 9h1v1h-1zM18 9h1v1h-1zM26 9h1v1h-1zM28 9h1v1h-1zM3 10h1v1h-1zM5 10h1v1h-1zM7 10h1v1h-1zM9 10h1v1h-1zM15 10h1v1h-1zM17 10h1v1h-1zM25 10h1v1h-1zM28 10h1v1h-1zM3 11h1v1h-1zM6 11h1v1h-1zM8 11h1v1h-1zM12 11h1v1h-1zM16 11h1v1h-1zM26 11h1v1h-1zM28 11h1v1h-1zM3 12h1v1h-1zM5 12h1v1h-1zM7 12h1v1h-1zM9 12h1v1h-1zM11 12h3v1h-3zM15 12h1v1h-1zM17 12h1v1h-1zM28 12h1v1h-1zM3 13h1v1h-1zM6 13h1v1h-1zM8 13h1v1h-1zM11 13h3v1h-3zM16 13h1v1h-1zM26 13h1v1h-1zM28 13h1v1h-1zM3 14h1v1h-1zM5 14h1v1h-1zM7 14h1v1h-1zM17 14h1v1h-1zM25 14h1v1h-1zM28 14h1v1h-1zM3 15h1v1h-1zM6 15h1v1h-1zM26 15h1v1h-1zM28 15h1v1h-1zM3 16h1v1h-1zM5 16h1v1h-1zM25 16h1v1h-1zM28 16h1v1h-1zM3 17h1v1h-1zM26 17h1v1h-1zM28 17h1v1h-1zM3 18h1v1h-1zM28 18h1v1h-1zM3 19h1v1h-1zM28 19h1v1h-1zM3 20h1v1h-1zM28 20h1v1h-1zM3 21h1v1h-1zM28 21h1v1h-1zM3 22h1v1h-1zM28 22h1v1h-1zM3 23h1v1h-1zM28 23h1v1h-1zM3 24h1v1h-1zM28 24h1v1h-1zM3 25h26v1h-26z"></path><path fill="#d4d4d4" d="M6 8h1v1h-1zM8 8h1v1h-1zM10 8h1v1h-1zM12 8h1v1h-1zM14 8h1v1h-1zM16 8h1v1h-1zM18 8h1v1h-1zM20 8h1v1h-1zM22 8h1v1h-1zM24 8h1v1h-1zM26 8h1v1h-1zM5 9h1v1h-1zM7 9h1v1h-1zM9 9h1v1h-1zM11 9h1v1h-1zM13 9h1v1h-1zM15 9h1v1h-1zM17 9h1v1h-1zM25 9h1v1h-1zM6 10h1v1h-1zM8 10h1v1h-1zM10 10h1v1h-1zM14 10h1v1h-1zM16 10h1v1h-1zM18 10h1v1h-1zM26 10h1v1h-1zM5 11h1v1h-1zM7 11h1v1h-1zM9 11h1v1h-1zM15 11h1v1h-1zM17 11h1v1h-1zM6 12h1v1h-1zM8 12h1v1h-1zM16 12h1v1h-1zM26 12h1v1h-1zM5 13h1v1h-1zM7 13h1v1h-1zM17 13h1v1h-1zM6 14h1v1h-1zM18 14h1v1h-1zM26 14h1v1h-1zM5 15h1v1h-1zM25 15h1v1h-1zM26 16h1v1h-1zM5 17h1v1h-1z"></path><path fill="#FFE500" d="M20 10h4v1h-4zM20 11h4v1h-4zM19 12h6v1h-6zM20 13h4v1h-4zM22 14h2v1h-2z"></path><path fill="#128A2E" d="M10 14h5v1h-5zM9 15h7v1h-7zM20 15h1v1h-1zM8 16h9v1h-9zM19 16h3v1h-3zM7 17h11v1h-11zM19 17h5v1h-5zM7 18h11v1h-11zM20 18h5v1h-5zM6 19h13v1h-13zM21 19h5v1h-5zM5 20h15v1h-15zM22 20h5v1h-5zM5 21h16v1h-16zM22 21h5v1h-5zM5 22h16v1h-16zM23 22h4v1h-4zM5 23h17v1h-17zM23 23h4v1h-4z"></path>',
+  pdf:'<path fill="#000000" d="M10 1h18v1h-18zM10 2h1v1h-1zM27 2h1v1h-1zM10 3h1v1h-1zM27 3h1v1h-1zM10 4h1v1h-1zM13 4h10v1h-10zM27 4h1v1h-1zM10 5h1v1h-1zM27 5h1v1h-1zM4 6h19v1h-19zM27 6h1v1h-1zM4 7h1v1h-1zM22 7h1v1h-1zM27 7h1v1h-1zM4 8h1v1h-1zM22 8h1v1h-1zM27 8h1v1h-1zM4 9h1v1h-1zM22 9h1v1h-1zM27 9h1v1h-1zM4 10h1v1h-1zM22 10h1v1h-1zM27 10h1v1h-1zM4 11h1v1h-1zM22 11h1v1h-1zM27 11h1v1h-1zM4 12h1v1h-1zM22 12h1v1h-1zM27 12h1v1h-1zM4 13h1v1h-1zM22 13h1v1h-1zM27 13h1v1h-1zM4 14h1v1h-1zM22 14h1v1h-1zM27 14h1v1h-1zM4 15h1v1h-1zM22 15h1v1h-1zM27 15h1v1h-1zM4 16h1v1h-1zM22 16h1v1h-1zM27 16h1v1h-1zM4 17h1v1h-1zM22 17h1v1h-1zM27 17h1v1h-1zM4 18h1v1h-1zM22 18h1v1h-1zM27 18h1v1h-1zM4 19h1v1h-1zM22 19h1v1h-1zM27 19h1v1h-1zM4 20h1v1h-1zM7 20h13v1h-13zM22 20h1v1h-1zM27 20h1v1h-1zM4 21h1v1h-1zM22 21h1v1h-1zM27 21h1v1h-1zM4 22h1v1h-1zM7 22h9v1h-9zM22 22h1v1h-1zM27 22h1v1h-1zM4 23h1v1h-1zM22 23h6v1h-6zM4 24h1v1h-1zM22 24h1v1h-1zM4 25h1v1h-1zM22 25h1v1h-1zM4 26h1v1h-1zM22 26h1v1h-1zM4 27h1v1h-1zM22 27h1v1h-1zM4 28h1v1h-1zM22 28h1v1h-1zM4 29h1v1h-1zM22 29h1v1h-1zM4 30h19v1h-19z"></path><path fill="#ffffff" d="M11 2h16v1h-16zM11 3h16v1h-16zM11 4h2v1h-2zM23 4h4v1h-4zM11 5h16v1h-16zM23 6h4v1h-4zM5 7h17v1h-17zM23 7h4v1h-4zM5 8h17v1h-17zM23 8h4v1h-4zM5 9h17v1h-17zM23 9h4v1h-4zM5 10h17v1h-17zM23 10h4v1h-4zM23 11h4v1h-4zM8 12h3v1h-3zM12 12h2v1h-2zM16 12h3v1h-3zM23 12h4v1h-4zM8 13h1v1h-1zM10 13h1v1h-1zM12 13h1v1h-1zM14 13h1v1h-1zM16 13h1v1h-1zM23 13h4v1h-4zM8 14h3v1h-3zM12 14h1v1h-1zM14 14h1v1h-1zM16 14h2v1h-2zM23 14h4v1h-4zM8 15h1v1h-1zM12 15h1v1h-1zM14 15h1v1h-1zM16 15h1v1h-1zM23 15h4v1h-4zM8 16h1v1h-1zM12 16h2v1h-2zM16 16h1v1h-1zM23 16h4v1h-4zM23 17h4v1h-4zM5 18h17v1h-17zM23 18h4v1h-4zM5 19h17v1h-17zM23 19h4v1h-4zM5 20h2v1h-2zM20 20h2v1h-2zM23 20h4v1h-4zM5 21h17v1h-17zM23 21h4v1h-4zM5 22h2v1h-2zM16 22h6v1h-6zM23 22h4v1h-4zM5 23h17v1h-17zM5 24h17v1h-17zM5 25h4v1h-4zM11 25h3v1h-3zM15 25h4v1h-4zM20 25h2v1h-2zM5 26h3v1h-3zM9 26h2v1h-2zM12 26h1v1h-1zM14 26h1v1h-1zM16 26h1v1h-1zM19 26h3v1h-3zM5 27h2v1h-2zM8 27h3v1h-3zM13 27h3v1h-3zM17 27h5v1h-5zM5 28h17v1h-17zM5 29h17v1h-17z"></path><path fill="#D7141A" d="M5 11h17v1h-17zM5 12h3v1h-3zM11 12h1v1h-1zM14 12h2v1h-2zM19 12h3v1h-3zM5 13h3v1h-3zM9 13h1v1h-1zM11 13h1v1h-1zM13 13h1v1h-1zM15 13h1v1h-1zM17 13h5v1h-5zM5 14h3v1h-3zM11 14h1v1h-1zM13 14h1v1h-1zM15 14h1v1h-1zM18 14h4v1h-4zM5 15h3v1h-3zM9 15h3v1h-3zM13 15h1v1h-1zM15 15h1v1h-1zM17 15h5v1h-5zM5 16h3v1h-3zM9 16h3v1h-3zM14 16h2v1h-2zM17 16h5v1h-5zM5 17h17v1h-17z"></path><path fill="#1F3FD1" d="M9 25h2v1h-2zM14 25h1v1h-1zM19 25h1v1h-1zM8 26h1v1h-1zM11 26h1v1h-1zM13 26h1v1h-1zM15 26h1v1h-1zM17 26h2v1h-2zM7 27h1v1h-1zM11 27h2v1h-2zM16 27h1v1h-1z"></path>',
+  dta:'<path fill="#000000" d="M1 1h24v1h-24zM1 2h1v1h-1zM7 2h1v1h-1zM13 2h1v1h-1zM19 2h1v1h-1zM24 2h1v1h-1zM1 3h1v1h-1zM7 3h1v1h-1zM13 3h1v1h-1zM19 3h1v1h-1zM24 3h1v1h-1zM1 4h1v1h-1zM7 4h1v1h-1zM13 4h1v1h-1zM19 4h1v1h-1zM24 4h1v1h-1zM1 5h1v1h-1zM7 5h1v1h-1zM13 5h1v1h-1zM19 5h1v1h-1zM24 5h1v1h-1zM1 6h6v1h-6zM8 6h5v1h-5zM14 6h5v1h-5zM20 6h5v1h-5zM1 7h1v1h-1zM24 7h1v1h-1zM1 8h1v1h-1zM24 8h1v1h-1zM1 9h1v1h-1zM24 9h1v1h-1zM1 10h1v1h-1zM7 10h7v1h-7zM24 10h1v1h-1zM1 11h1v1h-1zM7 11h1v1h-1zM13 11h1v1h-1zM24 11h1v1h-1zM1 12h1v1h-1zM7 12h1v1h-1zM11 12h20v1h-20zM1 13h1v1h-1zM7 13h1v1h-1zM11 13h1v1h-1zM30 13h2v1h-2zM1 14h1v1h-1zM7 14h5v1h-5zM13 14h1v1h-1zM30 14h2v1h-2zM1 15h1v1h-1zM11 15h1v1h-1zM13 15h1v1h-1zM25 15h4v1h-4zM30 15h2v1h-2zM1 16h1v1h-1zM11 16h1v1h-1zM13 16h1v1h-1zM25 16h1v1h-1zM28 16h1v1h-1zM30 16h2v1h-2zM1 17h1v1h-1zM11 17h1v1h-1zM13 17h1v1h-1zM25 17h1v1h-1zM28 17h1v1h-1zM30 17h2v1h-2zM1 18h1v1h-1zM11 18h1v1h-1zM13 18h1v1h-1zM20 18h4v1h-4zM25 18h1v1h-1zM28 18h1v1h-1zM30 18h2v1h-2zM1 19h1v1h-1zM11 19h1v1h-1zM13 19h1v1h-1zM20 19h1v1h-1zM23 19h1v1h-1zM25 19h1v1h-1zM28 19h1v1h-1zM30 19h2v1h-2zM1 20h1v1h-1zM11 20h1v1h-1zM13 20h1v1h-1zM20 20h1v1h-1zM23 20h1v1h-1zM25 20h1v1h-1zM28 20h1v1h-1zM30 20h2v1h-2zM1 21h1v1h-1zM11 21h1v1h-1zM13 21h1v1h-1zM20 21h1v1h-1zM23 21h1v1h-1zM25 21h1v1h-1zM28 21h1v1h-1zM30 21h2v1h-2zM1 22h1v1h-1zM11 22h1v1h-1zM13 22h1v1h-1zM15 22h4v1h-4zM20 22h1v1h-1zM23 22h1v1h-1zM25 22h1v1h-1zM28 22h1v1h-1zM30 22h2v1h-2zM1 23h1v1h-1zM11 23h1v1h-1zM13 23h1v1h-1zM15 23h1v1h-1zM18 23h1v1h-1zM20 23h1v1h-1zM23 23h1v1h-1zM25 23h1v1h-1zM28 23h1v1h-1zM30 23h2v1h-2zM1 24h1v1h-1zM11 24h1v1h-1zM13 24h1v1h-1zM15 24h1v1h-1zM18 24h1v1h-1zM20 24h1v1h-1zM23 24h1v1h-1zM25 24h1v1h-1zM28 24h1v1h-1zM30 24h2v1h-2zM1 25h11v1h-11zM13 25h1v1h-1zM15 25h1v1h-1zM18 25h1v1h-1zM20 25h1v1h-1zM23 25h1v1h-1zM25 25h1v1h-1zM28 25h1v1h-1zM30 25h2v1h-2zM11 26h1v1h-1zM13 26h1v1h-1zM15 26h1v1h-1zM18 26h1v1h-1zM20 26h1v1h-1zM23 26h1v1h-1zM25 26h1v1h-1zM28 26h1v1h-1zM30 26h2v1h-2zM11 27h1v1h-1zM13 27h1v1h-1zM15 27h4v1h-4zM20 27h4v1h-4zM25 27h4v1h-4zM30 27h2v1h-2zM11 28h1v1h-1zM13 28h16v1h-16zM30 28h2v1h-2zM11 29h1v1h-1zM30 29h2v1h-2zM11 30h21v1h-21zM12 31h20v1h-20z"/><path fill="#ffffff" d="M2 7h5v1h-5zM8 7h5v1h-5zM14 7h5v1h-5zM20 7h4v1h-4zM2 8h5v1h-5zM8 8h5v1h-5zM14 8h5v1h-5zM20 8h4v1h-4zM2 9h5v1h-5zM8 9h5v1h-5zM14 9h5v1h-5zM20 9h4v1h-4zM2 11h5v1h-5zM14 11h5v1h-5zM20 11h4v1h-4zM2 12h5v1h-5zM2 13h5v1h-5zM12 13h18v1h-18zM12 14h1v1h-1zM14 14h16v1h-16zM2 15h5v1h-5zM8 15h3v1h-3zM12 15h1v1h-1zM14 15h11v1h-11zM29 15h1v1h-1zM2 16h5v1h-5zM8 16h3v1h-3zM12 16h1v1h-1zM14 16h11v1h-11zM29 16h1v1h-1zM2 17h5v1h-5zM8 17h3v1h-3zM12 17h1v1h-1zM14 17h11v1h-11zM29 17h1v1h-1zM12 18h1v1h-1zM14 18h6v1h-6zM24 18h1v1h-1zM29 18h1v1h-1zM2 19h5v1h-5zM8 19h3v1h-3zM12 19h1v1h-1zM14 19h6v1h-6zM24 19h1v1h-1zM29 19h1v1h-1zM2 20h5v1h-5zM8 20h3v1h-3zM12 20h1v1h-1zM14 20h6v1h-6zM24 20h1v1h-1zM29 20h1v1h-1zM2 21h5v1h-5zM8 21h3v1h-3zM12 21h1v1h-1zM14 21h6v1h-6zM24 21h1v1h-1zM29 21h1v1h-1zM12 22h1v1h-1zM14 22h1v1h-1zM19 22h1v1h-1zM24 22h1v1h-1zM29 22h1v1h-1zM2 23h5v1h-5zM8 23h3v1h-3zM12 23h1v1h-1zM14 23h1v1h-1zM19 23h1v1h-1zM24 23h1v1h-1zM29 23h1v1h-1zM2 24h5v1h-5zM8 24h3v1h-3zM12 24h1v1h-1zM14 24h1v1h-1zM19 24h1v1h-1zM24 24h1v1h-1zM29 24h1v1h-1zM12 25h1v1h-1zM14 25h1v1h-1zM19 25h1v1h-1zM24 25h1v1h-1zM29 25h1v1h-1zM12 26h1v1h-1zM14 26h1v1h-1zM19 26h1v1h-1zM24 26h1v1h-1zM29 26h1v1h-1zM12 27h1v1h-1zM14 27h1v1h-1zM19 27h1v1h-1zM24 27h1v1h-1zM29 27h1v1h-1zM12 28h1v1h-1zM29 28h1v1h-1zM12 29h18v1h-18z"/><path fill="#d4d4d4" d="M7 6h1v1h-1zM13 6h1v1h-1zM19 6h1v1h-1zM7 7h1v1h-1zM13 7h1v1h-1zM19 7h1v1h-1zM7 8h1v1h-1zM13 8h1v1h-1zM19 8h1v1h-1zM7 9h1v1h-1zM13 9h1v1h-1zM19 9h1v1h-1zM2 10h5v1h-5zM14 10h10v1h-10zM19 11h1v1h-1zM2 14h5v1h-5zM7 15h1v1h-1zM7 16h1v1h-1zM7 17h1v1h-1zM2 18h9v1h-9zM7 19h1v1h-1zM7 20h1v1h-1zM7 21h1v1h-1zM2 22h9v1h-9zM7 23h1v1h-1zM7 24h1v1h-1z"/><path fill="#128A2E" d="M2 2h5v1h-5zM8 2h5v1h-5zM14 2h5v1h-5zM20 2h4v1h-4zM2 3h5v1h-5zM8 3h5v1h-5zM14 3h5v1h-5zM20 3h4v1h-4zM2 4h5v1h-5zM8 4h5v1h-5zM14 4h5v1h-5zM20 4h4v1h-4zM2 5h5v1h-5zM8 5h5v1h-5zM14 5h5v1h-5zM20 5h4v1h-4z"/><path fill="#FFE500" d="M8 11h5v1h-5zM8 12h3v1h-3zM8 13h3v1h-3zM26 16h2v1h-2zM26 17h2v1h-2zM26 18h2v1h-2zM26 19h2v1h-2zM26 20h2v1h-2zM26 21h2v1h-2zM26 22h2v1h-2zM26 23h2v1h-2zM26 24h2v1h-2zM26 25h2v1h-2zM26 26h2v1h-2z"/><path fill="#D7141A" d="M16 23h2v1h-2zM16 24h2v1h-2zM16 25h2v1h-2zM16 26h2v1h-2z"/><path fill="#1F3FD1" d="M21 19h2v1h-2zM21 20h2v1h-2zM21 21h2v1h-2zM21 22h2v1h-2zM21 23h2v1h-2zM21 24h2v1h-2zM21 25h2v1h-2zM21 26h2v1h-2z"/>',
+  gen:'<path fill="#000000" d="M22 1h10v1h-10zM22 2h1v1h-1zM31 2h1v1h-1zM21 3h2v1h-2zM26 3h4v1h-4zM31 3h1v1h-1zM21 4h2v1h-2zM31 4h1v1h-1zM11 5h9v1h-9zM21 5h11v1h-11zM11 6h1v1h-1zM19 6h1v1h-1zM21 6h1v1h-1zM10 7h2v1h-2zM15 7h3v1h-3zM19 7h3v1h-3zM10 8h2v1h-2zM19 8h1v1h-1zM21 8h1v1h-1zM10 9h10v1h-10zM21 9h11v1h-11zM10 10h1v1h-1zM21 10h2v1h-2zM31 10h1v1h-1zM10 11h1v1h-1zM21 11h2v1h-2zM26 11h4v1h-4zM31 11h1v1h-1zM0 12h9v1h-9zM10 12h1v1h-1zM22 12h1v1h-1zM31 12h1v1h-1zM0 13h1v1h-1zM8 13h1v1h-1zM10 13h1v1h-1zM22 13h10v1h-10zM0 14h1v1h-1zM8 14h1v1h-1zM10 14h1v1h-1zM0 15h1v1h-1zM8 15h3v1h-3zM0 16h1v1h-1zM4 16h3v1h-3zM8 16h1v1h-1zM10 16h1v1h-1zM0 17h1v1h-1zM8 17h1v1h-1zM10 17h1v1h-1zM0 18h1v1h-1zM8 18h1v1h-1zM10 18h1v1h-1zM22 18h10v1h-10zM0 19h9v1h-9zM10 19h1v1h-1zM22 19h1v1h-1zM31 19h1v1h-1zM10 20h1v1h-1zM21 20h2v1h-2zM26 20h4v1h-4zM31 20h1v1h-1zM10 21h1v1h-1zM21 21h2v1h-2zM31 21h1v1h-1zM10 22h10v1h-10zM21 22h11v1h-11zM10 23h2v1h-2zM19 23h1v1h-1zM21 23h1v1h-1zM10 24h2v1h-2zM15 24h3v1h-3zM19 24h3v1h-3zM11 25h1v1h-1zM19 25h1v1h-1zM21 25h1v1h-1zM11 26h9v1h-9zM21 26h11v1h-11zM21 27h2v1h-2zM31 27h1v1h-1zM21 28h2v1h-2zM26 28h4v1h-4zM31 28h1v1h-1zM22 29h1v1h-1zM31 29h1v1h-1zM22 30h10v1h-10z"/><path fill="#128A2E" d="M23 2h2v1h-2zM23 3h2v1h-2zM23 4h2v1h-2zM12 6h2v1h-2zM12 7h2v1h-2zM12 8h2v1h-2zM1 13h2v1h-2zM1 14h2v1h-2zM1 15h2v1h-2zM1 16h2v1h-2zM1 17h2v1h-2zM1 18h2v1h-2z"/><path fill="#ffffff" d="M25 2h6v1h-6zM25 3h1v1h-1zM30 3h1v1h-1zM25 4h6v1h-6zM14 6h5v1h-5zM14 7h1v1h-1zM18 7h1v1h-1zM14 8h5v1h-5zM25 10h6v1h-6zM25 11h1v1h-1zM30 11h1v1h-1zM25 12h6v1h-6zM3 13h5v1h-5zM3 14h5v1h-5zM3 15h5v1h-5zM3 16h1v1h-1zM7 16h1v1h-1zM3 17h5v1h-5zM3 18h5v1h-5zM25 19h6v1h-6zM25 20h1v1h-1zM30 20h1v1h-1zM25 21h6v1h-6zM14 23h5v1h-5zM14 24h1v1h-1zM18 24h1v1h-1zM14 25h5v1h-5zM25 27h6v1h-6zM25 28h1v1h-1zM30 28h1v1h-1zM25 29h6v1h-6z"/><path fill="#B85400" d="M23 10h2v1h-2zM23 11h2v1h-2zM23 12h2v1h-2zM12 23h2v1h-2zM12 24h2v1h-2zM12 25h2v1h-2z"/><path fill="#9A9A9A" d="M23 19h2v1h-2zM23 20h2v1h-2zM23 21h2v1h-2z"/><path fill="#D7141A" d="M23 27h2v1h-2zM23 28h2v1h-2zM23 29h2v1h-2z"/>',
+  zik:'<path fill="#000000" d="M14 0h4v1h-4zM10 1h4v1h-4zM18 1h4v1h-4zM8 2h2v1h-2zM22 2h2v1h-2zM7 3h1v1h-1zM24 3h1v1h-1zM5 4h2v1h-2zM25 4h2v1h-2zM4 5h2v1h-2zM26 5h2v1h-2zM4 6h1v1h-1zM27 6h1v1h-1zM3 7h1v1h-1zM28 7h1v1h-1zM2 8h1v1h-1zM29 8h1v1h-1zM2 9h1v1h-1zM29 9h1v1h-1zM1 10h1v1h-1zM13 10h6v1h-6zM30 10h1v1h-1zM1 11h1v1h-1zM12 11h1v1h-1zM19 11h1v1h-1zM30 11h1v1h-1zM1 12h1v1h-1zM11 12h1v1h-1zM20 12h1v1h-1zM30 12h1v1h-1zM1 13h1v1h-1zM10 13h1v1h-1zM14 13h4v1h-4zM21 13h1v1h-1zM30 13h1v1h-1zM0 14h1v1h-1zM10 14h1v1h-1zM13 14h1v1h-1zM18 14h1v1h-1zM21 14h1v1h-1zM31 14h1v1h-1zM0 15h1v1h-1zM10 15h1v1h-1zM13 15h1v1h-1zM18 15h1v1h-1zM21 15h1v1h-1zM31 15h1v1h-1zM0 16h1v1h-1zM10 16h1v1h-1zM13 16h1v1h-1zM18 16h1v1h-1zM21 16h1v1h-1zM31 16h1v1h-1zM0 17h1v1h-1zM10 17h1v1h-1zM13 17h1v1h-1zM18 17h1v1h-1zM21 17h1v1h-1zM31 17h1v1h-1zM1 18h1v1h-1zM10 18h1v1h-1zM14 18h4v1h-4zM21 18h1v1h-1zM30 18h1v1h-1zM1 19h1v1h-1zM11 19h1v1h-1zM20 19h1v1h-1zM30 19h1v1h-1zM1 20h1v1h-1zM12 20h1v1h-1zM19 20h1v1h-1zM30 20h1v1h-1zM1 21h1v1h-1zM13 21h6v1h-6zM30 21h1v1h-1zM2 22h1v1h-1zM29 22h1v1h-1zM2 23h1v1h-1zM29 23h1v1h-1zM3 24h1v1h-1zM28 24h1v1h-1zM4 25h1v1h-1zM27 25h1v1h-1zM4 26h2v1h-2zM26 26h2v1h-2zM5 27h2v1h-2zM25 27h2v1h-2zM7 28h1v1h-1zM24 28h1v1h-1zM8 29h2v1h-2zM22 29h2v1h-2zM10 30h4v1h-4zM18 30h4v1h-4zM14 31h4v1h-4z"/><path fill="#ffffff" d="M14 1h4v1h-4zM10 2h12v1h-12zM8 3h16v1h-16zM7 4h2v1h-2zM11 4h14v1h-14zM6 5h1v1h-1zM12 5h14v1h-14zM5 6h1v1h-1zM12 6h15v1h-15zM4 7h1v1h-1zM13 7h15v1h-15zM3 8h2v1h-2zM13 8h16v1h-16zM3 9h1v1h-1zM12 9h17v1h-17zM2 10h2v1h-2zM11 10h2v1h-2zM19 10h11v1h-11zM2 11h3v1h-3zM10 11h2v1h-2zM20 11h10v1h-10zM2 12h5v1h-5zM9 12h2v1h-2zM21 12h9v1h-9zM2 13h8v1h-8zM22 13h8v1h-8zM1 14h9v1h-9zM22 14h9v1h-9zM1 15h9v1h-9zM22 15h9v1h-9zM1 16h9v1h-9zM22 16h9v1h-9zM1 17h9v1h-9zM22 17h9v1h-9zM2 18h8v1h-8zM22 18h8v1h-8zM2 19h9v1h-9zM21 19h2v1h-2zM25 19h5v1h-5zM2 20h10v1h-10zM20 20h2v1h-2zM27 20h3v1h-3zM2 21h11v1h-11zM19 21h2v1h-2zM28 21h2v1h-2zM3 22h17v1h-17zM28 22h1v1h-1zM3 23h16v1h-16zM27 23h2v1h-2zM4 24h15v1h-15zM27 24h1v1h-1zM5 25h15v1h-15zM26 25h1v1h-1zM6 26h14v1h-14zM25 26h1v1h-1zM7 27h14v1h-14zM23 27h2v1h-2zM8 28h16v1h-16zM10 29h12v1h-12zM14 30h4v1h-4z"/><path fill="#D7141A" d="M9 4h2v1h-2zM7 5h2v1h-2zM6 6h2v1h-2zM5 7h2v1h-2zM5 8h1v1h-1zM4 9h1v1h-1zM4 10h1v1h-1zM27 21h1v1h-1zM27 22h1v1h-1zM26 23h1v1h-1zM25 24h2v1h-2zM24 25h2v1h-2zM23 26h2v1h-2zM21 27h2v1h-2z"/><path fill="#B85400" d="M9 5h2v1h-2zM8 6h1v1h-1zM7 7h1v1h-1zM6 8h1v1h-1zM5 9h1v1h-1zM5 10h1v1h-1zM26 21h1v1h-1zM26 22h1v1h-1zM25 23h1v1h-1zM24 24h1v1h-1zM23 25h1v1h-1zM21 26h2v1h-2z"/><path fill="#FFE500" d="M11 5h1v1h-1zM9 6h2v1h-2zM8 7h2v1h-2zM7 8h2v1h-2zM6 9h2v1h-2zM6 10h1v1h-1zM5 11h1v1h-1zM26 20h1v1h-1zM25 21h1v1h-1zM24 22h2v1h-2zM23 23h2v1h-2zM22 24h2v1h-2zM21 25h2v1h-2zM20 26h1v1h-1z"/><path fill="#128A2E" d="M11 6h1v1h-1zM10 7h2v1h-2zM9 8h1v1h-1zM8 9h1v1h-1zM7 10h1v1h-1zM6 11h2v1h-2zM24 20h2v1h-2zM24 21h1v1h-1zM23 22h1v1h-1zM22 23h1v1h-1zM20 24h2v1h-2zM20 25h1v1h-1z"/><path fill="#1F3FD1" d="M12 7h1v1h-1zM10 8h2v1h-2zM9 9h1v1h-1zM8 10h1v1h-1zM8 11h1v1h-1zM7 12h1v1h-1zM24 19h1v1h-1zM23 20h1v1h-1zM23 21h1v1h-1zM22 22h1v1h-1zM20 23h2v1h-2zM19 24h1v1h-1z"/><path fill="#7A1FB8" d="M12 8h1v1h-1zM10 9h2v1h-2zM9 10h2v1h-2zM9 11h1v1h-1zM8 12h1v1h-1zM23 19h1v1h-1zM22 20h1v1h-1zM21 21h2v1h-2zM20 22h2v1h-2zM19 23h1v1h-1z"/><path fill="#d4d4d4" d="M13 11h6v1h-6zM12 12h8v1h-8zM11 13h3v1h-3zM18 13h3v1h-3zM11 14h2v1h-2zM19 14h2v1h-2zM11 15h2v1h-2zM19 15h2v1h-2zM11 16h2v1h-2zM19 16h2v1h-2zM11 17h2v1h-2zM19 17h2v1h-2zM11 18h3v1h-3zM18 18h3v1h-3zM12 19h8v1h-8zM13 20h6v1h-6z"/>',
+  vox:'<path fill="#000000" d="M11 1h10v1h-10zM10 2h1v1h-1zM21 2h1v1h-1zM9 3h1v1h-1zM11 3h10v1h-10zM22 3h1v1h-1zM9 4h1v1h-1zM22 4h1v1h-1zM9 5h1v1h-1zM11 5h10v1h-10zM22 5h1v1h-1zM9 6h1v1h-1zM22 6h1v1h-1zM9 7h1v1h-1zM11 7h10v1h-10zM22 7h1v1h-1zM9 8h1v1h-1zM22 8h1v1h-1zM9 9h1v1h-1zM22 9h1v1h-1zM9 10h1v1h-1zM11 10h10v1h-10zM22 10h1v1h-1zM9 11h1v1h-1zM22 11h1v1h-1zM9 12h1v1h-1zM11 12h10v1h-10zM22 12h1v1h-1zM9 13h1v1h-1zM22 13h1v1h-1zM7 14h1v1h-1zM9 14h1v1h-1zM11 14h10v1h-10zM22 14h1v1h-1zM24 14h1v1h-1zM7 15h1v1h-1zM9 15h1v1h-1zM22 15h1v1h-1zM24 15h1v1h-1zM7 16h1v1h-1zM10 16h1v1h-1zM21 16h1v1h-1zM24 16h1v1h-1zM7 17h1v1h-1zM11 17h10v1h-10zM24 17h1v1h-1zM7 18h2v1h-2zM23 18h2v1h-2zM8 19h2v1h-2zM22 19h2v1h-2zM9 20h3v1h-3zM20 20h3v1h-3zM11 21h10v1h-10zM14 22h1v1h-1zM17 22h1v1h-1zM14 23h1v1h-1zM17 23h1v1h-1zM14 24h1v1h-1zM17 24h1v1h-1zM14 25h1v1h-1zM17 25h1v1h-1zM14 26h1v1h-1zM17 26h1v1h-1zM10 27h12v1h-12zM9 28h1v1h-1zM22 28h1v1h-1zM8 29h16v1h-16z"/><path fill="#ffffff" d="M11 2h10v1h-10zM10 3h1v1h-1zM21 3h1v1h-1zM10 4h12v1h-12zM10 5h1v1h-1zM21 5h1v1h-1zM10 6h12v1h-12zM10 7h1v1h-1zM21 7h1v1h-1zM10 10h1v1h-1zM21 10h1v1h-1zM10 11h12v1h-12zM10 12h1v1h-1zM21 12h1v1h-1zM10 13h12v1h-12zM10 14h1v1h-1zM21 14h1v1h-1zM10 15h12v1h-12zM11 16h10v1h-10z"/><path fill="#d4d4d4" d="M15 22h2v1h-2zM15 23h2v1h-2zM15 24h2v1h-2zM15 25h2v1h-2zM15 26h2v1h-2zM10 28h12v1h-12z"/><path fill="#D7141A" d="M10 8h12v1h-12zM10 9h12v1h-12z"/><path fill="#1F3FD1" d="M3 4h1v1h-1zM28 4h1v1h-1zM2 5h1v1h-1zM5 5h1v1h-1zM26 5h1v1h-1zM29 5h1v1h-1zM1 6h1v1h-1zM4 6h1v1h-1zM27 6h1v1h-1zM30 6h1v1h-1zM1 7h1v1h-1zM4 7h1v1h-1zM27 7h1v1h-1zM30 7h1v1h-1zM1 8h1v1h-1zM4 8h1v1h-1zM27 8h1v1h-1zM30 8h1v1h-1zM1 9h1v1h-1zM4 9h1v1h-1zM27 9h1v1h-1zM30 9h1v1h-1zM1 10h1v1h-1zM4 10h1v1h-1zM27 10h1v1h-1zM30 10h1v1h-1zM1 11h1v1h-1zM4 11h1v1h-1zM27 11h1v1h-1zM30 11h1v1h-1zM2 12h1v1h-1zM5 12h1v1h-1zM26 12h1v1h-1zM29 12h1v1h-1zM3 13h1v1h-1zM28 13h1v1h-1z"/>',
+  bit:'<path fill="#000000" d="M3 2h26v1h-26zM1 3h2v1h-2zM29 3h2v1h-2zM1 4h1v1h-1zM30 4h1v1h-1zM1 5h1v1h-1zM4 5h3v1h-3zM10 5h3v1h-3zM30 5h1v1h-1zM1 6h1v1h-1zM3 6h1v1h-1zM7 6h1v1h-1zM9 6h1v1h-1zM13 6h1v1h-1zM30 6h1v1h-1zM1 7h1v1h-1zM3 7h1v1h-1zM7 7h1v1h-1zM9 7h1v1h-1zM13 7h1v1h-1zM30 7h1v1h-1zM1 8h1v1h-1zM3 8h1v1h-1zM7 8h1v1h-1zM9 8h1v1h-1zM13 8h1v1h-1zM30 8h1v1h-1zM1 9h1v1h-1zM4 9h3v1h-3zM10 9h3v1h-3zM30 9h1v1h-1zM1 10h1v1h-1zM30 10h1v1h-1zM1 11h1v1h-1zM30 11h1v1h-1zM1 12h30v1h-30zM1 13h1v1h-1zM30 13h1v1h-1zM1 14h1v1h-1zM30 14h1v1h-1zM1 15h1v1h-1zM30 15h1v1h-1zM1 16h1v1h-1zM3 16h5v1h-5zM10 16h5v1h-5zM17 16h5v1h-5zM24 16h5v1h-5zM30 16h1v1h-1zM1 17h1v1h-1zM3 17h1v1h-1zM7 17h1v1h-1zM10 17h1v1h-1zM14 17h1v1h-1zM17 17h1v1h-1zM21 17h1v1h-1zM24 17h1v1h-1zM28 17h1v1h-1zM30 17h1v1h-1zM1 18h1v1h-1zM3 18h1v1h-1zM7 18h1v1h-1zM10 18h1v1h-1zM14 18h1v1h-1zM17 18h1v1h-1zM21 18h1v1h-1zM24 18h1v1h-1zM28 18h1v1h-1zM30 18h1v1h-1zM1 19h1v1h-1zM3 19h1v1h-1zM7 19h1v1h-1zM10 19h1v1h-1zM14 19h1v1h-1zM17 19h1v1h-1zM21 19h1v1h-1zM24 19h1v1h-1zM28 19h1v1h-1zM30 19h1v1h-1zM1 20h1v1h-1zM3 20h5v1h-5zM10 20h5v1h-5zM17 20h5v1h-5zM24 20h5v1h-5zM30 20h1v1h-1zM1 21h1v1h-1zM30 21h1v1h-1zM1 22h1v1h-1zM3 22h5v1h-5zM10 22h5v1h-5zM17 22h5v1h-5zM24 22h5v1h-5zM30 22h1v1h-1zM1 23h1v1h-1zM3 23h1v1h-1zM7 23h1v1h-1zM10 23h1v1h-1zM14 23h1v1h-1zM17 23h1v1h-1zM21 23h1v1h-1zM24 23h1v1h-1zM28 23h1v1h-1zM30 23h1v1h-1zM1 24h1v1h-1zM3 24h1v1h-1zM7 24h1v1h-1zM10 24h1v1h-1zM14 24h1v1h-1zM17 24h1v1h-1zM21 24h1v1h-1zM24 24h1v1h-1zM28 24h1v1h-1zM30 24h1v1h-1zM1 25h1v1h-1zM3 25h1v1h-1zM7 25h1v1h-1zM10 25h1v1h-1zM14 25h1v1h-1zM17 25h1v1h-1zM21 25h1v1h-1zM24 25h1v1h-1zM28 25h1v1h-1zM30 25h1v1h-1zM1 26h1v1h-1zM3 26h5v1h-5zM10 26h5v1h-5zM17 26h5v1h-5zM24 26h5v1h-5zM30 26h1v1h-1zM1 27h1v1h-1zM30 27h1v1h-1zM1 28h2v1h-2zM29 28h2v1h-2zM3 29h26v1h-26z"/><path fill="#1E2328" d="M17 4h12v1h-12zM17 5h1v1h-1zM28 5h1v1h-1zM17 6h1v1h-1zM19 6h3v1h-3zM24 6h3v1h-3zM28 6h1v1h-1zM17 7h1v1h-1zM19 7h1v1h-1zM21 7h1v1h-1zM24 7h1v1h-1zM26 7h1v1h-1zM28 7h1v1h-1zM17 8h1v1h-1zM19 8h1v1h-1zM21 8h1v1h-1zM24 8h1v1h-1zM26 8h1v1h-1zM28 8h1v1h-1zM17 9h3v1h-3zM21 9h4v1h-4zM26 9h3v1h-3zM17 10h12v1h-12z"/><path fill="#ffffff" d="M5 6h1v1h-1zM11 6h1v1h-1zM5 7h1v1h-1zM11 7h1v1h-1zM2 13h28v1h-28zM2 14h3v1h-3zM6 14h6v1h-6zM13 14h6v1h-6zM20 14h6v1h-6zM27 14h3v1h-3zM2 15h28v1h-28zM2 16h1v1h-1zM8 16h2v1h-2zM15 16h2v1h-2zM22 16h2v1h-2zM29 16h1v1h-1zM2 17h1v1h-1zM8 17h2v1h-2zM11 17h3v1h-3zM15 17h2v1h-2zM22 17h2v1h-2zM29 17h1v1h-1zM2 18h1v1h-1zM8 18h2v1h-2zM11 18h3v1h-3zM15 18h2v1h-2zM22 18h2v1h-2zM29 18h1v1h-1zM2 19h1v1h-1zM8 19h2v1h-2zM11 19h3v1h-3zM15 19h2v1h-2zM22 19h2v1h-2zM29 19h1v1h-1zM2 20h1v1h-1zM8 20h2v1h-2zM15 20h2v1h-2zM22 20h2v1h-2zM29 20h1v1h-1zM2 21h28v1h-28zM2 22h1v1h-1zM8 22h2v1h-2zM15 22h2v1h-2zM22 22h2v1h-2zM29 22h1v1h-1zM2 23h1v1h-1zM4 23h3v1h-3zM8 23h2v1h-2zM15 23h2v1h-2zM22 23h2v1h-2zM29 23h1v1h-1zM2 24h1v1h-1zM4 24h3v1h-3zM8 24h2v1h-2zM15 24h2v1h-2zM22 24h2v1h-2zM29 24h1v1h-1zM2 25h1v1h-1zM4 25h3v1h-3zM8 25h2v1h-2zM15 25h2v1h-2zM22 25h2v1h-2zM29 25h1v1h-1zM2 26h1v1h-1zM8 26h2v1h-2zM15 26h2v1h-2zM22 26h2v1h-2zM29 26h1v1h-1zM2 27h28v1h-28zM3 28h26v1h-26z"/><path fill="#d4d4d4" d="M3 3h26v1h-26zM2 4h15v1h-15zM29 4h1v1h-1zM2 5h2v1h-2zM7 5h3v1h-3zM13 5h2v1h-2zM16 5h1v1h-1zM29 5h1v1h-1zM2 6h1v1h-1zM8 6h1v1h-1zM14 6h3v1h-3zM29 6h1v1h-1zM2 7h1v1h-1zM8 7h1v1h-1zM14 7h3v1h-3zM29 7h1v1h-1zM2 8h1v1h-1zM8 8h1v1h-1zM14 8h3v1h-3zM29 8h1v1h-1zM2 9h2v1h-2zM7 9h3v1h-3zM13 9h4v1h-4zM29 9h1v1h-1zM2 10h15v1h-15zM29 10h1v1h-1zM2 11h28v1h-28z"/><path fill="#CFDFCC" d="M18 5h10v1h-10zM18 6h1v1h-1zM22 6h2v1h-2zM27 6h1v1h-1zM18 7h1v1h-1zM20 7h1v1h-1zM22 7h2v1h-2zM25 7h1v1h-1zM27 7h1v1h-1zM18 8h1v1h-1zM20 8h1v1h-1zM22 8h2v1h-2zM25 8h1v1h-1zM27 8h1v1h-1zM20 9h1v1h-1zM25 9h1v1h-1z"/><path fill="#767676" d="M4 6h1v1h-1zM6 6h1v1h-1zM10 6h1v1h-1zM12 6h1v1h-1zM4 7h1v1h-1zM6 7h1v1h-1zM10 7h1v1h-1zM12 7h1v1h-1zM4 8h3v1h-3zM10 8h3v1h-3zM5 14h1v1h-1zM19 14h1v1h-1zM26 14h1v1h-1z"/><path fill="#D7141A" d="M15 5h1v1h-1zM12 14h1v1h-1zM4 17h3v1h-3zM4 18h3v1h-3zM4 19h3v1h-3z"/><path fill="#1F3FD1" d="M25 17h3v1h-3zM25 18h3v1h-3zM25 19h3v1h-3z"/><path fill="#FFE500" d="M18 17h3v1h-3zM18 18h3v1h-3zM18 19h3v1h-3z"/><path fill="#128A2E" d="M11 23h3v1h-3zM11 24h3v1h-3zM11 25h3v1h-3z"/><path fill="#B85400" d="M18 23h3v1h-3zM18 24h3v1h-3zM18 25h3v1h-3z"/><path fill="#7A1FB8" d="M25 23h3v1h-3zM25 24h3v1h-3zM25 25h3v1h-3z"/>',
+  jok:'<path fill="#000000" d="M7 2h18v1h-18zM6 3h1v1h-1zM13 3h2v1h-2zM17 3h1v1h-1zM25 3h1v1h-1zM6 4h1v1h-1zM13 4h1v1h-1zM17 4h1v1h-1zM25 4h1v1h-1zM6 5h5v1h-5zM13 5h1v1h-1zM17 5h1v1h-1zM21 5h5v1h-5zM6 6h1v1h-1zM10 6h1v1h-1zM13 6h2v1h-2zM17 6h1v1h-1zM20 6h2v1h-2zM24 6h2v1h-2zM6 7h1v1h-1zM10 7h1v1h-1zM14 7h4v1h-4zM20 7h1v1h-1zM25 7h1v1h-1zM6 8h1v1h-1zM10 8h1v1h-1zM14 8h1v1h-1zM16 8h2v1h-2zM20 8h2v1h-2zM24 8h2v1h-2zM6 9h5v1h-5zM13 9h2v1h-2zM17 9h1v1h-1zM20 9h6v1h-6zM6 10h1v1h-1zM8 10h1v1h-1zM10 10h2v1h-2zM13 10h1v1h-1zM17 10h1v1h-1zM19 10h2v1h-2zM23 10h1v1h-1zM25 10h1v1h-1zM6 11h1v1h-1zM8 11h1v1h-1zM11 11h3v1h-3zM17 11h3v1h-3zM23 11h1v1h-1zM25 11h1v1h-1zM6 12h1v1h-1zM8 12h1v1h-1zM12 12h2v1h-2zM18 12h1v1h-1zM23 12h1v1h-1zM25 12h1v1h-1zM6 13h1v1h-1zM8 13h1v1h-1zM12 13h2v1h-2zM18 13h1v1h-1zM23 13h1v1h-1zM25 13h1v1h-1zM6 14h1v1h-1zM8 14h1v1h-1zM12 14h1v1h-1zM18 14h2v1h-2zM23 14h1v1h-1zM25 14h1v1h-1zM6 15h1v1h-1zM8 15h1v1h-1zM12 15h1v1h-1zM19 15h1v1h-1zM23 15h1v1h-1zM25 15h1v1h-1zM6 16h1v1h-1zM8 16h1v1h-1zM12 16h1v1h-1zM19 16h1v1h-1zM23 16h1v1h-1zM25 16h1v1h-1zM6 17h1v1h-1zM8 17h16v1h-16zM25 17h1v1h-1zM6 18h1v1h-1zM10 18h2v1h-2zM13 18h2v1h-2zM17 18h2v1h-2zM20 18h2v1h-2zM25 18h1v1h-1zM6 19h1v1h-1zM10 19h12v1h-12zM25 19h1v1h-1zM6 20h1v1h-1zM25 20h1v1h-1zM6 21h1v1h-1zM25 21h1v1h-1zM6 22h1v1h-1zM12 22h1v1h-1zM14 22h3v1h-3zM18 22h1v1h-1zM20 22h1v1h-1zM25 22h1v1h-1zM6 23h1v1h-1zM12 23h1v1h-1zM14 23h1v1h-1zM16 23h1v1h-1zM18 23h1v1h-1zM20 23h1v1h-1zM25 23h1v1h-1zM6 24h1v1h-1zM12 24h1v1h-1zM14 24h1v1h-1zM16 24h1v1h-1zM18 24h2v1h-2zM25 24h1v1h-1zM6 25h1v1h-1zM10 25h1v1h-1zM12 25h1v1h-1zM14 25h1v1h-1zM16 25h1v1h-1zM18 25h1v1h-1zM20 25h1v1h-1zM25 25h1v1h-1zM6 26h1v1h-1zM10 26h3v1h-3zM14 26h3v1h-3zM18 26h1v1h-1zM20 26h1v1h-1zM25 26h1v1h-1zM6 27h1v1h-1zM25 27h1v1h-1zM6 28h1v1h-1zM25 28h1v1h-1zM7 29h18v1h-18z"></path><path fill="#ffffff" d="M7 3h6v1h-6zM18 3h7v1h-7zM7 4h6v1h-6zM18 4h7v1h-7zM11 5h2v1h-2zM18 5h3v1h-3zM11 6h2v1h-2zM18 6h2v1h-2zM11 7h3v1h-3zM18 7h2v1h-2zM11 8h3v1h-3zM18 8h2v1h-2zM11 9h2v1h-2zM18 9h2v1h-2zM7 10h1v1h-1zM12 10h1v1h-1zM18 10h1v1h-1zM24 10h1v1h-1zM7 11h1v1h-1zM24 11h1v1h-1zM7 12h1v1h-1zM24 12h1v1h-1zM7 13h1v1h-1zM24 13h1v1h-1zM7 14h1v1h-1zM24 14h1v1h-1zM7 15h1v1h-1zM24 15h1v1h-1zM7 16h1v1h-1zM24 16h1v1h-1zM7 17h1v1h-1zM24 17h1v1h-1zM7 18h3v1h-3zM22 18h3v1h-3zM7 19h3v1h-3zM22 19h3v1h-3zM7 20h18v1h-18zM7 21h18v1h-18zM7 22h5v1h-5zM13 22h1v1h-1zM17 22h1v1h-1zM19 22h1v1h-1zM21 22h4v1h-4zM7 23h5v1h-5zM13 23h1v1h-1zM15 23h1v1h-1zM17 23h1v1h-1zM19 23h1v1h-1zM21 23h4v1h-4zM7 24h5v1h-5zM13 24h1v1h-1zM15 24h1v1h-1zM17 24h1v1h-1zM20 24h5v1h-5zM7 25h3v1h-3zM11 25h1v1h-1zM13 25h1v1h-1zM15 25h1v1h-1zM17 25h1v1h-1zM19 25h1v1h-1zM21 25h4v1h-4zM7 26h3v1h-3zM13 26h1v1h-1zM17 26h1v1h-1zM19 26h1v1h-1zM21 26h4v1h-4zM7 27h18v1h-18zM7 28h18v1h-18z"></path><path fill="#FFE500" d="M15 3h2v1h-2zM14 4h3v1h-3zM14 5h3v1h-3zM7 6h3v1h-3zM15 6h2v1h-2zM22 6h2v1h-2zM7 7h3v1h-3zM21 7h4v1h-4zM7 8h3v1h-3zM22 8h2v1h-2zM12 18h1v1h-1zM15 18h2v1h-2zM19 18h1v1h-1z"></path><path fill="#128A2E" d="M15 8h1v1h-1zM15 9h2v1h-2zM14 10h3v1h-3zM14 11h3v1h-3zM14 12h4v1h-4zM14 13h4v1h-4zM13 14h5v1h-5zM13 15h6v1h-6zM13 16h6v1h-6z"></path><path fill="#D7141A" d="M9 10h1v1h-1zM9 11h2v1h-2zM9 12h3v1h-3zM9 13h3v1h-3zM9 14h3v1h-3zM9 15h3v1h-3zM9 16h3v1h-3z"></path><path fill="#1F3FD1" d="M21 10h2v1h-2zM20 11h3v1h-3zM19 12h4v1h-4zM19 13h4v1h-4zM20 14h3v1h-3zM20 15h3v1h-3zM20 16h3v1h-3z"></path>'
+};
 const ICONS={
-  // SobreTeX : une page, des lignes et un grand Σ rouge
-  tex:icon(A=>{
-    A.page(5,1,22,30,6);
-    A.R(8,4,9,1,'k');A.R(8,6,11,1,'k');A.R(8,9,16,1,'k');A.R(8,11,11,1,'k');
-    A.R(11,14,10,2,'r');A.R(11,24,10,2,'r');
-    for(let k=0;k<4;k++){A.R(12+k,16+k,2,1,'r');A.R(15-k,20+k,2,1,'r');}
-    A.R(19,16,2,1,'r');A.R(19,23,2,1,'r');
-    A.R(8,28,13,1,'k');
-  }),
-  // SobrePiX : une photo, ciel tramé, soleil jaune, montagnes vertes
-  pix:icon(A=>{
-    A.R(2,5,28,22,'k');A.R(3,6,26,20,'w');A.R(4,7,24,18,'k');A.D(5,8,22,16,'l','w');
-    const box=t=>(x,y)=>x>5&&x<27&&y>8&&y<24&&t(x,y);
-    A.FO(box(disc(22,12.5,2.6)),'y');
-    A.FO(box((x,y)=>y>=15&&Math.abs(x-20.5)<=(y-15)*1.25),'g');
-    A.FO(box((x,y)=>y>=11&&Math.abs(x-12.5)<=(y-11)*.78),'g');
-    A.F(box((x,y)=>y>=11&&y<14.5&&Math.abs(x-12.5)<=(y-11)*.78),'w');
-  }),
-  // SobrePdF : deux pages, bandeau rouge « PDF », une signature bleue
-  pdf:icon(A=>{
-    A.R(10,1,18,23,'k');A.R(11,2,16,21,'w');A.R(13,4,10,1,'k');
-    A.R(4,6,19,25,'k');A.R(5,7,17,23,'w');
-    A.R(5,11,17,7,'r');A.T(8,12,'P','w');A.T(12,12,'D','w');A.T(16,12,'F','w');
-    A.R(7,20,13,1,'k');A.R(7,22,9,1,'k');
-    A.P('b',[[7,27],[8,26],[9,25],[10,25],[11,26],[11,27],[12,27],[13,26],[14,25],[15,26],[16,27],[17,26],[18,26],[19,25]]);
-  }),
-  // SobreTaB : un tableau, en-tête vert, une cellule choisie en jaune
-  tab:icon(A=>{
-    A.R(3,4,26,23,'k');A.R(4,5,24,21,'w');
-    A.R(4,5,24,4,'g');A.R(4,10,4,16,'l');
-    for(const x of [8,13,18,23])A.R(x,5,1,21,'k');
-    for(const y of [9,13,17,21])A.R(4,y,24,1,'k');
-    A.T(10,6,'a','w');A.T(15,6,'b','w');A.T(20,6,'c','w');A.T(25,6,'d','w');
-    A.R(10,11,2,1,'k');A.R(15,11,2,1,'k');A.R(20,11,3,1,'k');A.R(24,11,3,1,'k');
-    A.R(9,15,3,1,'k');A.R(19,15,2,1,'k');A.R(24,15,3,1,'k');
-    A.R(9,19,3,1,'k');A.R(14,19,2,1,'k');A.R(20,19,2,1,'k');A.R(24,19,2,1,'k');
-    A.R(9,23,3,1,'k');A.R(24,23,3,1,'r');
-    A.R(13,13,6,5,'k');A.R(14,14,4,3,'y');A.R(18,17,2,2,'k');
-  }),
-  // SobreZiK : un disque compact, moyeu gris, reflets aux six couleurs de la gamme
-  zik:icon(A=>{
-    ['..............kkkk..............',
-     '..........kkkkwwwwkkkk..........',
-     '........kkwwwwwwwwwwwwkk........',
-     '.......kwwwwwwwwwwwwwwwwk.......',
-     '.....kkwwrrwwwwwwwwwwwwwwkk.....',
-     '....kkwrrooywwwwwwwwwwwwwwkk....',
-     '....kwrroyygwwwwwwwwwwwwwwwk....',
-     '...kwrroyyggbwwwwwwwwwwwwwwwk...',
-     '..kwwroyygbbvwwwwwwwwwwwwwwwwk..',
-     '..kwroyygbvvwwwwwwwwwwwwwwwwwk..',
-     '.kwwroygbvvwwkkkkkkwwwwwwwwwwwk.',
-     '.kwwwyggbvwwkllllllkwwwwwwwwwwk.',
-     '.kwwwwwbvwwkllllllllkwwwwwwwwwk.',
-     '.kwwwwwwwwklllkkkklllkwwwwwwwwk.',
-     'kwwwwwwwwwkllk....kllkwwwwwwwwwk',
-     'kwwwwwwwwwkllk....kllkwwwwwwwwwk',
-     'kwwwwwwwwwkllk....kllkwwwwwwwwwk',
-     'kwwwwwwwwwkllk....kllkwwwwwwwwwk',
-     '.kwwwwwwwwklllkkkklllkwwwwwwwwk.',
-     '.kwwwwwwwwwkllllllllkwwvbwwwwwk.',
-     '.kwwwwwwwwwwkllllllkwwvbggywwwk.',
-     '.kwwwwwwwwwwwkkkkkkwwvvbgyorwwk.',
-     '..kwwwwwwwwwwwwwwwwwvvbgyyorwk..',
-     '..kwwwwwwwwwwwwwwwwvbbgyyorwwk..',
-     '...kwwwwwwwwwwwwwwwbggyyorrwk...',
-     '....kwwwwwwwwwwwwwwwgyyorrwk....',
-     '....kkwwwwwwwwwwwwwwyoorrwkk....',
-     '.....kkwwwwwwwwwwwwwwrrwwkk.....',
-     '.......kwwwwwwwwwwwwwwwwk.......',
-     '........kkwwwwwwwwwwwwkk........',
-     '..........kkkkwwwwkkkk..........',
-     '..............kkkk..............'].forEach((row,y)=>[...row].forEach((c,x)=>{if(c!=='.')A.R(x,y,1,1,c);}));
-  }),
-  // SobreVoX : un micro de studio, capsule grillagée, bandeau rouge, ondes bleues
-  vox:icon(A=>{
-    ['................................',
-     '...........kkkkkkkkkk...........',
-     '..........kwwwwwwwwwwk..........',
-     '.........kwkkkkkkkkkkwk.........',
-     '...b.....kwwwwwwwwwwwwk.....b...',
-     '..b..b...kwkkkkkkkkkkwk...b..b..',
-     '.b..b....kwwwwwwwwwwwwk....b..b.',
-     '.b..b....kwkkkkkkkkkkwk....b..b.',
-     '.b..b....krrrrrrrrrrrrk....b..b.',
-     '.b..b....krrrrrrrrrrrrk....b..b.',
-     '.b..b....kwkkkkkkkkkkwk....b..b.',
-     '.b..b....kwwwwwwwwwwwwk....b..b.',
-     '..b..b...kwkkkkkkkkkkwk...b..b..',
-     '...b.....kwwwwwwwwwwwwk.....b...',
-     '.......k.kwkkkkkkkkkkwk.k.......',
-     '.......k.kwwwwwwwwwwwwk.k.......',
-     '.......k..kwwwwwwwwwwk..k.......',
-     '.......k...kkkkkkkkkk...k.......',
-     '.......kk..............kk.......',
-     '........kk............kk........',
-     '.........kkk........kkk.........',
-     '...........kkkkkkkkkk...........',
-     '..............kllk..............',
-     '..............kllk..............',
-     '..............kllk..............',
-     '..............kllk..............',
-     '..............kllk..............',
-     '..........kkkkkkkkkkkk..........',
-     '.........kllllllllllllk.........',
-     '........kkkkkkkkkkkkkkkk........',
-     '................................',
-     '................................'].forEach((row,y)=>[...row].forEach((c,x)=>{if(c!=='.')A.R(x,y,1,1,c);}));
-  }),
-  // SobreJoK : la carte du joker, bonnet à trois pointes et grelots jaunes
-  jok:icon(A=>{
-    A.RR(6,2,20,28,'k');A.R(7,3,18,26,'w');
-    A.FO(tri(9,17,15.5,17,8.5,8),'r');
-    A.FO(tri(16,17,22.5,17,23,8),'b');
-    A.FO(tri(12.5,17,19,17,15.75,6),'g');
-    A.FO(disc(8.5,7.5,1.7),'y');A.FO(disc(23,7.5,1.7),'y');A.FO(disc(15.75,5,1.7),'y');
-    A.R(10,17,12,3,'k');A.R(12,18,1,1,'y');A.R(15,18,2,1,'y');A.R(19,18,1,1,'y');
-    A.T(10,22,'J','k');A.T(14,22,'O','k');A.T(18,22,'K','k');
-  }),
   // SobreSuite : un ordinateur compact, l'invite du terminal à l'écran, six couleurs de la gamme
   suite:icon(A=>{
     A.RR(7,1,18,27,'k');A.R(8,2,16,25,'w');
@@ -484,27 +367,34 @@ const ICONS={
     A.T(12,23,'Z','k');A.T(15,23,'I','k');A.T(18,23,'P','k');
     A.FO((x,y)=>(x>13&&x<19&&y>2&&y<14)||(y>=13&&y<21.5&&Math.abs(x-16)<=(21.5-y)),'b');
   }),
-  // Disquette de la SobreSuite, avec le petit terminal sur l'étiquette
-  disk:icon(A=>{
-    A.R(4,3,24,26,'k');A.R(5,4,22,24,'w');A.C(27,3);
-    A.R(9,3,14,9,'k');A.R(10,4,12,7,'l');A.R(18,5,3,5,'k');
-    A.R(7,15,18,11,'k');A.R(8,16,16,9,'w');
-    A.R(9,17,7,6,'n');A.R(10,18,5,4,'a');A.P('n',[[10,18],[11,19],[10,20],[12,21],[13,21]]);
-    A.R(17,18,6,1,'k');A.R(17,20,5,1,'k');A.R(9,23,14,1,'k');
-  }),
   // Lisez-moi : une page de texte
   doc:icon(A=>{
     A.page(7,2,18,28,5);
     [[6,8],[8,12],[11,14],[13,12],[15,14],[17,9],[20,14],[22,13],[24,10]].forEach(([y,w])=>A.R(10,y,w,1,'k'));
   }),
-  // Corbeille
-  trash:icon(A=>{
-    A.R(13,3,7,1,'k');A.R(13,4,1,2,'k');A.R(19,4,1,2,'k');
-    A.R(8,6,17,2,'k');
-    A.R(9,9,15,20,'k');A.R(10,10,13,18,'w');
-    for(const x of [13,16,19])A.R(x,12,1,14,'k');
+  // Applications : un dossier, avec les six couleurs de la gamme
+  folder:icon(A=>{
+    A.R(2,6,12,1,'k');A.R(1,7,1,3,'k');A.R(14,7,1,3,'k');A.R(2,7,12,3,'w');
+    A.R(1,9,30,20,'k');A.R(2,10,28,18,'w');A.R(2,12,28,1,'k');
+    ['r','b','y','g','o','v'].forEach((c,k)=>{const x=8+(k%3)*6,y=15+Math.floor(k/3)*6;A.R(x-1,y-1,7,7,'k');A.R(x,y,5,5,c);});
+  }),
+  // Document : un dossier, une page de texte qui dépasse
+  docs:icon(A=>{
+    A.R(15,2,13,9,'k');A.R(16,3,11,8,'w');A.R(18,5,7,1,'k');A.R(18,7,5,1,'k');
+    A.R(2,6,12,1,'k');A.R(1,7,1,3,'k');A.R(14,7,1,3,'k');A.R(2,7,12,3,'w');
+    A.R(1,9,30,20,'k');A.R(2,10,28,18,'w');A.R(2,12,28,1,'k');
+    A.R(7,17,18,1,'k');A.R(7,20,14,1,'k');A.R(7,23,16,1,'k');
+  }),
+  // Mode d'emploi : une page de texte (l'icône de l'application s'y ajoute en bas à droite)
+  manual:icon(A=>{
+    A.page(3,1,22,29,5);
+    [[6,10],[8,13],[10,11],[12,13],[14,8]].forEach(([y,w])=>A.R(6,y,w,1,'k'));
+    A.R(12,12,20,20,'k');A.R(13,13,18,18,'w');
   })
 };
+for(const k in APP_PX)ICONS[k]=PX(APP_PX[k]);
+// Icône du mode d’emploi d’une application : la page, et l’icône de l’app en petit
+const manualIcon=id=>ICONS.manual.replace('</svg>','<g transform="translate(14 14) scale(.5)">'+APP_PX[id]+'</g></svg>');
 const LOGO_SVG='<svg class="px" viewBox="0 0 15 11" aria-hidden="true"><path fill="#1E2328" d="M0 0h15v11H0z"/><path fill="#CFDFCC" d="M1 1h13v9H1z"/><path fill="#1E2328" d="M3 3h1v1H3zM4 4h1v1H4zM5 5h1v1H5zM4 6h1v1H4zM3 7h1v1H3zM7 7h4v1H7z"/></svg>';
 
 /* =========================================================
@@ -513,28 +403,45 @@ const LOGO_SVG='<svg class="px" viewBox="0 0 15 11" aria-hidden="true"><path fil
 const APPS=[
   {id:'tex',repo:'SobreTeX',name:'SobreTeX',ready:true,tag:'Écrire en LaTeX, sans le taper',
     desc:'Un traitement de texte à l’ancienne qui écrit le LaTeX à votre place, pensé pour celles et ceux qui n’en ont jamais écrit une ligne.',
-    feats:['Une interface de traitement de texte, façon Word 5.1','Le code LaTeX se fabrique tout seul','Pour les néophytes comme pour les habitués']},
+    feats:['Une interface de traitement de texte, façon Word 5.1','Le code LaTeX se fabrique tout seul','« Enregistrer sous… » propose le bon format : LaTeX, Word, OpenDocument, RTF, PDF, EPUB, Markdown','Ouvre aussi les fichiers Markdown et texte']},
   {id:'pix',repo:'SobrePiX',name:'SobrePiX',ready:true,tag:'Retouche photo frugale',
     desc:'Recadrer, écrire, dessiner, changer la taille, tramer façon Mac 1984. Une retouche photo qui va à l’essentiel.',
     feats:['Recadrer, faire pivoter, retourner','Texte, crayon et formes aux huit couleurs de la suite','Taille en pixels ou en centimètres, résolution en ppp','Trame Atkinson, Floyd–Steinberg ou demi-teinte','Enregistre une copie en JPEG, PNG ou WebP']},
   {id:'pdf',repo:'SobrePdF',name:'SobrePdF',ready:true,tag:'L’outil PDF du quotidien',
     desc:'Assembler, réorganiser, annoter, remplir et signer vos PDF, sans rien envoyer sur Internet.',
     feats:['Assembler plusieurs PDF, réorganiser les pages en planche','Pivoter, dupliquer, supprimer, extraire des pages','Écrire sur la page, remplir les formulaires','Placer une signature et un paraphe','Enregistre une copie : l’original reste intact']},
-  {id:'tab',repo:'SobreTaB',name:'SobreTaB',ready:false,tag:'Tableaux simples',
-    desc:'Des tableaux simples, sans usine à gaz. SobreTaB est en préparation.',
-    feats:['Des tableaux à remplir, trier et calculer','Même interface que le reste de la suite']},
+  {id:'dta',repo:'SobreDtA',name:'SobreDtA',ready:true,tag:'Tableur et statistiques frugaux',
+    desc:'Un tableur et des statistiques dans le même fichier : on saisit ou on colle ses données, puis on lance un test t, une ANOVA ou une régression, avec un assistant pour choisir le bon test.',
+    feats:['Mode Feuille : formules en français, tri, filtre, copier-coller avec Excel','Mode Stat : descriptives, tests t, ANOVA, ANCOVA, mesures répétées, corrélations, régressions, khi², alpha de Cronbach','« Quel test choisir ? » : un assistant en français clair','Tableaux au format APA, phrase à copier, interprétation en clair','Ouvre CSV et XLSX ; exporte vers Word, LaTeX, PDF ou HTML','Sur ordinateur']},
+  {id:'gen',repo:'SobreGeN',name:'SobreGeN',ready:true,tag:'La généalogie sans fioritures',
+    desc:'Un arbre généalogique simple : on importe un GEDCOM ou on part de zéro, on corrige, on complète, on valide fiche par fiche, puis on enregistre.',
+    feats:['Ouvre et réenregistre le GEDCOM sans rien perdre (Geneanet, Heredis, MyHeritage, Gramps)','Une fiche courte, le reste en option : domiciles, déportation, dossier militaire, médailles','Contrôle des incohérences et des doublons','Arbre d’ascendance, liste triable, carte des lieux','Drapeau du pays de naissance, selon les époques','Sur ordinateur']},
   {id:'zik',repo:'SobreZiK',name:'SobreZiK',ready:true,tag:'Lecteur de musique frugal',
     desc:'Un lecteur de musique à l’ancienne : une liste, la pochette tramée et une télécommande façon lecteur de CD, sans rien installer.',
     feats:['Lit MP3, FLAC, OGG, M4A et WAV, dossier par dossier','Titres, artistes et pochettes lus dans les fichiers','Pochette en noir et blanc tramé ; sans pochette, un disque qui tourne','Aléatoire, répétition, programme','Garde la liste d’une séance à l’autre si la musique est rangée à côté']},
   {id:'vox',repo:'SobreVoX',name:'SobreVoX',ready:true,tag:'Éditeur audio frugal',
     desc:'Enregistrer sa voix, la nettoyer, la monter et la mixer avec de la musique, sans rien installer ni rien envoyer sur Internet.',
     feats:['Enregistrement au micro, plusieurs pistes','Couper, coller, déplacer : l’original reste intact','Préparer la voix en un clic : souffle, graves, volume, niveau en LUFS','Couper les blancs entre les phrases','Effets : égaliseur, compresseur, écho, réverbération, tempo','Lit MP3, WAV, FLAC, OGG, M4A ; exporte en MP3, WAV ou FLAC']},
+  {id:'bit',repo:'SobreBiT',name:'SobreBiT',ready:true,tag:'Boîte à rythmes frugale',
+    desc:'Une boîte à rythmes électro : huit pistes de seize pas, des sons synthétisés ou importés, et l’export en WAV, MP3 ou FLAC.',
+    feats:['Huit pistes de seize pas, quatre motifs et une chaîne','Sons de batterie, Space age et Électro, tous synthétisés, avec leurs démos','Importer ses propres sons (MP3, WAV, FLAC…)','Effets en direct : filtre, bits, saturation, écho','Exporte en WAV, MP3 ou FLAC, en boucle sans couture']},
   {id:'jok',repo:'SobreJoK',name:'SobreJoK',ready:true,tag:'Jeux old school pour les pauses café',
     desc:'Sept petits jeux pour souffler entre deux dossiers, avec une grille du jour la même pour tout le monde.',
     feats:['BiN : ronds et lunes','DeM : le démineur','ReX : une couronne par zone','SoL : le solitaire','FiL : un fil par toutes les cases','LuX : éteindre les lumières','UfO : repousser l’invasion, au clavier ou au doigt','Grilles et donne du jour, records']}
 ];
 APPS.forEach(a=>{a.file='apps/'+a.repo+'.html';a.url=a.file;a.code=a.ready?REPO+'/blob/'+BRANCH+'/'+a.file:REPO;a.icon=ICONS[a.id];});
 const READY=APPS.filter(a=>a.ready).length;
+
+/* =========================================================
+   Les modes d'emploi (dossier Document)
+   Un mode d'emploi par application, rangé dans docs/<Nom>.html.
+   Quand l'un d'eux est écrit, ajouter l'id de l'application ici,
+   par exemple : const MANUALS_READY=['tex','pix'];
+   ========================================================= */
+const MANUALS_READY=[];
+const MANUALS=APPS.filter(a=>a.ready).map(a=>({id:a.id,app:a,name:a.name,
+  file:'docs/'+a.repo+'.html',ready:MANUALS_READY.includes(a.id),icon:manualIcon(a.id)}));
+MANUALS.forEach(m=>{m.url=m.file;m.code=REPO+'/blob/'+BRANCH+'/'+m.file;});
 
 /* =========================================================
    Petits outils
@@ -553,7 +460,7 @@ const reduced=()=>window.matchMedia&&window.matchMedia('(prefers-reduced-motion:
 /* =========================================================
    État
    ========================================================= */
-const S={view:'icons',sel:null,dsel:null,focus:'apps'};
+const S={view:'icons',sel:null,msel:null,dsel:null,focus:'apps'};
 try{const o=JSON.parse(localStorage.getItem(STORE)||'null');if(o&&o.view==='list')S.view='list';}catch(e){}
 function save(){try{localStorage.setItem(STORE,JSON.stringify({v:1,view:S.view}));}catch(e){}}
 
@@ -574,19 +481,20 @@ function buildApps(){
     appsBox.appendChild(b);
   });
   $('#fi-1').textContent=APPS.length+' applications';
-  $('#fi-2').textContent=READY+' prêtes · '+(APPS.length-READY)+' à venir';
+  $('#fi-2').textContent=READY===APPS.length?'toutes prêtes':READY+' prêtes · '+(APPS.length-READY)+' à venir';
   detail();
 }
 function select(id,focus){
   S.sel=id;S.focus='apps';
   $$('.app',appsBox).forEach(b=>{const on=b.dataset.id===id;b.setAttribute('aria-selected',String(on));b.tabIndex=on?0:-1;if(on&&focus)b.focus({preventScroll:false});});
-  deselectDesk();
+  deselectDesk();deselectManual();
   detail();
   buildMenubar();
 }
 function current(){return APPS.find(a=>a.id===S.sel)||null;}
 function detail(){
   const d=$('#detail'),a=current();
+  if(!d)return; // pas de pied de fenêtre : le double-clic suffit
   d.innerHTML='';
   if(!a){
     d.appendChild(el('div',{class:'dt',html:'<span class="muted">Cliquez sur une application pour la découvrir, double-cliquez pour l’ouvrir.</span>'}));
@@ -607,6 +515,73 @@ appsBox.addEventListener('keydown',e=>{
   if(mv!==undefined){e.preventDefault();if(S.view==='list'&&(e.key==='ArrowLeft'||e.key==='ArrowRight'))return;const n=k+mv;if(n>=0&&n<APPS.length)select(APPS[n].id,true);else if(!S.sel)select(APPS[k].id,true);return;}
   if(e.key==='Enter'){e.preventDefault();if(S.sel!==APPS[k].id)select(APPS[k].id);launch(APPS[k],b);}
   else if(e.key===' '){e.preventDefault();select(APPS[k].id,true);}
+});
+
+/* =========================================================
+   Dossier Document : les modes d'emploi
+   ========================================================= */
+const docsBox=$('#docs');
+const MREADY=MANUALS.filter(m=>m.ready).length;
+function buildDocs(){
+  docsBox.innerHTML='';
+  docsBox.classList.toggle('list',S.view==='list');
+  docsBox.appendChild(el('div',{class:'lhead','aria-hidden':'true',html:'<span></span><span>Nom</span><span>Contenu</span><span>État</span>'}));
+  MANUALS.forEach((m,k)=>{
+    const b=el('button',{type:'button',class:'app'+(m.ready?'':' soon'),role:'option','data-id':m.id,'aria-selected':String(S.msel===m.id),
+      tabindex:(S.msel?S.msel===m.id:k===0)?'0':'-1','aria-label':'Mode d’emploi de '+m.name+(m.ready?'':', bientôt')});
+    b.innerHTML=m.icon+'<span class="lab">'+m.name+'</span><span class="tagl">Mode d’emploi de '+m.name+'</span><span class="st">'+(m.ready?'Disponible':'Bientôt')+'</span>'+(m.ready?'':'<span class="soon-tag">bientôt</span>');
+    b.addEventListener('click',()=>selectManual(m.id));
+    b.addEventListener('dblclick',()=>openManual(m,b));
+    docsBox.appendChild(b);
+  });
+  $('#fd-1').textContent=MANUALS.length+' modes d’emploi';
+  $('#fd-2').textContent=MREADY?MREADY+' prêts · '+(MANUALS.length-MREADY)+' à venir':'à venir';
+  ddetail();
+}
+function selectManual(id,focus){
+  S.msel=id;S.focus='docs';
+  $$('.app',docsBox).forEach(b=>{const on=b.dataset.id===id;b.setAttribute('aria-selected',String(on));b.tabIndex=on?0:-1;if(on&&focus)b.focus({preventScroll:false});});
+  deselectDesk();
+  if(S.sel){S.sel=null;$$('.app',appsBox).forEach(b=>b.setAttribute('aria-selected','false'));detail();}
+  ddetail();
+  buildMenubar();
+}
+function deselectManual(){
+  if(!S.msel)return;
+  S.msel=null;$$('.app',docsBox).forEach(b=>b.setAttribute('aria-selected','false'));ddetail();
+}
+function currentManual(){return MANUALS.find(m=>m.id===S.msel)||null;}
+function ddetail(){
+  const d=$('#ddetail'),m=currentManual();
+  if(!d)return; // pas de pied de fenêtre : le double-clic suffit
+  d.innerHTML='';
+  if(!m){
+    d.appendChild(el('div',{class:'dt',html:'<span class="muted">'+(MREADY?'Un mode d’emploi par application. Double-cliquez pour l’ouvrir.':'Les modes d’emploi des applications arriveront ici, un par application.')+'</span>'}));
+    return;
+  }
+  d.insertAdjacentHTML('beforeend',m.icon);
+  d.appendChild(el('div',{class:'dt',html:'<b>Mode d’emploi de '+m.name+'</b><br><span class="muted">'+(m.ready?'Tout ce qu’il faut savoir pour se servir de '+m.name+'.':'Pas encore écrit. En attendant, chaque application a son aide dans le menu Aide.')+'</span>'}));
+  const db=el('div',{class:'db'});
+  db.appendChild(el('button',{type:'button',class:'btn default',text:m.ready?'Ouvrir':'Bientôt',disabled:!m.ready,onclick:()=>openManual(m,$('.app[data-id="'+m.id+'"]',docsBox))}));
+  d.appendChild(db);
+}
+function openManual(m,src){
+  if(!m)return;
+  if(!m.ready){
+    alertDlg('Le mode d’emploi de '+m.name+' n’est pas encore écrit.','Il rejoindra bientôt le dossier Document. En attendant, le menu Aide de '+m.name+' explique l’essentiel.',m.icon);
+    return;
+  }
+  zoomFrom(src&&src.querySelector('svg'),()=>go(m.url));
+}
+docsBox.addEventListener('click',e=>{if(e.target===docsBox&&S.msel){S.msel=null;buildDocs();buildMenubar();}});
+docsBox.addEventListener('keydown',e=>{
+  const b=e.target.closest('.app');if(!b||e.metaKey||e.ctrlKey||e.altKey)return;
+  const k=MANUALS.findIndex(m=>m.id===b.dataset.id);
+  const cols=S.view==='list'?1:(narrow()&&window.innerWidth<=380?2:3);
+  const mv={ArrowLeft:-1,ArrowRight:1,ArrowUp:-cols,ArrowDown:cols}[e.key];
+  if(mv!==undefined){e.preventDefault();if(S.view==='list'&&(e.key==='ArrowLeft'||e.key==='ArrowRight'))return;const n=k+mv;if(n>=0&&n<MANUALS.length)selectManual(MANUALS[n].id,true);else if(!S.msel)selectManual(MANUALS[k].id,true);return;}
+  if(e.key==='Enter'){e.preventDefault();if(S.msel!==MANUALS[k].id)selectManual(MANUALS[k].id);openManual(MANUALS[k],b);}
+  else if(e.key===' '){e.preventDefault();selectManual(MANUALS[k].id,true);}
 });
 
 /* ---------- Ouvrir une application ---------- */
@@ -716,12 +691,14 @@ function buildDoc(){
     '<h2>Les applications</h2>'+
     APPS.map(a=>'<div class="appl">'+a.icon+'<div><strong>'+a.name+'</strong>'+(a.ready?'':' <span class="small">(bientôt)</span>')+'<br>'+escH(a.tag)+'</div></div>').join('')+
     '<h2>Pour commencer</h2>'+
-    '<p>Double-cliquez sur la disquette SobreSuite, sur le bureau, pour ouvrir sa fenêtre. Double-cliquez ensuite sur une application : elle s’ouvre dans un nouvel onglet. Un simple clic la sélectionne et affiche sa présentation ; « Infos… » en dit plus.</p>'+
+    '<p>Double-cliquez sur le dossier <strong>Applications</strong>, sur le bureau, pour l’ouvrir. Double-cliquez ensuite sur une application : elle s’ouvre dans un nouvel onglet. Un simple clic la sélectionne ; « Lire les informations » (menu Fichier, '+MOD+'I) la présente.</p>'+
+    '<p>Le dossier <strong>Document</strong> rassemblera les modes d’emploi, un par application. Ils sont en cours d’écriture ; en attendant, chaque application a son aide dans son menu Aide.</p>'+
+    '<p>SobreDtA et SobreGeN sont pensées pour l’ordinateur.</p>'+
     '<h2>Travailler hors ligne</h2>'+
     '<p>Double-cliquez sur « Télécharger » : vous recevez <strong>SobreSuite.zip</strong>, toute la suite dans un seul dossier. Décompressez-le, puis ouvrez <strong>SobreSuite.html</strong> dans Firefox ou Chrome : vous retrouvez ce bureau, et les applications s’ouvrent depuis votre ordinateur, sans connexion.</p>'+
     '<p>Pour une seule application, enregistrez simplement sa page (' + MOD + 'S) : c’est un seul fichier, à garder sur votre ordinateur ou sur une clé USB.</p>'+
     '<h2>Le code</h2>'+
-    '<p>Toute la suite tient dans un seul dépôt GitHub : <a href="'+REPO+'" target="_blank" rel="noopener">'+REPO.replace('https://','')+'</a>. Les applications sont rangées dans le dossier <strong>apps</strong>.</p>'+
+    '<p>Toute la suite tient dans un seul dépôt GitHub : <a href="'+REPO+'" target="_blank" rel="noopener">'+REPO.replace('https://','')+'</a>. Les applications sont rangées dans le dossier <strong>apps</strong>, les modes d’emploi dans le dossier <strong>docs</strong>.</p>'+
     '<p class="small">© 2026 Auraponymous. Police Pixelify Sans (SIL Open Font License), retouchée pour la suite.</p>';
 }
 
@@ -742,30 +719,27 @@ $$('.dicon').forEach(b=>{
 });
 $('#desk').addEventListener('pointerdown',e=>{if(e.target.id==='desk'||e.target.classList.contains('dicons')){deselectDesk();buildMenubar();}});
 
-const WINS=['w-suite','w-read','w-trash'];
-const WIN_NAME={'w-suite':'SobreSuite','w-read':'Lisez-moi','w-trash':'Corbeille'};
+const WINS=['w-apps','w-docs','w-read'];
+const WIN_NAME={'w-apps':'Applications','w-docs':'Document','w-read':'Lisez-moi'};
 let zTop=10;
 function placed(w){return w.dataset.placed==='1';}
 function place(w){
   const D=$('#desk'),W=D.clientWidth,H=D.clientHeight,side=134;
   const wide=Math.max(260,W-side-32);
-  if(w.id==='w-suite'){
+  if(w.id==='w-apps'){
     const ww=Math.min(600,wide);
     w.style.width=ww+'px';
     w.style.left=Math.max(16,Math.round((W-side-ww)/2))+'px';
     w.style.top=Math.max(14,Math.round(H*.07))+'px';
-  }else if(w.id==='w-read'){
-    const ww=Math.min(470,wide);
-    w.style.width=ww+'px';
-    const s=$('#w-suite');
-    const l=placed(s)&&!s.hidden?parseInt(s.style.left)+70:Math.round((W-side-ww)/2)+40;
-    w.style.left=Math.max(16,Math.min(l,W-side-ww-8))+'px';
-    w.style.top=(placed(s)&&!s.hidden?parseInt(s.style.top)+44:Math.max(14,Math.round(H*.1)))+'px';
   }else{
-    const ww=Math.min(300,wide);
+    // Document et Lisez-moi : un peu décalés, comme dans le Finder
+    const ww=Math.min(w.id==='w-docs'?600:470,wide);
     w.style.width=ww+'px';
-    w.style.left=Math.max(16,W-side-ww-24)+'px';
-    w.style.top=Math.max(14,H-260)+'px';
+    const s=$('#w-apps'),dk=w.id==='w-read'?$('#w-docs'):null;
+    const ref=dk&&placed(dk)&&!dk.hidden?dk:(placed(s)&&!s.hidden?s:null);
+    const l=ref?parseInt(ref.style.left)+(w.id==='w-docs'?36:70):Math.round((W-side-ww)/2)+(w.id==='w-docs'?0:40);
+    w.style.left=Math.max(16,Math.min(l,W-side-ww-8))+'px';
+    w.style.top=(ref?parseInt(ref.style.top)+(w.id==='w-docs'?32:44):Math.max(14,Math.round(H*(w.id==='w-docs'?.07:.1))))+'px';
   }
   w.dataset.placed='1';
   fit(w);
@@ -800,7 +774,7 @@ function openWin(id,src){
     if(!placed(w))place(w);else fit(w);
     focusWin(w);
     if(narrow())w.scrollIntoView({behavior:reduced()?'auto':'smooth',block:'start'});
-    if(was&&id!=='w-suite'){const f=w.querySelector('.doc')||w.querySelector('.wbox');f&&f.focus({preventScroll:true});}
+    if(was&&id==='w-read'){const f=w.querySelector('.doc')||w.querySelector('.wbox');f&&f.focus({preventScroll:true});}
   };
   if(w.hidden&&src&&!narrow())zoomFrom(src.querySelector('svg'),show);else show();
 }
@@ -848,7 +822,7 @@ WINS.forEach(id=>{
 window.addEventListener('resize',()=>WINS.forEach(id=>fit($('#'+id))));
 function tidy(){
   WINS.forEach(id=>{$('#'+id).dataset.placed='';});
-  ['w-suite','w-read','w-trash'].forEach(id=>{const w=$('#'+id);if(!w.hidden)place(w);});
+  WINS.forEach(id=>{const w=$('#'+id);if(!w.hidden)place(w);});
   const t=topWin();if(t)focusWin(t);
 }
 
@@ -909,7 +883,7 @@ function shortcuts(){
   openDialog({title:'Raccourcis clavier',width:440,build:b=>{
     b.appendChild(el('div',{class:'keys',html:
       '<b>Double-clic</b><span>ouvrir l’application ou la fenêtre</span>'+
-      '<b>Clic</b><span>sélectionner, voir la présentation</span>'+
+      '<b>Clic</b><span>sélectionner</span>'+
       '<b>Flèches</b><span>passer d’une application à l’autre</span>'+
       '<b>Entrée</b><span>ouvrir l’application sélectionnée</span>'+
       '<b>'+MOD+'O</b><span>ouvrir</span>'+
@@ -930,12 +904,14 @@ $('#quit button').addEventListener('click',()=>{$('#quit').hidden=true;});
    ========================================================= */
 function openSelected(){
   if(S.focus==='desk'&&S.dsel){const b=$('#'+S.dsel);if(b.dataset.act==='download')download();else openWin(b.dataset.open,b);return;}
+  if(S.focus==='docs'){const m=currentManual();if(m)openManual(m,$('.app[data-id="'+m.id+'"]',docsBox));return;}
   const a=current();if(a)launch(a,$('.app[data-id="'+a.id+'"]',appsBox));
 }
-function setView(v){S.view=v;save();buildApps();if(S.sel)select(S.sel);buildMenubar();}
+function setView(v){S.view=v;save();buildApps();buildDocs();if(S.sel)select(S.sel);else if(S.msel)selectManual(S.msel);buildMenubar();}
 function menuDefs(){
   const a=current(),open=id=>!$('#'+id).hidden,front=topWin();
-  const canOpen=(S.focus==='desk'&&S.dsel)||(a&&a.ready);
+  const m=S.focus==='docs'?currentManual():null;
+  const canOpen=(S.focus==='desk'&&S.dsel)||(m&&m.ready)||(S.focus!=='docs'&&a&&a.ready);
   return [
     {id:'logo',logo:true,label:'SobreSuite',items:[{l:'À propos de SobreSuite…',a:about}]},
     {id:'file',label:'Fichier',items:[
@@ -1029,6 +1005,7 @@ document.addEventListener('keydown',e=>{
 let splashGone=false;
 if(LOCAL)$('#d-dl').hidden=true;
 buildApps();
+buildDocs();
 buildDoc();
 buildMenubar();
 const splash=$('#splash');
