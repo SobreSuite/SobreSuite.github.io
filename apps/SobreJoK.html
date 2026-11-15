@@ -342,7 +342,7 @@ body.ufo-land #w-ufo .tb-btn.fire{width:96px;height:96px;border-radius:50%;font-
 .quit{z-index:210;gap:22px}
 .sp-logo{width:min(480px,78vw);height:auto;display:block}
 .sp-bar{width:min(340px,70vw);height:14px;border:1px solid var(--logo);padding:2px;background:var(--paper)}
-.sp-fill{height:100%;width:0;background:var(--logo);animation:spfill 5s steps(24,end) forwards}
+.sp-fill{height:100%;width:0;background:var(--logo);animation:spfill 3s steps(24,end) forwards}
 @keyframes spfill{to{width:100%}}
 .sp-go{border:0;background:transparent;font-family:var(--ui);font-size:13px;color:var(--mute);cursor:pointer;padding:4px 8px}
 .sp-go:hover,.sp-go:focus-visible{color:var(--ink);text-decoration:underline}
@@ -4996,7 +4996,7 @@ if(LX.game){luxBuild();luxRefresh();luxHelpNote();if(!LX.game.solved&&LX.game.st
 clearNote();
 window.addEventListener('pagehide',()=>{timerSync();try{foldTimers();localStorage.setItem(STORE,JSON.stringify(snapshot()));}catch(e){}});
 
-/* Page d'accueil : 5 secondes, ou un clic, ou une touche */
+/* Page d'accueil : 3 secondes, ou un clic, ou une touche */
 const splash=$('#splash');
 $('.sp-ver',splash).textContent=VERSION;
 function closeSplash(){
@@ -5011,7 +5011,7 @@ function splashKey(e){if(['Shift','Control','Alt','Meta'].includes(e.key))return
 splash.addEventListener('click',closeSplash);
 document.addEventListener('keydown',splashKey,true);
 $('.sp-fill',splash).addEventListener('animationend',closeSplash);
-if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion:reduce)').matches)setTimeout(closeSplash,5000);
+if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion:reduce)').matches)setTimeout(closeSplash,3000);
 })();
 </script>
 </body>

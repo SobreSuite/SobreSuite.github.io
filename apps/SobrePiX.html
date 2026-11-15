@@ -177,7 +177,7 @@ textarea.fld{display:block;width:100%;resize:none;padding:3px 6px;font-size:14px
 #splash.out{opacity:0}
 .sp-logo{width:min(480px,78vw);height:auto;display:block;image-rendering:auto}
 .sp-bar{width:min(340px,70vw);height:14px;border:1px solid var(--logo);padding:2px;background:#fff}
-.sp-fill{height:100%;width:0;background:var(--logo);animation:spfill 5s steps(24,end) forwards}
+.sp-fill{height:100%;width:0;background:var(--logo);animation:spfill 3s steps(24,end) forwards}
 @keyframes spfill{to{width:100%}}
 .sp-go{border:0;background:transparent;font:400 13px var(--ui);color:var(--mute);cursor:pointer;padding:4px 8px}
 .sp-go:hover,.sp-go:focus-visible{color:#000;text-decoration:underline;outline:none}
@@ -2033,7 +2033,7 @@ layout(true);
 refreshUI();
 if (document.fonts && document.fonts.load) Promise.all([document.fonts.load("400 16px Pix"), document.fonts.load("600 16px Pix")]).then(() => { layout(); drawDraft(); }).catch(() => {});
 
-/* Page d'accueil : 5 secondes, ou un clic, ou une touche */
+/* Page d'accueil : 3 secondes, ou un clic, ou une touche */
 $(".sp-ver", SPLASH).textContent = VERSION;
 function closeSplash() {
   if (SPLASH.dataset.closing) return;
@@ -2047,7 +2047,7 @@ function splashKey(e) { if (["Shift", "Control", "Alt", "Meta"].includes(e.key))
 SPLASH.addEventListener("click", closeSplash);
 document.addEventListener("keydown", splashKey, true);
 $(".sp-fill", SPLASH).addEventListener("animationend", closeSplash);
-setTimeout(closeSplash, 5300);     // filet de sécurité (animations désactivées, onglet en arrière-plan…)
+setTimeout(closeSplash, 3300);     // filet de sécurité (animations désactivées, onglet en arrière-plan…)
 </script>
 </body>
 </html>

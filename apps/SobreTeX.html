@@ -260,7 +260,7 @@ button,input,select,textarea{font:inherit;color:inherit}
 #splash.out{opacity:0}
 .sp-logo{width:min(480px,78vw);height:auto;display:block;image-rendering:auto}
 .sp-bar{width:min(340px,70vw);height:14px;border:1px solid var(--logo);padding:2px;box-sizing:border-box;background:var(--paper)}
-.sp-fill{height:100%;width:0;background:var(--logo);animation:spfill 5s steps(24,end) forwards}
+.sp-fill{height:100%;width:0;background:var(--logo);animation:spfill 3s steps(24,end) forwards}
 @keyframes spfill{to{width:100%}}
 .sp-go{border:0;background:transparent;font-family:var(--ui);font-size:13px;color:var(--mute);cursor:pointer;padding:4px 8px}
 .sp-go:hover,.sp-go:focus-visible{color:var(--ink);text-decoration:underline}
@@ -425,7 +425,7 @@ const IS_MAC=/Mac|iPhone|iPad/.test(navigator.platform||navigator.userAgent||'')
 const MOD=IS_MAC?'⌘':'Ctrl+';
 const ALT=IS_MAC?'⌥':'Alt+';
 const STORE='sobre-tex:v1';
-const VERSION='0.1';
+const VERSION='0.2';
 
 const LOGO_SVG='<svg viewBox="0 0 15 11" shape-rendering="crispEdges" aria-hidden="true"><path fill="#1E2328" d="M0 0h15v11H0z"/><path fill="#CFDFCC" d="M1 1h13v9H1z"/><path fill="#1E2328" d="M3 3h1v1H3zM4 4h1v1H4zM5 5h1v1H5zM4 6h1v1H4zM3 7h1v1H3zM7 7h4v1H7z"/></svg>';
 
@@ -3102,7 +3102,7 @@ window.addEventListener('beforeunload',e=>{
   if(S.dirty&&ta.value.trim()){e.preventDefault();e.returnValue='';return '';}
 });
 
-/* Page d'accueil : 15 secondes, ou un clic, ou une touche */
+/* Page d'accueil : 3 secondes, ou un clic, ou une touche */
 const splash=$('#splash');
 $('.sp-ver',splash).textContent=VERSION;
 function closeSplash(){
