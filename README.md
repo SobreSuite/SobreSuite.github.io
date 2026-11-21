@@ -1,5 +1,11 @@
 <p align="center"><img src="logos/sobresuite-logo.png" alt="SobreSuite, logiciels frugaux, hors ligne" width="480"></p>
 
+# SobreSuite
+
+**Des logiciels frugaux, hors ligne, pensés pour aller à l'essentiel.**
+
+👉 **[sobresuite.github.io](https://sobresuite.github.io/)**
+
 Chaque application de la SobreSuite tient dans **un seul fichier HTML**. On l'ouvre dans Firefox ou Chrome, et c'est tout : rien à installer, pas de compte, pas de cloud. Elle fonctionne aussi sans connexion, depuis l'ordinateur ou une clé USB.
 
 ## Les applications
@@ -32,7 +38,19 @@ Chaque application de la SobreSuite tient dans **un seul fichier HTML**. On l'ou
 - **Rien n'est envoyé** : vos fichiers restent sur votre ordinateur.
 - **L'original n'est jamais modifié** : on enregistre une copie.
 - **Une interface à l'ancienne**, façon Mac des années 80 : barre de menus, fenêtres, dialogues, raccourcis clavier.
-- **Huit couleurs franches** communes à toute la suite, et la police Pixelify Sans.
+- **Une interface crème et graphite**, plus douce que le noir et blanc : le contenu (la feuille, la photo, les pages, les cellules) et les champs de saisie restent en blanc.
+- **Une apparence claire, sombre ou automatique**, à choisir dans le menu Affichage (ou Fenêtre) de chaque application. Le choix vaut pour toute la suite.
+- **La police VT323**, avec un gras « façon Mac » : la lettre redessinée décalée d'un pixel, comme sur le Mac de 1984.
+- **Huit couleurs franches** communes à toute la suite.
+
+| Interface | Valeur claire | Valeur sombre |
+|---|---|---|
+| Fenêtres, menus, dialogues | `#FCF5E5` (vanille) | `#2A2825` |
+| Bureau, barres d'outils et d'état | `#F3E9D2` | `#211F1C` |
+| Filets, zones éteintes | `#E2D4B6` | `#46423C` |
+| Encre (texte, cadres, trame) | `#3A3733` (graphite) | `#EFE6D2` |
+| Éléments inactifs | `#97928A` | `#7D776D` |
+| Contenu et champs de saisie | `#FFFFFF` | `#1B1A18` (documents, photos et figures restent en blanc) |
 
 | Couleur | Valeur |
 |---|---|
@@ -40,10 +58,12 @@ Chaque application de la SobreSuite tient dans **un seul fichier HTML**. On l'ou
 | Blanc | `#FFFFFF` |
 | Rouge | `#D7141A` |
 | Bleu | `#1F3FD1` |
-| Jaune | `#FFE500` |
+| Jaune | `#FFD600` |
 | Vert | `#128A2E` |
-| Orange | `#B85400` |
+| Orange | `#FF8200` |
 | Violet | `#7A1FB8` |
+
+Le thème (couleurs, police, apparence) est le même bloc dans chaque application : `<style id="sobre-theme">` et `<script id="sobre-theme-js">`, en tête du fichier. Pour le changer, on modifie ce bloc et on le recopie à l'identique dans toutes les applications.
 
 ## Télécharger la suite
 
@@ -91,4 +111,4 @@ SobreSuite.github.io/
 
 ---
 
-© 2026 Auraponymous · Police Pixelify Sans (SIL Open Font License), retouchée pour la suite.
+© 2026 Auraponymous · Police VT323 de Peter Hull (SIL Open Font License), avec un gras dérivé pour la suite. Les logos gardent leurs lettres d'origine, dessinées en pixels.
