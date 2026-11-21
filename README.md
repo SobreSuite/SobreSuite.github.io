@@ -1,11 +1,5 @@
 <p align="center"><img src="logos/sobresuite-logo.png" alt="SobreSuite, logiciels frugaux, hors ligne" width="480"></p>
 
-# SobreSuite
-
-**Des logiciels frugaux, hors ligne, pensés pour aller à l'essentiel.**
-
-👉 **[sobresuite.github.io](https://sobresuite.github.io/)**
-
 Chaque application de la SobreSuite tient dans **un seul fichier HTML**. On l'ouvre dans Firefox ou Chrome, et c'est tout : rien à installer, pas de compte, pas de cloud. Elle fonctionne aussi sans connexion, depuis l'ordinateur ou une clé USB.
 
 ## Les applications
